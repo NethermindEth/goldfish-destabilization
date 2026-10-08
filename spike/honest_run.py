@@ -16,8 +16,10 @@ Simplifications (spike only):
 """
 
 import argparse
+import hashlib
 import heapq
 import itertools
+import random
 import time
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -35,7 +37,9 @@ from eth_consensus_specs.test.helpers.block import build_empty_block  # noqa: E4
 from eth_consensus_specs.test.helpers.fork_choice import (  # noqa: E402
     get_genesis_forkchoice_store,
 )
+from eth_consensus_specs.test.helpers.fulu.state import initialize_proposer_lookahead  # noqa: E402
 from eth_consensus_specs.test.helpers.genesis import create_genesis_state  # noqa: E402
+from eth_consensus_specs.test.helpers.gloas.state import initialize_ptc_window  # noqa: E402
 from eth_consensus_specs.test.helpers.state import (  # noqa: E402
     state_transition_and_sign_block,
 )
@@ -60,6 +64,7 @@ ATT_DUE_MS = int(spec.get_slot_component_duration_ms(spec.AVAILABLE_ATTESTATION_
 CONF_DUE_MS = int(spec.get_available_confirmation_due_ms())
 FREEZE_DUE_MS = int(spec.get_view_freeze_due_ms())
 STUB_SIG = spec.BLSSignature(b"\x00" * 96)
+TRACE_BLOCKS = False
 
 
 @dataclass
@@ -146,19 +151,51 @@ class Node:
         block.parent_root = parent_root
         pre = state.copy()
         spec.process_slots(pre, spec.Slot(slot))
-        block.body.attestations = self.select_attestations(pre)
+        block.body.attestations = self.select_attestations(pre, parent_root)
+        if TRACE_BLOCKS:
+            parts = [
+                f"s{int(a.data.slot)}:{vote_kind(a.data)}x{sum(1 for b in a.aggregation_bits if b)}"
+                for a in block.body.attestations
+            ]
+            print(f"    [block {slot} by node {self.id}] pool={len(self.att_pool)} incl={parts}")
         signed = state_transition_and_sign_block(spec, state, block)
         net.broadcast(self, now_ms, "block", signed)
 
-    def select_attestations(self, slot_state):
-        """Aggregate pooled votes per AttestationData and keep the ones that apply."""
+    def included_on_chain(self, slot_state, parent_root, oldest_round):
+        """(data_root, validator) pairs already included by blocks on the parent chain."""
+        seen = set()
+        root = parent_root
+        while root in self.store.blocks:
+            block = self.store.blocks[root]
+            if spec.compute_round_at_slot(block.slot) < oldest_round or block.slot == 0:
+                break
+            for att in block.body.attestations:
+                if spec.compute_round_at_slot(att.data.slot) < oldest_round:
+                    continue
+                try:
+                    indices = spec.get_attesting_indices(slot_state, att)
+                except (AssertionError, IndexError, KeyError):
+                    continue
+                data_root = spec.hash_tree_root(att.data)
+                seen.update((data_root, int(v)) for v in indices)
+            root = block.parent_root
+        return seen
+
+    def select_attestations(self, slot_state, parent_root):
+        """Aggregate pooled votes per AttestationData; include those adding new votes.
+
+        Participants already included on the parent chain for the same data are dropped,
+        and aggregates are ranked by the number of new votes they add.
+        """
         current_round = spec.compute_round_at_slot(slot_state.slot)
+        oldest_round = current_round - 1 if current_round > 0 else 0
         self.att_pool = {
             k: a
             for k, a in self.att_pool.items()
-            if spec.compute_round_at_slot(a.data.slot) + 1 >= current_round
+            if spec.compute_round_at_slot(a.data.slot) >= oldest_round
         }
-        by_data = defaultdict(lambda: defaultdict(set))  # data_root -> cidx -> members
+        already = self.included_on_chain(slot_state, parent_root, oldest_round)
+        by_data = defaultdict(lambda: defaultdict(set))  # data_root -> cidx -> new members
         data_of = {}
         for att in self.att_pool.values():
             try:
@@ -166,10 +203,13 @@ class Node:
             except (AssertionError, IndexError, KeyError):
                 continue
             data_root = spec.hash_tree_root(att.data)
+            fresh = {v for v in indices if (data_root, int(v)) not in already}
+            if not fresh:
+                continue
             data_of[data_root] = att.data
             for cidx in spec.get_committee_indices(att.committee_bits):
                 committee = set(spec.get_beacon_committee(slot_state, att.data.slot, cidx))
-                by_data[data_root][int(cidx)] |= indices & committee
+                by_data[data_root][int(cidx)] |= fresh & committee
         candidates = []
         for data_root, per_committee in by_data.items():
             data = data_of[data_root]
@@ -323,18 +363,26 @@ class Node:
 
 
 class Network:
-    def __init__(self, latency_ms):
+    def __init__(self, latency_ms, jitter_ms=0, seed=0):
         self.latency_ms = latency_ms
+        self.jitter_ms = jitter_ms
+        self.rng = random.Random(f"net-{seed}")  # draws happen in deterministic send order
         self.queue = []
         self.seq = itertools.count()
         self.nodes = []
         self.sent = defaultdict(int)
 
+    def delay(self, sender, node):
+        if node is sender:
+            return 0
+        jitter = self.rng.randint(0, self.jitter_ms) if self.jitter_ms else 0
+        return self.latency_ms + jitter
+
     def broadcast(self, sender, now_ms, kind, msg):
         self.sent[kind] += 1
         for node in self.nodes:
-            delay = 0 if node is sender else self.latency_ms
-            heapq.heappush(self.queue, (now_ms + delay, next(self.seq), node.id, kind, msg))
+            at = now_ms + self.delay(sender, node)
+            heapq.heappush(self.queue, (at, next(self.seq), node.id, kind, msg))
 
     def deliver_until(self, t_ms):
         while self.queue and self.queue[0][0] <= t_ms:
@@ -342,32 +390,64 @@ class Network:
             self.nodes[dst].receive(kind, msg)
 
 
-def main():
-    p = argparse.ArgumentParser()
+def make_genesis(n_validators, seed):
+    """Genesis state; seed != 0 replaces the RANDAO mixes (committees, proposers, roots).
+
+    Any genesis RANDAO is valid input to the spec. The caches genesis derives from the
+    mixes are recomputed exactly as create_genesis_state does.
+    """
+    state = create_genesis_state(
+        spec, [spec.MAX_EFFECTIVE_BALANCE] * n_validators, spec.MIN_ACTIVATION_BALANCE
+    )
+    if seed:
+        mix = spec.Bytes32(hashlib.sha256(f"genesis-randao-{seed}".encode()).digest())
+        state.randao_mixes = [mix] * spec.EPOCHS_PER_HISTORICAL_VECTOR
+        state.ptc_window = initialize_ptc_window(spec, state)
+        state.available_committee_window = spec.initialize_available_committee_window(state)
+        state.proposer_lookahead = initialize_proposer_lookahead(spec, state)
+    return state
+
+
+def assign_validators(n_validators, n_nodes, seed):
+    """Validator indices per node: round-robin, after a seeded shuffle when seed != 0."""
+    indices = list(range(n_validators))
+    if seed:
+        random.Random(f"assign-{seed}").shuffle(indices)
+    return [indices[i::n_nodes] for i in range(n_nodes)]
+
+
+def add_world_args(p):
     p.add_argument("--validators", type=int, default=64)
     p.add_argument("--nodes", type=int, default=4)
-    p.add_argument("--rounds", type=int, default=4)
     p.add_argument("--latency-ms", type=int, default=200)
+    p.add_argument("--jitter-ms", type=int, default=0, help="uniform extra delay per message")
+    p.add_argument("--seed", type=int, default=0, help="0 = the original deterministic world")
+
+
+def main():
+    p = argparse.ArgumentParser()
+    add_world_args(p)
+    p.add_argument("--rounds", type=int, default=4)
     p.add_argument("--slots", type=int, default=0)
+    p.add_argument("--trace-blocks", action="store_true", help="print attestations included per block")
     p.add_argument("--profile-from", type=int, default=0, help="cProfile slots >= this one")
     p.add_argument("--check-every", type=int, default=0, help="verify perf shims every k slots")
     args = p.parse_args()
     perf.CHECK = bool(args.check_every)
+    global TRACE_BLOCKS
+    TRACE_BLOCKS = args.trace_blocks
 
     t0 = time.perf_counter()
-    genesis = create_genesis_state(
-        spec, [spec.MAX_EFFECTIVE_BALANCE] * args.validators, spec.MIN_ACTIVATION_BALANCE
-    )
-    net = Network(args.latency_ms)
-    net.nodes = [
-        Node(i, genesis, range(i, args.validators, args.nodes)) for i in range(args.nodes)
-    ]
+    genesis = make_genesis(args.validators, args.seed)
+    net = Network(args.latency_ms, args.jitter_ms, args.seed)
+    assignment = assign_validators(args.validators, args.nodes, args.seed)
+    net.nodes = [Node(i, genesis, assignment[i]) for i in range(args.nodes)]
     slots_per_round = int(spec.get_slots_per_round_at_slot(spec.Slot(0)))
     total_slots = args.slots or args.rounds * slots_per_round
     print(
         f"N={args.validators} validators, {args.nodes} nodes, {slots_per_round} slots/round, "
         f"slot={SLOT_MS}ms, deadlines att={ATT_DUE_MS} conf={CONF_DUE_MS} freeze={FREEZE_DUE_MS}, "
-        f"latency={args.latency_ms}ms  (setup {time.perf_counter()-t0:.1f}s)"
+        f"latency={args.latency_ms}+U[0,{args.jitter_ms}]ms seed={args.seed}  (setup {time.perf_counter()-t0:.1f}s)"
     )
     print("slot | node0: head chainH h_max jslot fslot stable safe | heads agree?")
 

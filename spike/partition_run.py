@@ -26,8 +26,8 @@ from honest_run import spec
 
 
 class PartitionedNetwork(hr.Network):
-    def __init__(self, latency_ms, group_of, start_ms, end_ms):
-        super().__init__(latency_ms)
+    def __init__(self, latency_ms, jitter_ms, seed, group_of, start_ms, end_ms):
+        super().__init__(latency_ms, jitter_ms, seed)
         self.group_of = group_of
         self.start_ms, self.end_ms = start_ms, end_ms
         self.held = Counter()
@@ -35,8 +35,7 @@ class PartitionedNetwork(hr.Network):
     def broadcast(self, sender, now_ms, kind, msg):
         self.sent[kind] += 1
         for node in self.nodes:
-            delay = 0 if node is sender else self.latency_ms
-            at = now_ms + delay
+            at = now_ms + self.delay(sender, node)
             cut = self.group_of[node.id] != self.group_of[sender.id]
             if cut and self.start_ms <= now_ms < self.end_ms:
                 at = max(at, self.end_ms + self.latency_ms)
@@ -105,24 +104,23 @@ class Tracker:
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--validators", type=int, default=64)
-    p.add_argument("--nodes", type=int, default=4)
+    hr.add_world_args(p)
+    p.add_argument("--trace-blocks", action="store_true")
     p.add_argument("--split", type=int, default=2, help="nodes [0, split) vs [split, nodes)")
     p.add_argument("--start", type=int, default=24, help="first partitioned slot")
     p.add_argument("--slots-down", type=int, default=16, help="partition duration D in slots")
     p.add_argument("--after", type=int, default=24, help="slots to run after healing")
-    p.add_argument("--latency-ms", type=int, default=200)
     args = p.parse_args()
+    hr.TRACE_BLOCKS = args.trace_blocks
 
     slot_ms = hr.SLOT_MS
     start_ms = args.start * slot_ms
     end_ms = (args.start + args.slots_down) * slot_ms
     group_of = {i: 0 if i < args.split else 1 for i in range(args.nodes)}
-    genesis = hr.create_genesis_state(
-        spec, [spec.MAX_EFFECTIVE_BALANCE] * args.validators, spec.MIN_ACTIVATION_BALANCE
-    )
-    net = PartitionedNetwork(args.latency_ms, group_of, start_ms, end_ms)
-    net.nodes = [hr.Node(i, genesis, range(i, args.validators, args.nodes)) for i in range(args.nodes)]
+    genesis = hr.make_genesis(args.validators, args.seed)
+    net = PartitionedNetwork(args.latency_ms, args.jitter_ms, args.seed, group_of, start_ms, end_ms)
+    assignment = hr.assign_validators(args.validators, args.nodes, args.seed)
+    net.nodes = [hr.Node(i, genesis, assignment[i]) for i in range(args.nodes)]
     stake = Counter(group_of[n.id] for n in net.nodes for _ in n.validators)
     total = sum(stake.values())
     print(
