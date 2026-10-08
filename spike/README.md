@@ -71,7 +71,7 @@ Each one returns exactly what the spec function returns. The harness checks this
 
 | Nodes | Raw spec | With shims |
 |---|---|---|
-| 4 | 10–25 s/slot | ~1 s/slot |
+| 4 | 10–25 s/slot | 0.8 s/slot |
 | 16 | ~19 s/slot (by slot 11) | 2.2 s/slot |
 | 64 | — | 7.1 s/slot |
 
