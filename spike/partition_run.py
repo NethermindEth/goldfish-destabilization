@@ -18,6 +18,7 @@ Run: PYTHONPATH=$SPECS $SPECS/.venv/bin/python partition_run.py --split 2 --star
 
 import argparse
 import heapq
+import json
 import time
 from collections import Counter
 
@@ -106,6 +107,7 @@ def main():
     p = argparse.ArgumentParser()
     hr.add_world_args(p)
     p.add_argument("--trace-blocks", action="store_true")
+    p.add_argument("--json", help="write a machine-readable summary to this path")
     p.add_argument("--split", type=int, default=2, help="nodes [0, split) vs [split, nodes)")
     p.add_argument("--start", type=int, default=24, help="first partitioned slot")
     p.add_argument("--slots-down", type=int, default=16, help="partition duration D in slots")
@@ -134,6 +136,7 @@ def main():
     total_slots = args.start + args.slots_down + args.after
     t0 = time.perf_counter()
     agree_since = None
+    finality_timeline = []  # (slot, finalized_slot) whenever node 0's finalized changes
     for slot in range(1, total_slots + 1):
         base = slot * slot_ms
         for offset, action in ((0, "s"), (hr.ATT_DUE_MS, "a"), (hr.CONF_DUE_MS, "c"), (hr.FREEZE_DUE_MS, "f")):
@@ -148,6 +151,8 @@ def main():
                     node.tick(spec.on_tick_per_high_resolution, spec.uint64(offset))
             net.deliver_until(now)
         snaps = [tracker.observe(slot, n) for n in net.nodes]
+        if not finality_timeline or finality_timeline[-1][1] != snaps[0]["finalized_slot"]:
+            finality_timeline.append((slot, snaps[0]["finalized_slot"]))
         heads = {x["head_slot"] for x in snaps}
         agree = len({n.head().root for n in net.nodes}) == 1
         if agree and agree_since is None:
@@ -186,12 +191,64 @@ def main():
         roots = {v[2] for v in row.values()}
         print(f"  round {rnd}: " + ", ".join(f"n{k}:{v[0]}/{v[1]}" for k, v in sorted(row.items()))
               + ("" if len(roots) == 1 else "   <-- DIVERGENT"))
+    if args.json:
+        with open(args.json, "w") as fh:
+            json.dump(summarize(args, net, tracker, group_of, agree_since, finality_timeline), fh, indent=1)
     print("finality vote kinds per round:")
     for rnd in sorted({r for n in net.nodes for r in n.vote_kinds}):
         merged = Counter()
         for n in net.nodes:
             merged.update(n.vote_kinds[rnd])
         print(f"  round {rnd}: {dict(merged)}")
+
+
+
+def stable_root_relations(store, roots):
+    """'same', 'nested' (all on one chain) or 'conflicting' for a set of stable roots."""
+    roots = [r for r in roots if r in store.blocks]
+    if len(set(roots)) <= 1:
+        return "same"
+    for a in roots:
+        for b in roots:
+            if not (is_ancestor_root(store, a, b) or is_ancestor_root(store, b, a)):
+                return "conflicting"
+    return "nested"
+
+
+def summarize(args, net, tracker, group_of, agree_since, finality_timeline):
+    heal = args.start + args.slots_down
+    ref = net.nodes[0].store
+    per_node = []
+    for n in net.nodes:
+        reorgs = tracker.reorgs[n.id]
+        per_node.append({
+            "node": n.id,
+            "group": "AB"[group_of[n.id]],
+            "reorgs": len(reorgs),
+            "max_reorg_depth": max((d for _, d, _ in reorgs), default=0),
+            "safe_retractions": len(tracker.safe_reversals[n.id]),
+            "orphaned_safe": len(tracker.abandoned(n, "safe")),
+            "orphaned_available": len(tracker.abandoned(n, "avail")),
+            "rejected": dict(n.rejected),
+        })
+    rounds = {}
+    for rnd, row in sorted(tracker.stable.items()):
+        if all(v[0] is None for v in row.values()):
+            continue
+        rounds[rnd] = {
+            "slots": sorted({v[0] for v in row.values() if v[0] is not None}),
+            "sources": dict(Counter(v[1] for v in row.values())),
+            "relation": stable_root_relations(ref, [v[2] for v in row.values()]),
+        }
+    return {
+        "config": vars(args),
+        "heal_slot": heal,
+        "reconverge_slots": (agree_since - heal) if agree_since else None,
+        "finality_timeline": finality_timeline,
+        "per_node": per_node,
+        "stable_rounds": rounds,
+        "held": dict(net.held),
+    }
 
 
 if __name__ == "__main__":
