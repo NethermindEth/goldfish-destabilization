@@ -101,21 +101,33 @@ alternate `justify@h` and `empty + fin@h`:
 - With mainnet's placeholder `SLOTS_PER_ROUND = 32`, that is 64 slots per height. Worth
   asking fradamt.
 
-## Partition results (single deterministic runs; preliminary)
+## Partition results (16 nodes, 5 seeds per row; preliminary)
+
+```bash
+PYTHONPATH=$SPECS $SPECS/.venv/bin/python partition_run.py --nodes 16 --split 8 \
+    --slots-down 16 --seed 1 --jitter-ms 100 --json out.json
+python aggregate.py results/seeded/*.json
+```
 
 **Setup:**
 - Nodes are split into two groups at slot 24.
 - Every cross-cut message is held until heal (GST) at slot 24 + D.
-- 64 validators over 4 nodes.
+- 64 validators.
+- Seeds vary the genesis RANDAO, validator placement and latency (200 ms + U[0, 100] ms).
 
-| Split | D | Losing side: blocks orphaned (of which were safe-confirmed) | Finality of slot 16 (honest: 40) |
-|---|---|---|---|
-| 50/50 | 8 / 16 / 32 | 4 (4) / 9 (8) / 18 (17) | 48 / 56 / 72 |
-| 75/25 | 8 / 16 / 32 | 2 (2) / 4 (3) / 9 (9) | 40 |
+| Split | D | Max reorg (blocks) | Orphaned safe-confirmed blocks | Finality delay (slot 16) |
+|---|---|---|---|---|
+| 50/50 | 8 / 16 / 32 | 4.8 / 7.6 / 16.4 | 3.8 / 6.8 / 15.2 | 8 / 16 / 32 |
+| 75/25 | 8 / 16 / 32 | 2.2 / 3.8 / 8.4 | 1.8 / 3.4 / 8.0 | 0 / 1.6 / 1.8 |
 
-- **50/50:** no block reaches the ⌈2W/3⌉ TSQ quorum, so the stable root falls back to the
-  Simplex root for the cut plus one round.
-- **75/25:** the majority keeps TSQ locks and finalizes on time; the minority's branch is
-  orphaned at GST.
-- In every run heads re-converge one slot after GST, and no conflicting finalization
-  occurs.
+- The losing side's blocks, including safe-confirmed ones, are orphaned roughly linearly
+  in D.
+- **50/50**: no block reaches the TSQ quorum, so the stable root falls back to the Simplex
+  root for the cut plus one round.
+- **75/25**: the majority keeps TSQ locks.
+- No run produced conflicting stable roots or conflicting finalization. Heads re-converge
+  one slot after GST.
+- In 75/25 runs, finality slips one round exactly when the majority chain misses a
+  round-start proposal right after a majority-only round (6/6 cases). That is consistent
+  with the previous round's last-slot votes needing the next block for inclusion, which
+  needs ≥ 2/3 · R/(R−1) responsive stake (R = slots per round).
