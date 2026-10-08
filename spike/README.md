@@ -1,0 +1,96 @@
+# Spike: multi-node harness around the simplex pyspec
+
+Feasibility prototype built 7–8 Oct 2026. Answers one question: can the executable spec
+(`fradamt/consensus-specs@simplex-healing`, commit `5750e57`) be driven as N nodes over a
+simulated network fast enough to run experiments? **Yes.**
+
+## Setup
+
+```bash
+git clone -b simplex-healing https://github.com/fradamt/consensus-specs ~/Projects/consensus-specs
+cd ~/Projects/consensus-specs && make test fork=simplex   # builds pyspec + .venv; 1219 passed (~14 min)
+export SPECS=~/Projects/consensus-specs
+cd spike
+PYTHONPATH=$SPECS $SPECS/.venv/bin/python honest_run.py --rounds 8
+PYTHONPATH=$SPECS $SPECS/.venv/bin/python partition_run.py --split 2 --start 24 --slots-down 16
+```
+
+`PYTHONPATH` must contain the consensus-specs root because some test helpers import
+`tests.infra`. The minimal preset is used: 8-slot epochs, 8-slot rounds, **6 s slots**.
+In-slot deadlines therefore fall at 1.5 s, 3 s and 4.5 s.
+
+## Files
+
+| File | Contents |
+|---|---|
+| `honest_run.py` | `Node` (spec `Store` + validator duties + attestation pool), `Network` (priority queue by delivery time), honest synchronous run |
+| `partition_run.py` | `PartitionedNetwork` (cross-cut messages held until heal), reorg / confirmation-reversal / stable-root tracking |
+| `perf.py` | Semantics-preserving caches (see below) |
+| `probe.py` | First import/timing probe |
+| `results/` | Logs of the runs quoted below |
+
+## How a slot is driven
+
+The order is the one prescribed by `on_tick_per_high_resolution`: deliver every message
+due at or before t, then tick.
+
+| Time in slot | Harness action |
+|---|---|
+| 0 | `on_tick` (slot boundary: `freeze_tsq_selection`, committee caching); proposer builds on `get_proposer_head`, aggregates pooled finality attestations (≤ 8, simulated with `process_attestation`) and broadcasts |
+| 25% | `on_tick_per_high_resolution` (round start: `freeze_stable_root`). At round start: `RoundSelectionEvent` + `freeze_round_vote` for every local validator. Then available attestations (`get_available_attestation_data`) and finality attestations for this slot's committee (`get_attestation_data` + signing-boundary checks from validator.md) |
+| 50% | `on_tick_per_high_resolution` (available-vote freeze, confirmations) |
+| 75% | `on_tick_per_high_resolution` (view freeze; last slot of a round: `freeze_tsq_view`) |
+
+All protocol decisions are made by spec functions. The harness only schedules them and
+moves messages.
+
+**Simplifications:**
+- BLS off, stub signatures.
+- No execution payloads are revealed (every block is EMPTY in Gloas terms).
+- Finality duties run at the 25% deadline, not on early block receipt.
+- No randomness yet: runs are deterministic.
+
+## Performance shims (`perf.py`)
+
+Each one returns exactly what the spec function returns. The harness checks this:
+- `--check-every k` compares the Goldfish scores against the original spec functions on
+  live state;
+- `get_ancestor` is spot-checked against the original at the end of every run.
+
+| Shim | Why exact | Effect |
+|---|---|---|
+| memoized `get_ancestor` | reads only `store.blocks`, which is append-only and immutable per block | removes repeated SSZ walks |
+| Goldfish seat scores grouped by distinct vote | per-seat contribution depends only on the member and its vote content | 512 seat checks → about 1–3 |
+| memoized `compute_balance_weighted_selection` | reads only effective balances of the given indices | 0.25 s × 8 per epoch-crossing state copy → once |
+| memoized `get_total_balance` | pure sum over `state.validators` | rewards processing |
+| harness `get_head` memo | invalidated on every message and tick | ~6 calls/node/slot → 1–2 |
+
+The raw spec cost was 10–25 s per simulated slot, growing over time (4 nodes, 64
+validators). With the shims it is ~2–4 s/slot, and a 64-slot run takes ~4–5 min.
+Round-boundary slots still cost 10–20 s: epoch processing plus TSQ selection.
+
+## What is validated
+
+Honest synchronous run, 8 rounds (`results/honest_8rounds.log`):
+- every node has the same head in every slot;
+- no rejected messages;
+- the stable root comes from the TSQ lock in every round and advances by one round each
+  round;
+- safe confirmation trails the head by one slot;
+- heights 1 → 5; slot 16 justified at 32 and finalized at 40; slot 32 justified at 48 and
+  finalized at 56.
+
+**Steady state of the executable schedule is two rounds per height.** Finality votes
+alternate `justify@h` and `empty + fin@h`:
+- At the round-start selection the new height's target is that round's own proposal.
+- The safe-confirmed head is still one slot behind it, so the uniform gate yields an
+  *empty* vote.
+- The target is justified in the following round, and finalized by piggyback in the round
+  after that.
+- validator.md states this ("the target is considered in the next round").
+- With mainnet's placeholder `SLOTS_PER_ROUND = 32`, that is 64 slots per height. Worth
+  asking fradamt.
+
+## Partition results
+
+See `results/` and `../FINDINGS.md`.
