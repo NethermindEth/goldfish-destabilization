@@ -91,6 +91,21 @@ alternate `justify@h` and `empty + fin@h`:
 - With mainnet's placeholder `SLOTS_PER_ROUND = 32`, that is 64 slots per height. Worth
   asking fradamt.
 
-## Partition results
+## Partition results (single deterministic runs; preliminary)
 
-See `results/` and `../FINDINGS.md`.
+**Setup:**
+- Nodes are split into two groups at slot 24.
+- Every cross-cut message is held until heal (GST) at slot 24 + D.
+- 64 validators over 4 nodes.
+
+| Split | D | Losing side: blocks orphaned (of which were safe-confirmed) | Finality of slot 16 (honest: 40) |
+|---|---|---|---|
+| 50/50 | 8 / 16 / 32 | 4 (4) / 9 (8) / 18 (17) | 48 / 56 / 72 |
+| 75/25 | 8 / 16 / 32 | 2 (2) / 4 (3) / 9 (9) | 40 |
+
+- **50/50:** no block reaches the ⌈2W/3⌉ TSQ quorum, so the stable root falls back to the
+  Simplex root for the cut plus one round.
+- **75/25:** the majority keeps TSQ locks and finalizes on time; the minority's branch is
+  orphaned at GST.
+- In every run heads re-converge one slot after GST, and no conflicting finalization
+  occurs.
