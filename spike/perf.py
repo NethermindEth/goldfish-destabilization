@@ -116,6 +116,7 @@ def _install_selection_cache(spec):
 # Exact, not approximate. Originals kept for check_score_equivalence.
 
 _originals = {}
+CHECK = False  # when True, every positions-cache miss is verified against the spec
 
 
 def _install_grouped_scores(spec):
@@ -204,6 +205,79 @@ def _install_grouped_scores(spec):
     spec.get_available_confirmation_score = get_available_confirmation_score
     spec.get_fast_confirmation_score = get_fast_confirmation_score
 
+    # Majority thresholds: same seat loop, counting seats whose member voted.
+    _originals["available_threshold"] = spec.get_available_majority_threshold
+    _originals["confirmation_threshold"] = spec.get_available_confirmation_majority_threshold
+
+    def seats_voted(counts, votes):
+        return sum(seats for member, seats in counts.items() if member in votes)
+
+    def get_available_majority_threshold(store):
+        current_slot = spec.get_current_slot(store)
+        if current_slot == spec.GENESIS_SLOT:
+            return spec.uint64(0)
+        previous_slot = spec.Slot(current_slot - 1)
+        if previous_slot not in store.available_votes:
+            return spec.uint64(0)
+        committee = store.available_committees.get(previous_slot, [])
+        participants = seats_voted(multiplicities(committee), store.available_votes[previous_slot])
+        return spec.uint64(participants) // 2
+
+    def get_available_confirmation_majority_threshold(store):
+        current_slot = spec.get_current_slot(store)
+        if current_slot == spec.GENESIS_SLOT:
+            return spec.uint64(0)
+        previous_slot = spec.Slot(current_slot - 1)
+        if previous_slot not in store.frozen_available_votes:
+            return spec.uint64(0)
+        freeze = store.frozen_available_votes[previous_slot]
+        return spec.uint64(seats_voted(multiplicities(freeze.committee), freeze.votes)) // 2
+
+    spec.get_available_majority_threshold = get_available_majority_threshold
+    spec.get_available_confirmation_majority_threshold = get_available_confirmation_majority_threshold
+
+    # Attesting positions/indices of an AvailableAttestation: a pure function of its
+    # aggregation bits and the slot's available committee. Cached on (bits bytes,
+    # committee root); the decode itself is redone in plain Python on a miss.
+    _originals["positions"] = spec.get_available_attesting_positions
+    _originals["indices"] = spec.get_available_attesting_indices
+    positions_cache = {}
+
+    def committee_key(committee):
+        if hasattr(committee, "hash_tree_root"):
+            return bytes(committee.hash_tree_root())
+        return tuple(int(i) for i in committee)
+
+    def decoded(state, attestation):
+        committee = spec.get_available_committee(state, attestation.data.slot)
+        assert len(attestation.aggregation_bits) == spec.AVAILABLE_COMMITTEE_SIZE
+        assert len(attestation.aggregation_bits) == len(committee)
+        key = (bytes(attestation.aggregation_bits.encode_bytes()), committee_key(committee))
+        hit = positions_cache.get(key)
+        if hit is None:
+            members = [int(i) for i in committee]
+            bits = [bool(b) for b in attestation.aggregation_bits]
+            attesting = {m for m, b in zip(members, bits) if b}
+            positions = frozenset(i for i, m in enumerate(members) if m in attesting)
+            hit = (positions, frozenset(attesting))
+            if CHECK:
+                # (the original indices function calls the patched positions global,
+                # so derive its result from the original positions instead)
+                expected = {int(p) for p in _originals["positions"](state, attestation)}
+                assert expected == set(positions)
+                assert {members[p] for p in expected} == set(attesting)
+            positions_cache[key] = hit
+        return hit
+
+    def get_available_attesting_positions(state, attestation):
+        return {spec.uint64(i) for i in decoded(state, attestation)[0]}
+
+    def get_available_attesting_indices(state, attestation):
+        return {spec.ValidatorIndex(i) for i in decoded(state, attestation)[1]}
+
+    spec.get_available_attesting_positions = get_available_attesting_positions
+    spec.get_available_attesting_indices = get_available_attesting_indices
+
 
 def check_score_equivalence(spec, store):
     """Compare grouped scores against the spec originals for every node in the store."""
@@ -213,6 +287,10 @@ def check_score_equivalence(spec, store):
             assert spec.get_available_attestation_score(store, node) == _originals["available"](store, node)
             assert spec.get_available_confirmation_score(store, node) == _originals["confirmation"](store, node)
             assert spec.get_fast_confirmation_score(store, node) == _originals["fast"](store, node)
+    assert spec.get_available_majority_threshold(store) == _originals["available_threshold"](store)
+    assert spec.get_available_confirmation_majority_threshold(store) == _originals[
+        "confirmation_threshold"
+    ](store)
 
 
 def check_equivalence(spec, store, samples=200):

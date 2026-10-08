@@ -352,6 +352,7 @@ def main():
     p.add_argument("--profile-from", type=int, default=0, help="cProfile slots >= this one")
     p.add_argument("--check-every", type=int, default=0, help="verify perf shims every k slots")
     args = p.parse_args()
+    perf.CHECK = bool(args.check_every)
 
     t0 = time.perf_counter()
     genesis = create_genesis_state(
