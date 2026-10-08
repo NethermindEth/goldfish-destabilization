@@ -60,14 +60,24 @@ Each one returns exactly what the spec function returns. The harness checks this
 | Shim | Why exact | Effect |
 |---|---|---|
 | memoized `get_ancestor` | reads only `store.blocks`, which is append-only and immutable per block | removes repeated SSZ walks |
-| Goldfish seat scores grouped by distinct vote | per-seat contribution depends only on the member and its vote content | 512 seat checks → about 1–3 |
-| memoized `compute_balance_weighted_selection` | reads only effective balances of the given indices | 0.25 s × 8 per epoch-crossing state copy → once |
-| memoized `get_total_balance` | pure sum over `state.validators` | rewards processing |
+| Goldfish seat scores and majority thresholds grouped by member/vote | per-seat contribution depends only on the member and its vote content | 512 seat checks → about 1–3 |
+| G1 `get_attestation_score` grouped by distinct latest message | apart from equivocation, every condition depends only on (slot, root) | O(validators) ancestor checks → O(distinct messages) |
+| cached available-attestation positions/indices | pure in (aggregation bits, committee) | N² ingress decoding: 45 ms → < 1 ms |
+| memoized `compute_balance_weighted_selection`, `get_total_balance` | read only the registry | epoch processing |
+| `process_slots` / `state_transition` shared across nodes | pure in (pre-state, block); remerkleable trees are persistent, so post-states are adopted with `set_backing` | every node's identical transitions computed once (~95% hit rate) |
 | harness `get_head` memo | invalidated on every message and tick | ~6 calls/node/slot → 1–2 |
 
-The raw spec cost was 10–25 s per simulated slot, growing over time (4 nodes, 64
-validators). With the shims it is ~2–4 s/slot, and a 64-slot run takes ~4–5 min.
-Round-boundary slots still cost 10–20 s: epoch processing plus TSQ selection.
+**Scaling** (64 validators, honest run, average over 24 slots):
+
+| Nodes | Raw spec | With shims |
+|---|---|---|
+| 4 | 10–25 s/slot | ~1 s/slot |
+| 16 | ~19 s/slot (by slot 11) | 2.2 s/slot |
+| 64 | — | 7.1 s/slot |
+
+At 64 nodes, round-boundary slots cost 14–17 s. With the shims, cost grows roughly
+linearly in the node count; what remains is the N² message ingress and per-node fork
+choice. For sweeps, run independent scenarios in parallel processes (one per core).
 
 ## What is validated
 

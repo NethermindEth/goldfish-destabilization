@@ -415,7 +415,7 @@ def main():
         pstats.Stats(profiler).sort_stats("cumtime").print_stats("minimal.py|honest_run|perf", 25)
     perf.check_equivalence(spec, net.nodes[0].store)
     print(f"\nsimulated {total_slots} slots in {elapsed:.1f}s ({elapsed/total_slots:.2f}s/slot)")
-    print("messages sent:", dict(net.sent))
+    print("messages sent:", dict(net.sent), "| transition cache:", perf._transition_stats)
     print("rejections per node:", [dict(n.rejected) for n in net.nodes])
     print("finality vote kinds per round (all nodes):")
     rounds = sorted({r for n in net.nodes for r in n.vote_kinds})

@@ -87,6 +87,7 @@ def _install_selection_cache(spec):
         return list(hit)
 
     spec.compute_balance_weighted_selection = compute_balance_weighted_selection
+    _install_transition_cache(spec)
 
     # get_total_balance(state, indices) = max(EFFECTIVE_BALANCE_INCREMENT, sum of
     # state.validators[i].effective_balance): a pure function of the registry and indices.
@@ -275,8 +276,118 @@ def _install_grouped_scores(spec):
     def get_available_attesting_indices(state, attestation):
         return {spec.ValidatorIndex(i) for i in decoded(state, attestation)[1]}
 
+    _install_grouped_attestation_score(spec)
+
     spec.get_available_attesting_positions = get_available_attesting_positions
     spec.get_available_attesting_indices = get_available_attesting_indices
+
+
+# ---- finality-vote (G1 / LMD) attestation score -------------------------------------
+#
+# get_attestation_score sums effective balances of active unslashed validators whose
+# latest message passes has_unexpired_latest_message, is inside the window and supports
+# the node. Apart from "not equivocating" (per validator), every condition depends only
+# on the message content (slot, root). So: sum balances per distinct (slot, root), then
+# evaluate the content conditions once per group. The (active, unslashed, balance) list
+# is a function of the registry and epoch, cached on (validators root, epoch).
+
+def _install_grouped_attestation_score(spec):
+    _originals["attestation_score"] = spec.get_attestation_score
+    weights_cache = {}
+
+    def active_weights(state):
+        epoch = spec.get_current_epoch(state)
+        key = (bytes(spec.hash_tree_root(state.validators)), int(epoch))
+        hit = weights_cache.get(key)
+        if hit is None:
+            hit = [
+                (i, int(state.validators[i].effective_balance))
+                for i in spec.get_active_validator_indices(state, epoch)
+                if not state.validators[i].slashed
+            ]
+            weights_cache[key] = hit
+        return hit
+
+    def get_attestation_score(store, node, state, window_slots=spec.LATEST_MESSAGE_EXPIRY_SLOTS):
+        current_slot = int(spec.get_current_slot(store))
+        latest, equivocating = store.latest_messages, store.equivocating_indices
+        groups = {}
+        for i, balance in active_weights(state):
+            if i not in latest or i in equivocating:
+                continue
+            message = latest[i]
+            key = (int(message.slot), message.root)
+            groups[key] = groups.get(key, 0) + balance
+        total = 0
+        for (slot, root), weight in groups.items():
+            if not spec.is_finalized_compatible(store, root):
+                continue
+            if not slot + int(spec.LATEST_MESSAGE_EXPIRY_SLOTS) > current_slot:
+                continue
+            if not slot + int(window_slots) >= current_slot:
+                continue
+            message = spec.LatestMessage(slot=spec.Slot(slot), root=root)
+            if spec.is_supporting_vote(store, node, message, spec.PAYLOAD_STATUS_PENDING):
+                total += weight
+        return spec.Gwei(total)
+
+    spec.get_attestation_score = get_attestation_score
+
+
+# ---- state transitions shared across nodes ------------------------------------
+#
+# process_slots(state, slot) and state_transition(state, signed_block, v) are pure
+# functions of their inputs (BLS is off). Every honest node runs the same transitions on
+# the same blocks, including epoch processing at round boundaries. remerkleable states
+# are persistent trees, so a post-state computed once can be adopted by any other node
+# via set_backing without copying or aliasing hazards. Failed transitions raise and are
+# not cached, so they fail identically each time.
+
+_transition_stats = {"slots_hit": 0, "slots_miss": 0, "block_hit": 0, "block_miss": 0}
+
+
+def _install_transition_cache(spec):
+    orig_slots = spec.process_slots
+    orig_transition = spec.state_transition
+    slots_cache, block_cache = {}, {}
+
+    def process_slots(state, slot):
+        assert state.slot < slot
+        key = (bytes(spec.hash_tree_root(state)), int(slot))
+        hit = slots_cache.get(key)
+        if hit is not None:
+            _transition_stats["slots_hit"] += 1
+            if CHECK:
+                ref = state.copy()
+                orig_slots(ref, slot)
+                assert ref.get_backing().merkle_root() == hit.merkle_root()
+            state.set_backing(hit)
+            return
+        _transition_stats["slots_miss"] += 1
+        orig_slots(state, slot)
+        slots_cache[key] = state.get_backing()
+
+    def state_transition(state, signed_block, validate_result=True):
+        key = (
+            bytes(spec.hash_tree_root(state)),
+            bytes(spec.hash_tree_root(signed_block)),
+            bool(validate_result),
+        )
+        hit = block_cache.get(key)
+        if hit is not None:
+            _transition_stats["block_hit"] += 1
+            if CHECK:
+                ref = state.copy()
+                orig_transition(ref, signed_block, validate_result)
+                assert ref.get_backing().merkle_root() == hit.merkle_root()
+            state.set_backing(hit)
+            return
+        _transition_stats["block_miss"] += 1
+        orig_transition(state, signed_block, validate_result)
+        block_cache[key] = state.get_backing()
+
+    spec.process_slots = process_slots
+    spec.state_transition = state_transition
 
 
 def check_score_equivalence(spec, store):
@@ -287,6 +398,13 @@ def check_score_equivalence(spec, store):
             assert spec.get_available_attestation_score(store, node) == _originals["available"](store, node)
             assert spec.get_available_confirmation_score(store, node) == _originals["confirmation"](store, node)
             assert spec.get_fast_confirmation_score(store, node) == _originals["fast"](store, node)
+    head_state = store.block_states[spec.get_head(store).root]
+    for root in list(store.blocks.keys()):
+        node = spec.ForkChoiceNode(root=root, payload_status=spec.PAYLOAD_STATUS_PENDING)
+        for window in (spec.LATEST_MESSAGE_EXPIRY_SLOTS, spec.uint64(8)):
+            assert spec.get_attestation_score(store, node, head_state, window) == _originals[
+                "attestation_score"
+            ](store, node, head_state, window)
     assert spec.get_available_majority_threshold(store) == _originals["available_threshold"](store)
     assert spec.get_available_confirmation_majority_threshold(store) == _originals[
         "confirmation_threshold"
