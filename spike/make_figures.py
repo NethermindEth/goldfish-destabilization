@@ -51,7 +51,8 @@ def main(out, specs):
     print(f"wrote {out} ({len(html) / 1e6:.1f} MB)")
 
 
-TEMPLATE = r"""<title>Partition Run Explorer</title>
+TEMPLATE = r"""<meta charset="utf-8">
+<title>Partition Run Explorer</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
