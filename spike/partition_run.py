@@ -41,6 +41,7 @@ class PartitionedNetwork(hr.Network):
             if cut and self.start_ms <= now_ms < self.end_ms:
                 at = max(at, self.end_ms + self.latency_ms)
                 self.held[kind] += 1
+            self.record(sender, node, now_ms, at, kind, msg, held=at >= self.end_ms and cut and self.start_ms <= now_ms < self.end_ms)
             heapq.heappush(self.queue, (at, next(self.seq), node.id, kind, msg))
 
 
@@ -108,6 +109,7 @@ def main():
     hr.add_world_args(p)
     p.add_argument("--trace-blocks", action="store_true")
     p.add_argument("--json", help="write a machine-readable summary to this path")
+    p.add_argument("--events", help="write every message and per-node per-slot state to this JSON file")
     p.add_argument("--split", type=int, default=2, help="nodes [0, split) vs [split, nodes)")
     p.add_argument("--start", type=int, default=24, help="first partitioned slot")
     p.add_argument("--slots-down", type=int, default=16, help="partition duration D in slots")
@@ -137,6 +139,9 @@ def main():
     t0 = time.perf_counter()
     agree_since = None
     finality_timeline = []  # (slot, finalized_slot) whenever node 0's finalized changes
+    if args.events:
+        net.events = []
+    states = []
     for slot in range(1, total_slots + 1):
         base = slot * slot_ms
         for offset, action in ((0, "s"), (hr.ATT_DUE_MS, "a"), (hr.CONF_DUE_MS, "c"), (hr.FREEZE_DUE_MS, "f")):
@@ -151,6 +156,7 @@ def main():
                     node.tick(spec.on_tick_per_high_resolution, spec.uint64(offset))
             net.deliver_until(now)
         snaps = [tracker.observe(slot, n) for n in net.nodes]
+        states.append({"slot": slot, "nodes": snaps})
         if not finality_timeline or finality_timeline[-1][1] != snaps[0]["finalized_slot"]:
             finality_timeline.append((slot, snaps[0]["finalized_slot"]))
         heads = {x["head_slot"] for x in snaps}
@@ -191,6 +197,12 @@ def main():
         roots = {v[2] for v in row.values()}
         print(f"  round {rnd}: " + ", ".join(f"n{k}:{v[0]}/{v[1]}" for k, v in sorted(row.items()))
               + ("" if len(roots) == 1 else "   <-- DIVERGENT"))
+    if args.events:
+        with open(args.events, "w") as fh:
+            json.dump({"config": vars(args), "slot_ms": hr.SLOT_MS,
+                       "deadlines_ms": [hr.ATT_DUE_MS, hr.CONF_DUE_MS, hr.FREEZE_DUE_MS],
+                       "slots_per_round": int(spec.get_slots_per_round_at_slot(spec.Slot(0))),
+                       "group_of": group_of, "messages": net.events, "states": states}, fh)
     if args.json:
         with open(args.json, "w") as fh:
             json.dump(summarize(args, net, tracker, group_of, agree_since, finality_timeline), fh, indent=1)

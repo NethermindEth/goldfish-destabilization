@@ -91,6 +91,23 @@ def vote_kind(data):
     return kind
 
 
+def short(root):
+    return bytes(root).hex()[:8]
+
+
+def describe(kind, msg):
+    """Compact, JSON-friendly description of a message for the event log."""
+    if kind == "block":
+        b = msg.message
+        return {"slot": int(b.slot), "root": short(b.hash_tree_root()), "parent": short(b.parent_root),
+                "proposer": int(b.proposer_index), "n_att": len(b.body.attestations)}
+    if kind == "att":
+        return {"slot": int(msg.data.slot), "head": short(msg.data.beacon_block_root),
+                "vote": vote_kind(msg.data), "n": sum(1 for b in msg.aggregation_bits if b)}
+    return {"slot": int(msg.data.slot), "head": short(msg.data.beacon_block_root),
+            "n": sum(1 for b in msg.aggregation_bits if b)}
+
+
 class Node:
     def __init__(self, node_id, genesis_state, validators):
         self.id = node_id
@@ -351,6 +368,9 @@ class Node:
             stable_src = "TSQ" if lock is not None and lock == s.stable_root else "G1"
         return {
             "head_slot": int(s.blocks[head].slot),
+            "head_root": short(head),
+            "stable_root": short(s.stable_root) if stable_slot is not None else None,
+            "safe_root": short(spec.get_safe_confirmed_head(s)),
             "chain_height": int(hs.current_height),
             "h_max": int(s.h_max),
             "justified_slot": int(s.justified_checkpoint.slot),
@@ -371,6 +391,13 @@ class Network:
         self.seq = itertools.count()
         self.nodes = []
         self.sent = defaultdict(int)
+        self.events = None  # list of message records when --events is given
+
+    def record(self, sender, node, now_ms, at, kind, msg, held=False):
+        if self.events is None:
+            return
+        self.events.append({"t": now_ms, "at": at, "src": sender.id, "dst": node.id,
+                            "kind": kind, "held": held, **describe(kind, msg)})
 
     def delay(self, sender, node):
         if node is sender:
@@ -382,6 +409,7 @@ class Network:
         self.sent[kind] += 1
         for node in self.nodes:
             at = now_ms + self.delay(sender, node)
+            self.record(sender, node, now_ms, at, kind, msg)
             heapq.heappush(self.queue, (at, next(self.seq), node.id, kind, msg))
 
     def deliver_until(self, t_ms):
