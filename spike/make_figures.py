@@ -80,12 +80,46 @@ def compact(path):
         "msgs": msgs,
         "blocks": blocks,
         "states": states,
+        "settlements": settlements_of(d),
     }
+
+
+def settlements_of(d):
+    """Round-boundary height settlements on the majority chain (needs the OUTCOMES trace).
+
+    Each row: [slot, height, target_votes, finality_votes, timeouts, progressed,
+    block_at_slot, justified, finalized]; quorum = ceil(2 * validators / 3).
+    """
+    if not d.get("outcomes"):
+        return None
+    cfg, R = d["config"], d["slots_per_round"]
+    groups = list(d["group_of"].values()) if isinstance(d["group_of"], dict) else d["group_of"]
+    major = min(i for i, g in enumerate(groups) if g == 0)
+    minority_size = sum(1 for g in groups if g == 1) * cfg["validators"] // cfg["nodes"]
+    has_block = {st["slot"]: st["nodes"][major]["head_slot"] == st["slot"] for st in d["states"]}
+    rows, seen = [], set()
+    for r in d["outcomes"]:
+        if r["slot"] % R or max(r["target_votes"], r["timeouts"], r["finality_votes"]) <= minority_size:
+            continue
+        key = (r["slot"], r["height"], r["justified_slot"], r["finalized_slot"])
+        if key in seen:
+            continue
+        seen.add(key)
+        quorum = -(-2 * cfg["validators"] // 3)
+        just = r["height_after"] != r["height"] and r["target_votes"] >= quorum
+        fin = r["finalized_after"] != r["finalized_slot"]
+        rows.append([r["slot"], r["height"], r["target_votes"], r["finality_votes"], r["timeouts"],
+                     int(r["height_after"] != r["height"] or fin), int(has_block.get(r["slot"], False)),
+                     int(just), int(fin)])
+    rows.sort()
+    return {"rows": rows, "quorum": -(-2 * cfg["validators"] // 3)}
 
 
 def load_sweep(sweep_dir):
     """Load 30-run seeded sweep JSONs into structured summary records."""
-    paths = sorted(glob.glob(os.path.join(sweep_dir, "*.json")))
+    dirs = sweep_dir if isinstance(sweep_dir, (list, tuple)) else str(sweep_dir).split(",")
+    paths = sorted(p for d_ in dirs for p in glob.glob(os.path.join(d_, "*.json"))
+                   if not p.endswith(".events.json"))
     if not paths:
         return None
     runs = []
@@ -118,6 +152,7 @@ def load_sweep(sweep_dir):
             "split": split_label,
             "share": share,
             "D": c["slots_down"],
+            "start": c["start"],
             "seed": c["seed"],
             "nodes": c["nodes"],
             "validators": c["validators"],
@@ -793,9 +828,10 @@ def main(out_html, specs, sweep_dir=None):
 
     # Also write static SVG / PDF / PNG figures into the same directory as out_html
     out_dir = os.path.dirname(os.path.abspath(out_html))
-    if sweep_runs:
+    base_runs = [r for r in (sweep_runs or []) if r.get("start", 24) == 24]
+    if base_runs:
         p1 = os.path.join(out_dir, "fig1_sweep_summary.svg")
-        save_svg_and_convert(p1, build_fig1_sweep_svg(sweep_runs))
+        save_svg_and_convert(p1, build_fig1_sweep_svg(base_runs))
         print(f"wrote static figure {p1} (+ .pdf, .png)")
 
     split50 = next((v for k, v in data.items() if "50" in k), None)
@@ -1036,6 +1072,17 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
       <div class="callouts" id="slotStepCards"></div>
       <div id="slotStateTable"></div>
     </section>
+    <section class="panel" id="settlePanel" hidden>
+      <h2>Height settlements at each round boundary (majority chain)</h2>
+      <p class="note">Every round boundary settles one height outcome from the votes <b>already on chain</b>. Bars: target (justify) votes and finality-piggyback votes counted by the spec state at that moment; dashed line: the 2/3 quorum. A red marker under the axis means the round's first slot had no block on the majority chain, so the last slot's votes could not be included before the settlement. Finality piggybacks accumulate across rounds (extended window); target votes do not.</p>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--a)"></i>target votes on chain</span>
+        <span><i class="sw" style="background:var(--tsq)"></i>finality votes on chain</span>
+        <span><i class="sw" style="background:var(--held)"></i>round-start block missing</span>
+        <span>J = height justified · F = checkpoint finalized · – = no progress</span>
+      </div>
+      <canvas id="settleCanvas"></canvas>
+    </section>
   </div>
 
   <div id="sweepView" style="display:none;gap:20px">
@@ -1058,14 +1105,20 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
           Across all 30 runs, stable roots are never conflicting (always identical or nested on one chain). After GST, heads reconverge within ≤ 1 slot in every single run.
         </div>
         <div class="callout" style="border-left-color:var(--a)">
-          <b>3. Liveness margin: ≥ (2/3)·R/(R−1) ≈ 76.2% stake</b>
-          In 75/25 runs, finality slips by 1 round (8 slots) in 4/15 runs—exactly when the round-start block after a majority-only round belongs to the 25% minority, leaving 75% × 7/8 = 65.6% &lt; 2/3 included weight.
+          <b>3. Missing round-start blocks cost justification votes</b>
+          A boundary settlement counts only votes some block carried before it. When the round's first slot has no block, the last slot's voters drop out; with 75% online that often leaves &lt; 2/3 target votes (checked against on-chain counts in 148/149 settlements). Finality piggybacks accumulate across rounds, so finalization is hit less often.
         </div>
       </div>
     </section>
     <section class="panel">
       <h2>Aggregated Metrics Table (Mean [Min–Max] over 5 Seeds per Row)</h2>
       <div id="sweepTableWrap"></div>
+    </section>
+    <section class="panel" id="timingPanel" hidden>
+      <h2>Does it matter when in the round the partition starts? (D = 16)</h2>
+      <p class="note">Same metrics, with the cut starting 0, 2, 4 or 7 slots into round 3 (slots 24, 26, 28, 31). Dots are seeds, bars [min–max], lines connect means.</p>
+      <canvas id="timingCanvas"></canvas>
+      <div id="timingTableWrap"></div>
     </section>
   </div>
 </div>
@@ -1895,6 +1948,9 @@ function renderSingle() {
 
 function renderSweep() {
   if (!SWEEP.length) return;
+  renderTiming();
+  const SWEEP_ALL = SWEEP;
+  const SWEEP_BASE = SWEEP_ALL.filter(r => (r.start ?? 24) === 24);
   const W = 1120, H = 340;
   const c = setup($("sweepCanvas"), W, H);
   const T = {
@@ -1940,7 +1996,7 @@ function renderSweep() {
     [["50/50", T.held, -6], ["75/25", T.a, 6]].forEach(([split, col, ox]) => {
       const means = [];
       Ds.forEach(d => {
-        const vals = SWEEP.filter(r => r.split === split && r.D === d).map(r => r[key]).filter(v => v !== null);
+        const vals = SWEEP_BASE.filter(r => r.split === split && r.D === d).map(r => r[key]).filter(v => v !== null);
         if (!vals.length) return;
         const lo = Math.min(...vals), hi = Math.max(...vals), mean = vals.reduce((a, b) => a + b, 0) / vals.length;
         const xx = X(d) + ox;
@@ -1973,7 +2029,7 @@ function renderSweep() {
   };
   let rowsHtml = "";
   [["50/50", 8], ["50/50", 16], ["50/50", 32], ["75/25", 8], ["75/25", 16], ["75/25", 32]].forEach(([sp, d]) => {
-    const rs = SWEEP.filter(r => r.split === sp && r.D === d);
+    const rs = SWEEP_BASE.filter(r => r.split === sp && r.D === d);
     if (!rs.length) return;
     rowsHtml += `<tr>
       <td><b>${sp}</b></td><td>${d} (${d / 8}r)</td><td>${rs.length}</td>
@@ -1996,6 +2052,81 @@ function renderSweep() {
   </table>`;
 }
 
+function drawSeedPanels(c, rows, xKeys, xLabel, groupKey, panels, T, opts) {
+  const pw = 310, ph = 230, y0 = 42, lefts = [48, 418, 788];
+  panels.forEach(([title, key, ymax], idx) => {
+    const x0 = lefts[idx], n = xKeys.length;
+    const X = i => x0 + 34 + (n === 1 ? (pw - 68) / 2 : i * (pw - 68) / (n - 1));
+    const Y = v => y0 + ph - 18 - (Math.min(v, ymax) / ymax) * (ph - 36);
+    c.fillStyle = T.fg; c.font = "600 13.5px " + css("--sans"); c.textAlign = "left"; c.fillText(title, x0 - 6, y0 - 12);
+    c.fillStyle = T.bg; c.strokeStyle = T.gs; c.lineWidth = 1; c.fillRect(x0, y0, pw, ph); c.strokeRect(x0, y0, pw, ph);
+    c.font = "11px " + css("--mono");
+    const step = ymax <= 20 ? 4 : 8;
+    for (let v = 0; v <= ymax; v += step) { c.strokeStyle = T.grid; c.beginPath(); c.moveTo(x0, Y(v)); c.lineTo(x0 + pw, Y(v)); c.stroke(); c.fillStyle = T.muted; c.textAlign = "right"; c.fillText(v, x0 - 6, Y(v) + 4); }
+    xKeys.forEach((k, i) => { c.strokeStyle = T.grid; c.beginPath(); c.moveTo(X(i), y0); c.lineTo(X(i), y0 + ph); c.stroke(); c.fillStyle = T.muted; c.textAlign = "center"; c.fillText(xLabel(k), X(i), y0 + ph + 18); });
+    opts.series.forEach(([g, col, ox]) => {
+      const means = [];
+      xKeys.forEach((k, i) => {
+        const vals = rows.filter(r => r[groupKey] === g && opts.match(r, k)).map(r => r[key]).filter(v => v !== null && v !== undefined);
+        if (!vals.length) return;
+        const lo = Math.min(...vals), hi = Math.max(...vals), mean = vals.reduce((a, b) => a + b, 0) / vals.length, xx = X(i) + ox;
+        means.push([xx, Y(mean), mean, lo, hi]);
+        if (lo !== hi) { c.strokeStyle = col; c.globalAlpha = 0.55; c.lineWidth = 1.8; c.beginPath(); c.moveTo(xx, Y(lo)); c.lineTo(xx, Y(hi)); c.stroke(); c.globalAlpha = 1; }
+        vals.forEach((v, si) => { c.fillStyle = col; c.globalAlpha = 0.45; c.beginPath(); c.arc(xx + (si - (vals.length - 1) / 2) * 2.2, Y(v), 3, 0, 7); c.fill(); c.globalAlpha = 1; });
+      });
+      c.strokeStyle = col; c.lineWidth = 2.2; c.beginPath(); means.forEach(([mx, my], i) => i ? c.lineTo(mx, my) : c.moveTo(mx, my)); c.stroke();
+      means.forEach(([mx, my, mean, lo, hi]) => { c.fillStyle = col; c.beginPath(); c.arc(mx, my, 4.2, 0, 7); c.fill(); c.font = "600 11px " + css("--mono"); c.textAlign = "center"; c.fillText(lo === hi ? `${mean}` : mean.toFixed(1), mx, my - 8); });
+    });
+  });
+}
+
+function renderTiming() {
+  const rows = SWEEP.filter(r => r.D === 16);
+  const starts = [...new Set(rows.map(r => r.start ?? 24))].sort((a, b) => a - b);
+  if (starts.length < 2) { $("timingPanel").hidden = true; return; }
+  $("timingPanel").hidden = false;
+  const T = { held: css("--held"), a: css("--a"), fg: css("--fg"), muted: css("--muted"), grid: css("--grid"), gs: css("--gridStrong"), bg: css("--bg") };
+  const c = setup($("timingCanvas"), 1120, 330);
+  drawSeedPanels(c, rows, starts, s => `slot ${s} (+${s % 8})`, "split", [
+    ["A. Max Reorg Depth (Blocks)", "max_reorg", 16],
+    ["B. Orphaned Safe-Confirmed Blocks", "orphaned_safe", 16],
+    ["C. Delay of First Finality (Slots)", "finality_delay", 32],
+  ], T, { series: [["50/50", T.held, -6], ["75/25", T.a, 6]], match: (r, k) => (r.start ?? 24) === k });
+  const fmt = vals => { vals = vals.filter(v => v !== null); if (!vals.length) return "–"; const lo = Math.min(...vals), hi = Math.max(...vals), m = vals.reduce((a, b) => a + b, 0) / vals.length; return lo === hi ? m.toFixed(1) : `${m.toFixed(1)} [${lo}–${hi}]`; };
+  let body = "";
+  ["50/50", "75/25"].forEach(sp => starts.forEach(st => {
+    const rs = rows.filter(r => r.split === sp && (r.start ?? 24) === st);
+    if (!rs.length) return;
+    body += `<tr><td><b>${sp}</b></td><td>${st} (+${st % 8})</td><td>${rs.length}</td><td>${fmt(rs.map(r => r.max_reorg))}</td><td>${fmt(rs.map(r => r.orphaned_safe))}</td><td>${fmt(rs.map(r => r.reconverge))} slot</td><td>${fmt(rs.map(r => r.finality_delay))}</td><td>${fmt(rs.map(r => r.rounds_nested))}</td><td>${fmt(rs.map(r => r.rounds_conflicting))}</td></tr>`;
+  }));
+  $("timingTableWrap").innerHTML = `<table class="summary"><thead><tr><th>Split</th><th>Cut starts at</th><th>Seeds</th><th>Max reorg (blocks)</th><th>Orphaned safe</th><th>Reconverge</th><th>Finality delay (s16)</th><th>Rounds nested roots</th><th>Conflicting stable roots</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+
+function renderSettlements(run) {
+  const st = run.settlements;
+  if (!st || !st.rows.length) { $("settlePanel").hidden = true; return; }
+  $("settlePanel").hidden = false;
+  const T = { a: css("--a"), tsq: css("--tsq"), held: css("--held"), fg: css("--fg"), muted: css("--muted"), grid: css("--grid"), gs: css("--gridStrong") };
+  const rows = st.rows, q = st.quorum, maxV = run.cfg.validators;
+  const W = Math.max(900, rows.length * 46 + 120), H = 300, L = 56, R = 20, top = 20, bot = 230;
+  const c = setup($("settleCanvas"), W, H);
+  const X = i => L + (i + 0.5) * (W - L - R) / rows.length, Y = v => bot - (v / maxV) * (bot - top), bw = Math.min(14, (W - L - R) / rows.length / 3);
+  c.font = "11px " + css("--mono");
+  for (let v = 0; v <= maxV; v += 16) { c.strokeStyle = T.grid; c.lineWidth = 1; c.beginPath(); c.moveTo(L, Y(v)); c.lineTo(W - R, Y(v)); c.stroke(); c.fillStyle = T.muted; c.textAlign = "right"; c.fillText(v, L - 6, Y(v) + 4); }
+  c.strokeStyle = T.fg; c.setLineDash([5, 4]); c.lineWidth = 1.2; c.beginPath(); c.moveTo(L, Y(q)); c.lineTo(W - R, Y(q)); c.stroke(); c.setLineDash([]);
+  c.fillStyle = T.fg; c.textAlign = "left"; c.fillText(`quorum ${q}`, W - R - 70, Y(q) - 5);
+  rows.forEach(([slot, h, tv, fv, to, prog, block, just, fin], i) => {
+    const x = X(i);
+    c.fillStyle = T.a; c.fillRect(x - bw - 1, Y(tv), bw, bot - Y(tv));
+    c.fillStyle = T.tsq; c.fillRect(x + 1, Y(fv), bw, bot - Y(fv));
+    c.fillStyle = T.muted; c.textAlign = "center"; c.fillText(slot, x, bot + 16);
+    c.fillStyle = prog ? T.fg : T.held; c.font = "600 11px " + css("--mono");
+    c.fillText(just ? (fin ? "J+F" : "J") : (fin ? "F" : "–"), x, bot + 32); c.font = "11px " + css("--mono");
+    if (!block) { c.fillStyle = T.held; c.beginPath(); c.moveTo(x, bot + 40); c.lineTo(x - 6, bot + 51); c.lineTo(x + 6, bot + 51); c.closePath(); c.fill(); }
+  });
+  c.fillStyle = T.muted; c.textAlign = "left"; c.fillText("round boundary slot →", L, H - 6);
+}
+
 function render() {
   if (cur === SWEEP_TAB) {
     $("singleView").style.display = "none";
@@ -2005,6 +2136,7 @@ function render() {
     $("singleView").style.display = "grid";
     $("sweepView").style.display = "none";
     renderSingle();
+    renderSettlements(RUNS[cur]);
   }
 }
 
@@ -2140,7 +2272,12 @@ pick(allTabs[0]);
 
 if __name__ == "__main__":
     if len(sys.argv) >= 3:
-        main(sys.argv[1], sys.argv[2:])
+        args, sweep = sys.argv[2:], None
+        if "--sweep-dir" in args:
+            i = args.index("--sweep-dir")
+            sweep = args[i + 1]
+            args = args[:i] + args[i + 2:]
+        main(sys.argv[1], args, sweep)
     else:
         base = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results", "figs")
         main(
