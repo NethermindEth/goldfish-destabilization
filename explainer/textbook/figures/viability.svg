@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="345" viewBox="0 0 760 345" role="img" aria-label="One-height slack filters eligibility, not vote weight">
+<title>One-height slack filters eligibility, not vote weight</title>
+<rect width="760" height="100%" fill="white"/>
+<defs>
+<marker id="a1f7a6d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1f7a6d"/></marker>
+<marker id="a6a3d9a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#6a3d9a"/></marker>
+<marker id="ac4661f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c4661f"/></marker>
+<marker id="a1d5f9e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1d5f9e"/></marker>
+<marker id="ab03a2e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b03a2e"/></marker>
+<marker id="a333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/></marker>
+<marker id="a777777" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#777777"/></marker>
+</defs><g font-family="DejaVu Sans, sans-serif" fill="#333333" font-size="16">
+<text x="22" y="28" text-anchor="start" font-size="18" fill="#1d5f9e" font-weight="bold">Frontier height = 12 → viable-leaf threshold = 11</text>
+<path d="M85 151 L265 81" fill="none" stroke="#1f7a6d" stroke-width="2" marker-end="url(#a1f7a6d)"/>
+<path d="M85 151 L265 251" fill="none" stroke="#b03a2e" stroke-width="2" marker-end="url(#ab03a2e)"/>
+<path d="M325 81 L505 81" fill="none" stroke="#1f7a6d" stroke-width="2" marker-end="url(#a1f7a6d)"/>
+<path d="M325 251 L505 251" fill="none" stroke="#b03a2e" stroke-width="2" marker-end="url(#ab03a2e)"/>
+<rect x="23.0" y="129" width="64" height="44" rx="3" fill="white" stroke="#1d5f9e" stroke-width="1.5"/>
+<text x="55" y="157" text-anchor="middle" font-size="18" fill="#1d5f9e" font-weight="bold">F</text>
+<rect x="263.0" y="59" width="64" height="44" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="295" y="87" text-anchor="middle" font-size="18" fill="#1f7a6d" font-weight="bold">A</text>
+<text x="295" y="128" text-anchor="middle" font-size="16" fill="#1f7a6d">ancestor retained</text>
+<rect x="503.0" y="59" width="64" height="44" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="535" y="87" text-anchor="middle" font-size="18" fill="#1f7a6d" font-weight="bold">A₁</text>
+<text x="535" y="128" text-anchor="middle" font-size="16" fill="#1f7a6d">state-height 12</text>
+<rect x="263.0" y="229" width="64" height="44" rx="3" fill="white" stroke="#b03a2e" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="295" y="257" text-anchor="middle" font-size="18" fill="#b03a2e" font-weight="bold">B</text>
+<rect x="503.0" y="229" width="64" height="44" rx="3" fill="white" stroke="#b03a2e" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="535" y="257" text-anchor="middle" font-size="18" fill="#b03a2e" font-weight="bold">B₁</text>
+<text x="535" y="298" text-anchor="middle" font-size="16" fill="#b03a2e">best leaf: height 9</text>
+<text x="638" y="87" text-anchor="start" font-size="17" fill="#1f7a6d" font-weight="bold">Viable</text>
+<text x="638" y="257" text-anchor="start" font-size="17" fill="#b03a2e" font-weight="bold">Excluded</text>
+<text x="370" y="185" text-anchor="start" font-size="16" fill="#1f7a6d">Height 11 could also qualify.</text>
+<text x="22" y="330" text-anchor="start" font-size="16" fill="#6a3d9a">G0 can still inspect finalized-compatible opposition on excluded branches.</text>
+</g></svg>

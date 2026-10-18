@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="455" viewBox="0 0 760 455" role="img" aria-label="Separate messages, separate decision paths">
+<title>Separate messages, separate decision paths</title>
+<rect width="760" height="100%" fill="white"/>
+<defs>
+<marker id="a1f7a6d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1f7a6d"/></marker>
+<marker id="a6a3d9a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#6a3d9a"/></marker>
+<marker id="ac4661f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c4661f"/></marker>
+<marker id="a1d5f9e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1d5f9e"/></marker>
+<marker id="ab03a2e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b03a2e"/></marker>
+<marker id="a333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/></marker>
+<marker id="a777777" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#777777"/></marker>
+</defs><g font-family="DejaVu Sans, sans-serif" fill="#333333" font-size="16">
+<rect x="20" y="35" width="200" height="90" rx="3" fill="#e9f3f0" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="34" y="64" text-anchor="start" font-size="17" fill="#1f7a6d" font-weight="bold">512 committee seats</text>
+<text x="34" y="94" text-anchor="start" font-size="16" fill="#333333">Every slot: head votes</text>
+<rect x="270" y="35" width="210" height="90" rx="3" fill="#e9f3f0" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="284" y="64" text-anchor="start" font-size="18" fill="#1f7a6d" font-weight="bold">Goldfish (Ch. 3–4)</text>
+<text x="284" y="94" text-anchor="start" font-size="16" fill="#333333">Head + confirmation</text>
+<path d="M220 80 L270 80" fill="none" stroke="#1f7a6d" stroke-width="2" marker-end="url(#a1f7a6d)"/>
+<rect x="530" y="35" width="210" height="110" rx="3" fill="#f1ecf7" stroke="#6a3d9a" stroke-width="1.5"/>
+<text x="545" y="62" text-anchor="start" font-size="17" fill="#6a3d9a" font-weight="bold">Safe-confirmed</text>
+<text x="545" y="91" text-anchor="start" font-size="16" fill="#333333">Confirmed prefix</text>
+<text x="545" y="117" text-anchor="start" font-size="16" fill="#333333">filtered for conflict</text>
+<path d="M480 80 L530 80" fill="none" stroke="#1f7a6d" stroke-width="2" marker-end="url(#a1f7a6d)"/>
+<rect x="20" y="235" width="200" height="105" rx="3" fill="#eaf1f8" stroke="#1d5f9e" stroke-width="1.5"/>
+<text x="34" y="264" text-anchor="start" font-size="17" fill="#1d5f9e" font-weight="bold">Full validator set</text>
+<text x="34" y="293" text-anchor="start" font-size="16" fill="#333333">Once per round</text>
+<text x="34" y="319" text-anchor="start" font-size="16" fill="#333333">Head + finality fields</text>
+<rect x="270" y="235" width="210" height="105" rx="3" fill="#f1ecf7" stroke="#6a3d9a" stroke-width="1.5"/>
+<text x="284" y="264" text-anchor="start" font-size="18" fill="#6a3d9a" font-weight="bold">Stabilization (Ch. 5–6)</text>
+<text x="284" y="293" text-anchor="start" font-size="16" fill="#333333">Anchor root (G1 / TSQ)</text>
+<text x="284" y="319" text-anchor="start" font-size="16" fill="#333333">Conflict veto (G0)</text>
+<path d="M220 280 L270 280" fill="none" stroke="#6a3d9a" stroke-width="2" marker-end="url(#a6a3d9a)"/>
+<path d="M375 235 L375 125" fill="none" stroke="#6a3d9a" stroke-width="2" marker-end="url(#a6a3d9a)"/>
+<text x="275" y="169" text-anchor="start" font-size="15" fill="#6a3d9a">Anchor-root</text>
+<text x="275" y="191" text-anchor="start" font-size="15" fill="#6a3d9a">floor</text>
+<path d="M480 310 L510 310 L510 123 L530 123" fill="none" stroke="#6a3d9a" stroke-width="2" marker-end="url(#a6a3d9a)"/>
+<rect x="530" y="200" width="210" height="90" rx="3" fill="#eaf1f8" stroke="#1d5f9e" stroke-width="1.5"/>
+<text x="545" y="229" text-anchor="start" font-size="17" fill="#1d5f9e" font-weight="bold">Finality choice (Ch. 7)</text>
+<text x="545" y="259" text-anchor="start" font-size="16" fill="#333333">Freeze → sign at duty</text>
+<path d="M635 145 L635 200" fill="none" stroke="#6a3d9a" stroke-width="2" marker-end="url(#a6a3d9a)"/>
+<rect x="530" y="350" width="210" height="90" rx="3" fill="#eaf1f8" stroke="#1d5f9e" stroke-width="1.5"/>
+<text x="545" y="379" text-anchor="start" font-size="17" fill="#1d5f9e" font-weight="bold">Height outcomes</text>
+<text x="545" y="409" text-anchor="start" font-size="16" fill="#333333">Justify → finalize</text>
+<path d="M635 290 L635 350" fill="none" stroke="#1d5f9e" stroke-width="2" marker-end="url(#a1d5f9e)"/>
+<text x="646" y="322" text-anchor="start" font-size="15" fill="#1d5f9e">Include</text>
+<path d="M220 319 L240 319 L240 405 L530 405" fill="none" stroke="#1d5f9e" stroke-width="2" marker-end="url(#a1d5f9e)"/>
+<text x="263" y="390" text-anchor="start" font-size="16" fill="#1d5f9e">Included finality fields</text>
+</g></svg>

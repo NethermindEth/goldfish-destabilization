@@ -1,0 +1,62 @@
+[
+  {
+    "file": "architecture.svg",
+    "title": "Separate messages, separate decision paths",
+    "caption": "Goldfish live confirmation and the full-set conflict veto determine safe confirmation. That gate constrains frozen finality choices, whose included fields drive chain-state outcomes. Full-set heads also feed stabilization, whose anchor root constrains the Goldfish head walk."
+  },
+  {
+    "file": "expiry-merge.svg",
+    "title": "One-slot memory and proposer view merge",
+    "caption": "Old votes expire as scoring weight, while proposer view merge helps reconcile recent evidence. The ordinary wire cutoff is 75%; it is separate from the 50% confirmation snapshot. Alignment remains conditional on delivery and proposer assumptions."
+  },
+  {
+    "file": "confirmation-tree.svg",
+    "title": "Frozen seats support every ancestor",
+    "caption": "Sixty frozen seats name C, fifteen name B, and twenty-five name D. Subtree support propagates upward: A=100, B=75, C=60, D=25. The strict majority of 100 reaches C; this is a local snapshot calculation."
+  },
+  {
+    "file": "confirmation-thresholds.svg",
+    "title": "A large observed majority can miss fast confirmation",
+    "caption": "The same 380 supporting seats pass the delayed relative-majority threshold among 400 timely seats, but fail the immediate absolute threshold of 384 out of all 512 seats. The delayed rule first runs in the following slot."
+  },
+  {
+    "file": "live-history.svg",
+    "title": "Recovery uses a live candidate while preserving a record",
+    "caption": "When recovery changes the live confirmed branch from A to B, the ordinary historical record retains A. Historical persistence is not a safety proof; the code also has a defensive reset for unknown or finalized-conflicting historical roots."
+  },
+  {
+    "file": "grades.svg",
+    "title": "Positive selection and a conflict veto answer different questions",
+    "caption": "In one live view with D=60, G1 selects A with forty votes, yet twenty conflicting B votes veto G0 clearance. Selection and clearance are different predicates; neither arithmetic result establishes cross-node agreement by itself."
+  },
+  {
+    "file": "safe-confirmation.svg",
+    "title": "Safe confirmation walks back past substantial opposition",
+    "caption": "The live available-confirmed head is C, but thirty of ninety usable full-set heads support X. X vetoes B and C at the one-third boundary; A is compatible with X. With floor F and no other qualifying opposition, the safe-confirmed head is A."
+  },
+  {
+    "file": "tsq-timeline.svg",
+    "title": "TSQ separates frozen positive support from later equivocation evidence",
+    "caption": "Freeze at 75% of the preceding last slot; pin before the new proposal at 0%; act at 25% of the first slot. Timely dissemination and validation must fit both quarter-slot windows. New relay cannot add a signer missing from F, but equivocation evidence can remove support."
+  },
+  {
+    "file": "nested-locks.svg",
+    "title": "Different TSQ locks can lead to the same proposal",
+    "caption": "X locks B while Y locks A; relaying votes 7–8 does not upgrade Y’s frozen support. A timely eligible P built on B can align their heads despite different locks, provided the live-state and confirmed-prefix proposal guards pass."
+  },
+  {
+    "file": "height-outcomes.svg",
+    "title": "Target support is a subset of distinct height-progress support",
+    "caption": "A target vote sets both target and progress markers; a timeout sets progress only. With q=43, the three examples justify and advance, advance without justification, or stay at h. The justification branch assumes an ordinary justifiable height; independently available finality is handled first."
+  },
+  {
+    "file": "viability.svg",
+    "title": "One-height slack filters eligibility, not vote weight",
+    "caption": "With frontier twelve, a leaf needs state-height at least eleven. An ancestor remains eligible when it leads to a qualifying leaf, while a branch ending at nine is excluded from ordinary head selection. This filter does not erase its live conflict evidence from G0."
+  },
+  {
+    "file": "partition-healing.svg",
+    "title": "Availability can split while full-set progress waits",
+    "caption": "At 32/32, neither isolated side supplies q=43; at 48/16, the larger side can supply a quorum only with eligible compatible votes and inclusion. Healing exposes a conditional recovery path, not a guarantee: the executable profile still leaves composition and recovery proof obligations open."
+  }
+]

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="285" viewBox="0 0 760 285" role="img" aria-label="A large observed majority can miss fast confirmation">
+<title>A large observed majority can miss fast confirmation</title>
+<rect width="760" height="100%" fill="white"/>
+<defs>
+<marker id="a1f7a6d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1f7a6d"/></marker>
+<marker id="a6a3d9a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#6a3d9a"/></marker>
+<marker id="ac4661f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c4661f"/></marker>
+<marker id="a1d5f9e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1d5f9e"/></marker>
+<marker id="ab03a2e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b03a2e"/></marker>
+<marker id="a333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/></marker>
+<marker id="a777777" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#777777"/></marker>
+</defs><g font-family="DejaVu Sans, sans-serif" fill="#333333" font-size="16">
+<text x="38" y="30" text-anchor="start" font-size="18" fill="#333333" font-weight="bold">400 timely seats; 380 support the same block</text>
+<text x="38" y="68" text-anchor="start" font-size="17" fill="#1f7a6d" font-weight="bold">Delayed available confirmation</text>
+<rect x="38" y="90" width="680" height="27" rx="3" fill="#eeeeee" stroke="#777777" stroke-width="1.5"/>
+<rect x="38" y="90" width="504.6875" height="27" rx="3" fill="#1f7a6d" stroke="#1f7a6d" stroke-width="1.5"/>
+<rect x="569.25" y="90" width="148.75" height="27" rx="3" fill="white" stroke="#777777" stroke-width="1.5" stroke-dasharray="6 4"/>
+<path d="M303.625 83 L303.625 125" fill="none" stroke="#b03a2e" stroke-width="2"/>
+<text x="303.625" y="148" text-anchor="middle" font-size="16" fill="#b03a2e">&gt; 200 of 400</text>
+<text x="716" y="109" text-anchor="end" font-size="16" fill="#1f7a6d" font-weight="bold">PASS</text>
+<text x="38" y="163" text-anchor="start" font-size="17" fill="#1d5f9e" font-weight="bold">Fast confirmation</text>
+<rect x="38" y="185" width="680" height="27" rx="3" fill="#eeeeee" stroke="#777777" stroke-width="1.5"/>
+<rect x="38" y="185" width="504.6875" height="27" rx="3" fill="#1d5f9e" stroke="#1d5f9e" stroke-width="1.5"/>
+<path d="M548.0 178 L548.0 220" fill="none" stroke="#b03a2e" stroke-width="2"/>
+<text x="548.0" y="243" text-anchor="middle" font-size="16" fill="#b03a2e">≥ 384 of 512</text>
+<text x="716" y="204" text-anchor="end" font-size="16" fill="#1d5f9e" font-weight="bold">FAIL</text>
+<text x="38" y="278" text-anchor="start" font-size="16" fill="#333333">380 / 400 = 95% observed support; 380 &lt; 384 full-committee seats.</text>
+</g></svg>
