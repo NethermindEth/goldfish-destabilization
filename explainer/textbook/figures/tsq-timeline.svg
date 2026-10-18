@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" role="img" aria-label="TSQ separates frozen positive support from later equivocation evidence">
+<title>TSQ separates frozen positive support from later equivocation evidence</title>
+<rect width="760" height="100%" fill="white"/>
+<defs>
+<marker id="a1f7a6d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1f7a6d"/></marker>
+<marker id="a6a3d9a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#6a3d9a"/></marker>
+<marker id="ac4661f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c4661f"/></marker>
+<marker id="a1d5f9e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1d5f9e"/></marker>
+<marker id="ab03a2e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b03a2e"/></marker>
+<marker id="a333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/></marker>
+<marker id="a777777" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#777777"/></marker>
+</defs><g font-family="DejaVu Sans, sans-serif" fill="#333333" font-size="16">
+<text x="165" y="30" text-anchor="start" font-size="16" fill="#6a3d9a" font-weight="bold">Last slot of round r−1</text>
+<text x="487" y="30" text-anchor="start" font-size="16" fill="#c4661f" font-weight="bold">First slot of round r</text>
+<path d="M250 66 L250 373" fill="none" stroke="#777777" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="250" y="58" text-anchor="middle" font-size="17" fill="#6a3d9a" font-weight="bold">75% · F</text>
+<path d="M450 66 L450 373" fill="none" stroke="#777777" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="450" y="58" text-anchor="middle" font-size="17" fill="#c4661f" font-weight="bold">0% · P</text>
+<path d="M650 66 L650 373" fill="none" stroke="#777777" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="650" y="58" text-anchor="middle" font-size="17" fill="#1d5f9e" font-weight="bold">25% · A</text>
+<text x="20" y="129" text-anchor="start" font-size="17" fill="#6a3d9a" font-weight="bold">Receiver</text>
+<path d="M145 124 L723 124" fill="none" stroke="#777777" stroke-width="2"/>
+<text x="20" y="229" text-anchor="start" font-size="17" fill="#c4661f" font-weight="bold">Proposer</text>
+<path d="M145 224 L723 224" fill="none" stroke="#777777" stroke-width="2"/>
+<text x="20" y="329" text-anchor="start" font-size="17" fill="#1d5f9e" font-weight="bold">Receiver</text>
+<path d="M145 324 L723 324" fill="none" stroke="#777777" stroke-width="2"/>
+<circle cx="250" cy="124" r="7" fill="#6a3d9a"/>
+<text x="155" y="95" text-anchor="start" font-size="16" fill="#6a3d9a" font-weight="bold">Freeze F</text>
+<path d="M259 134 L442 214" fill="none" stroke="#6a3d9a" stroke-width="2" marker-end="url(#a6a3d9a)"/>
+<text x="275" y="95" text-anchor="start" font-size="15" fill="#6a3d9a">Signed messages</text>
+<text x="275" y="117" text-anchor="start" font-size="15" fill="#6a3d9a">+ dependencies</text>
+<circle cx="450" cy="224" r="7" fill="#c4661f"/>
+<text x="464" y="208" text-anchor="start" font-size="15" fill="#c4661f">Pin tree / weights / floor</text>
+<path d="M458 234 L642 314" fill="none" stroke="#c4661f" stroke-width="2" marker-end="url(#ac4661f)"/>
+<text x="510" y="246" text-anchor="start" font-size="15" fill="#c4661f">Proposal + relay</text>
+<circle cx="650" cy="324" r="7" fill="#1d5f9e"/>
+<text x="462" y="355" text-anchor="start" font-size="15" fill="#1d5f9e">Count F ∩ U; recheck live state</text>
+<path d="M250 391 L450 391" fill="none" stroke="#6a3d9a" stroke-width="2"/>
+<path d="M450 391 L650 391" fill="none" stroke="#c4661f" stroke-width="2"/>
+<text x="350" y="417" text-anchor="middle" font-size="16" fill="#6a3d9a" font-weight="bold">L / 4</text>
+<text x="550" y="417" text-anchor="middle" font-size="16" fill="#c4661f" font-weight="bold">L / 4</text>
+</g></svg>
