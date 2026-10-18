@@ -76,7 +76,9 @@ def _observed_jf(state, height_start_slot=None):
         "target_votes": _bits(state.target_participation), "timeouts": _bits(state.timeouts),
         "finality_votes": _bits(state.finality_participation),
         "justified_slot": int(state.justified_checkpoint.slot), "finalized_slot": int(state.finalized_checkpoint.slot),
-        "block_this_slot": height_start_slot is not None,
+        # process_slot passes height_start_slot only when this slot has NO block (the
+        # outcome is settled in the empty slot); process_block passes None.
+        "settled_in_empty_slot": height_start_slot is not None,
     }
     for name in ("current_height_nonjustifiable", "is_current_height_nonjustifiable"):
         if hasattr(state, name):
