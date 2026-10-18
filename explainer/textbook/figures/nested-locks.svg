@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="385" viewBox="0 0 760 385" role="img" aria-label="Different TSQ locks can lead to the same proposal">
+<title>Different TSQ locks can lead to the same proposal</title>
+<rect width="760" height="100%" fill="white"/>
+<defs>
+<marker id="a1f7a6d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1f7a6d"/></marker>
+<marker id="a6a3d9a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#6a3d9a"/></marker>
+<marker id="ac4661f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c4661f"/></marker>
+<marker id="a1d5f9e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1d5f9e"/></marker>
+<marker id="ab03a2e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b03a2e"/></marker>
+<marker id="a333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/></marker>
+<marker id="a777777" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#777777"/></marker>
+</defs><g font-family="DejaVu Sans, sans-serif" fill="#333333" font-size="16">
+<path d="M65 70 L220 70" fill="none" stroke="#6a3d9a" stroke-width="2" marker-end="url(#a6a3d9a)"/>
+<path d="M280 70 L410 70" fill="none" stroke="#6a3d9a" stroke-width="2" marker-end="url(#a6a3d9a)"/>
+<path d="M470 70 L620 70" fill="none" stroke="#6a3d9a" stroke-width="2" marker-end="url(#a6a3d9a)"/>
+<rect x="3.0" y="48" width="64" height="44" rx="3" fill="white" stroke="#1d5f9e" stroke-width="1.5"/>
+<text x="35" y="76" text-anchor="middle" font-size="18" fill="#1d5f9e" font-weight="bold">F</text>
+<rect x="218.0" y="48" width="64" height="44" rx="3" fill="white" stroke="#6a3d9a" stroke-width="1.5"/>
+<text x="250" y="76" text-anchor="middle" font-size="18" fill="#6a3d9a" font-weight="bold">A</text>
+<rect x="408.0" y="48" width="64" height="44" rx="3" fill="white" stroke="#6a3d9a" stroke-width="1.5"/>
+<text x="440" y="76" text-anchor="middle" font-size="18" fill="#6a3d9a" font-weight="bold">B</text>
+<rect x="618.0" y="48" width="64" height="44" rx="3" fill="white" stroke="#c4661f" stroke-width="1.5"/>
+<text x="650" y="76" text-anchor="middle" font-size="18" fill="#c4661f" font-weight="bold">P</text>
+<text x="250" y="121" text-anchor="middle" font-size="16" fill="#6a3d9a" font-weight="bold">Y lock</text>
+<text x="440" y="121" text-anchor="middle" font-size="16" fill="#6a3d9a" font-weight="bold">X lock</text>
+<text x="650" y="121" text-anchor="middle" font-size="16" fill="#c4661f" font-weight="bold">Shared head</text>
+<text x="22" y="171" text-anchor="start" font-size="16" fill="#333333">Ten equal-balance voters; q = 7. Votes 1–8 name B; 9–10 name A.</text>
+<text x="22" y="215" text-anchor="start" font-size="17" fill="#6a3d9a" font-weight="bold">Frozen receiver X</text>
+<text x="260" y="215" text-anchor="start" font-size="16" fill="#333333">Voters 1–7 → A: 7, B: 7 → lock B</text>
+<text x="22" y="250" text-anchor="start" font-size="17" fill="#6a3d9a" font-weight="bold">Frozen receiver Y</text>
+<text x="260" y="250" text-anchor="start" font-size="16" fill="#333333">Voters 1–6, 9 → A: 7, B: 6 → lock A</text>
+<text x="22" y="285" text-anchor="start" font-size="17" fill="#c4661f" font-weight="bold">Proposer at pin</text>
+<text x="260" y="285" text-anchor="start" font-size="16" fill="#333333">Voters 1–10 → A: 10, B: 8 → build P on B</text>
+<rect x="20" y="312" width="720" height="62" rx="3" fill="#fbefe6" stroke="#c4661f" stroke-width="1.5"/>
+<text x="34" y="336" text-anchor="start" font-size="16" fill="#c4661f">Alignment requires timely P, usable locks, a viable admitted proposal,</text>
+<text x="34" y="360" text-anchor="start" font-size="16" fill="#c4661f">and compatibility with both receivers’ live confirmed prefixes.</text>
+</g></svg>

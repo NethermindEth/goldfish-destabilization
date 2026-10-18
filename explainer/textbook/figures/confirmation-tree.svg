@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="305" viewBox="0 0 760 305" role="img" aria-label="Frozen seats support every ancestor">
+<title>Frozen seats support every ancestor</title>
+<rect width="760" height="100%" fill="white"/>
+<defs>
+<marker id="a1f7a6d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1f7a6d"/></marker>
+<marker id="a6a3d9a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#6a3d9a"/></marker>
+<marker id="ac4661f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c4661f"/></marker>
+<marker id="a1d5f9e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1d5f9e"/></marker>
+<marker id="ab03a2e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b03a2e"/></marker>
+<marker id="a333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/></marker>
+<marker id="a777777" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#777777"/></marker>
+</defs><g font-family="DejaVu Sans, sans-serif" fill="#333333" font-size="16">
+<path d="M80 95 L220 95" fill="none" stroke="#1f7a6d" stroke-width="2" marker-end="url(#a1f7a6d)"/>
+<path d="M280 95 L410 95" fill="none" stroke="#1f7a6d" stroke-width="2" marker-end="url(#a1f7a6d)"/>
+<path d="M470 95 L600 95" fill="none" stroke="#1f7a6d" stroke-width="2" marker-end="url(#a1f7a6d)"/>
+<path d="M280 105 L410 220" fill="none" stroke="#1f7a6d" stroke-width="2" marker-end="url(#a1f7a6d)"/>
+<rect x="23.0" y="73" width="64" height="44" rx="3" fill="white" stroke="#1d5f9e" stroke-width="1.5"/>
+<text x="55" y="101" text-anchor="middle" font-size="18" fill="#1d5f9e" font-weight="bold">F</text>
+<text x="55" y="142" text-anchor="middle" font-size="16" fill="#1d5f9e">Finalized</text>
+<rect x="218.0" y="73" width="64" height="44" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="250" y="101" text-anchor="middle" font-size="18" fill="#1f7a6d" font-weight="bold">A</text>
+<text x="250" y="142" text-anchor="middle" font-size="16" fill="#1f7a6d">100 support</text>
+<rect x="408.0" y="73" width="64" height="44" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="440" y="101" text-anchor="middle" font-size="18" fill="#1f7a6d" font-weight="bold">B</text>
+<text x="440" y="142" text-anchor="middle" font-size="16" fill="#1f7a6d">75 support</text>
+<rect x="598.0" y="73" width="64" height="44" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="630" y="101" text-anchor="middle" font-size="18" fill="#1f7a6d" font-weight="bold">C</text>
+<text x="630" y="142" text-anchor="middle" font-size="16" fill="#1f7a6d">60 support</text>
+<rect x="408.0" y="198" width="64" height="44" rx="3" fill="white" stroke="#777777" stroke-width="1.5"/>
+<text x="440" y="226" text-anchor="middle" font-size="18" fill="#777777" font-weight="bold">D</text>
+<text x="440" y="267" text-anchor="middle" font-size="16" fill="#777777">25 support</text>
+<text x="552" y="52" text-anchor="start" font-size="16" fill="#1f7a6d">60 votes name C</text>
+<text x="357" y="52" text-anchor="start" font-size="16" fill="#1f7a6d">15 name B</text>
+<text x="23" y="190" text-anchor="start" font-size="17" fill="#333333" font-weight="bold">Frozen electorate: 100 seats</text>
+<text x="23" y="218" text-anchor="start" font-size="17" fill="#1f7a6d" font-weight="bold">Strict majority: &gt; 50</text>
+<text x="23" y="283" text-anchor="start" font-size="16" fill="#1f7a6d">A, B and C pass; the delayed-confirmation candidate reaches C.</text>
+</g></svg>
