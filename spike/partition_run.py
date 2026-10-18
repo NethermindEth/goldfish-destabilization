@@ -202,7 +202,7 @@ def main():
             json.dump({"config": vars(args), "slot_ms": hr.SLOT_MS,
                        "deadlines_ms": [hr.ATT_DUE_MS, hr.CONF_DUE_MS, hr.FREEZE_DUE_MS],
                        "slots_per_round": int(spec.get_slots_per_round_at_slot(spec.Slot(0))),
-                       "group_of": group_of, "messages": net.events, "states": states}, fh)
+                       "group_of": group_of, "messages": net.events, "states": states, "outcomes": hr.OUTCOMES}, fh)
     if args.json:
         with open(args.json, "w") as fh:
             json.dump(summarize(args, net, tracker, group_of, agree_since, finality_timeline), fh, indent=1)

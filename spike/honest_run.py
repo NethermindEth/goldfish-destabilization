@@ -59,6 +59,36 @@ def _observed_deepest_tsq_root(store, selection, heads):
 
 spec.get_deepest_tsq_root = _observed_deepest_tsq_root
 
+# Observation-only: record the on-chain counts each height outcome is settled against.
+# Transitions are shared across nodes (perf.py), so each distinct state is recorded once.
+OUTCOMES = []
+_orig_jf = spec.process_justification_and_finalization
+
+
+def _bits(bitlist):
+    return sum(1 for b in bitlist if b)
+
+
+def _observed_jf(state, height_start_slot=None):
+    rec = {
+        "slot": int(state.slot), "height": int(state.current_height),
+        "target_slot": int(state.current_height_target.slot),
+        "target_votes": _bits(state.target_participation), "timeouts": _bits(state.timeouts),
+        "finality_votes": _bits(state.finality_participation),
+        "justified_slot": int(state.justified_checkpoint.slot), "finalized_slot": int(state.finalized_checkpoint.slot),
+        "block_this_slot": height_start_slot is not None,
+    }
+    for name in ("current_height_nonjustifiable", "is_current_height_nonjustifiable"):
+        if hasattr(state, name):
+            rec["nonjustifiable"] = bool(getattr(state, name))
+    _orig_jf(state, height_start_slot)
+    rec.update(height_after=int(state.current_height), justified_after=int(state.justified_checkpoint.slot),
+               finalized_after=int(state.finalized_checkpoint.slot))
+    OUTCOMES.append(rec)
+
+
+spec.process_justification_and_finalization = _observed_jf
+
 SLOT_MS = int(spec.config.SLOT_DURATION_MS)
 ATT_DUE_MS = int(spec.get_slot_component_duration_ms(spec.AVAILABLE_ATTESTATION_DUE_BPS))
 CONF_DUE_MS = int(spec.get_available_confirmation_due_ms())
