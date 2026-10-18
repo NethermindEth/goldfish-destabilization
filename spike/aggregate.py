@@ -53,7 +53,7 @@ def main(paths):
             d = json.load(fh)
         c = d["config"]
         share = round(100 * c["split"] / c["nodes"])
-        groups[(share, c["slots_down"])].append(run_metrics(d))
+        groups[(share, c["slots_down"], c["start"])].append(run_metrics(d))
     cols = [
         ("max_reorg", "max reorg (blocks)"),
         ("orphaned_safe", "orphaned safe-conf"),
@@ -65,11 +65,11 @@ def main(paths):
         ("rounds_nested", "rounds nested roots"),
         ("rounds_conflicting", "rounds conflicting roots"),
     ]
-    print("| split A/B | D | runs | " + " | ".join(h for _, h in cols) + " |")
-    print("|---" * (len(cols) + 3) + "|")
-    for (share, D), runs in sorted(groups.items()):
+    print("| split A/B | D | cut starts at slot | runs | " + " | ".join(h for _, h in cols) + " |")
+    print("|---" * (len(cols) + 4) + "|")
+    for (share, D, start), runs in sorted(groups.items()):
         cells = [fmt([r[k] for r in runs]) for k, _ in cols]
-        print(f"| {share}/{100 - share} | {D} | {len(runs)} | " + " | ".join(cells) + " |")
+        print(f"| {share}/{100 - share} | {D} | {start} | {len(runs)} | " + " | ".join(cells) + " |")
     print("\nCells: mean [min–max] over seeds. Orphaned counts are the worst node in the run.")
 
 
