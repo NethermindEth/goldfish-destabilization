@@ -108,6 +108,14 @@ class SplitNetwork(hr.Network):
             self.record(sender, node, now_ms, at, kind, msg, held=held)
             heapq.heappush(self.queue, (at, next(self.seq), node.id, kind, msg))
 
+    def send_halves_timed(self, at_ms, kind, msg_a, msg_b, halves):
+        """Deliver msg_a to halves[0], msg_b to halves[1], arriving at absolute
+        time at_ms (used to land votes just before honest nodes' view-freeze)."""
+        for node in self.nodes:
+            msg = msg_a if node.id in halves[0] else msg_b
+            self.sent[kind] += 1
+            heapq.heappush(self.queue, (at_ms, next(self.seq), node.id, kind, msg))
+
     def send_halves(self, now_ms, kind, msg_a, msg_b, halves):
         """Deliver msg_a to honest nodes in halves[0], msg_b to halves[1] (adversary
         controls per-recipient delivery; no partition, no holds)."""
@@ -291,6 +299,39 @@ class Adversary:
         self.net.send_halves(now_ms, "avail", msgs[0], msgs[1], halves)
         self.cast.append((slot, -1, "balance"))
 
+    def timing_bounce(self, slot, base_ms, halves):
+        """Sub-slot timing / bouncing attack: at slot start, pre-schedule split
+        available-vote boosts to land at each honest half JUST BEFORE its view
+        freeze (so the two halves freeze on different Goldfish heads). Uses each
+        half's own reference node to pick the branch to reinforce there, trying to
+        keep two branches alive indefinitely."""
+        import honest_run as _hr
+        att_due = _hr.ATT_DUE_MS
+        msgs = {}
+        for hi, half in enumerate(halves):
+            ref = self.nodes[half[0]] if half else self.nodes[0]
+            store = ref.store
+            committee = store.available_committees.get(spec.Slot(slot))
+            if committee is None:
+                return
+            seats = [i for i, v in enumerate(committee) if v in self.validators]
+            if not seats:
+                return
+            # reinforce THIS half's current head (keep it where it is -> sustain split)
+            head = ref.head().root
+            try:
+                data = spec.get_available_attestation_data(store, ref.head())
+            except Exception:
+                return
+            bits = spec.Bitvector[spec.AVAILABLE_COMMITTEE_SIZE]()
+            for s in seats:
+                bits[s] = True
+            msgs[hi] = spec.AvailableAttestation(aggregation_bits=bits, data=data, signature=STUB_SIG)
+        if 0 in msgs and 1 in msgs:
+            # land at the available-vote deadline, before the 75% view freeze
+            self.net.send_halves_timed(base_ms + att_due, "avail", msgs[0], msgs[1], halves)
+            self.cast.append((slot, -2, "bounce"))
+
     def act(self, slot, now_ms, halves=None):
         if halves is not None:
             self.balance_available(slot, now_ms, halves)
@@ -352,6 +393,7 @@ def main():
     p.add_argument("--no-leak", action="store_true", help="suppress cross-group leakage of equivocation evidence")
     p.add_argument("--regossip", action="store_true", help="honest nodes re-flood every first-seen message (gossipsub)")
     p.add_argument("--balance", action="store_true", help="Goldfish balancing attack (no partition; split available votes across honest halves)")
+    p.add_argument("--timing", action="store_true", help="sub-slot bouncing: pre-schedule split available boosts to land before each half's view freeze")
     p.add_argument("--sync", action="store_true")
     p.add_argument("--json", help="write a machine-readable summary here")
     p.add_argument("--trace-blocks", action="store_true")
@@ -373,7 +415,8 @@ def main():
     windows = [] if args.balance else [(start_ms, end_ms, group_of)]
     if args.start2 and not args.balance:
         windows.append((args.start2 * slot_ms, (args.start2 + args.slots_down2) * slot_ms, group_of))
-    halves = ([n for n in range(nh) if n % 2 == 0], [n for n in range(nh) if n % 2 == 1]) if args.balance else None
+    halves = (([n for n in range(nh) if n % 2 == 0], [n for n in range(nh) if n % 2 == 1])
+              if (args.balance or args.timing) else None)
     genesis = hr.make_genesis(args.validators, args.seed)
     net = SplitNetwork(args.latency_ms, args.jitter_ms, args.seed, windows, regossip=args.regossip)
     honest_assign, adv_validators = assign_with_adversary(args.validators, nh, args.adv_validators, args.seed)
@@ -416,7 +459,9 @@ def main():
             silent = args.passive or (args.adv_stop and slot > args.adv_stop)
             if action == "s" and not silent:
                 adversary.propose(slot, now)  # adversary proposers build (maybe equivocating) blocks
-            if action == "a" and not silent:
+                if args.timing:
+                    adversary.timing_bounce(slot, base, halves)  # pre-schedule pre-freeze boosts
+            if action == "a" and not silent and not args.timing:
                 adversary.act(slot, now, halves=halves)  # adversary votes right after honest finality duty
             net.deliver_until(now)
         # record honest target/finality votes cast this slot (from duty histories)
