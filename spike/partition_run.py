@@ -151,8 +151,11 @@ def main():
     p.add_argument("--flap", type=int, default=0, help="reshuffle group membership every K slots of the cut")
     p.add_argument("--messy-ms", type=int, default=0,
                    help="no groups: every message in the window gets an extra Exp(mean) delay, capped at GST")
+    p.add_argument("--sync", action="store_true",
+                   help="hold messages that reference an unknown block until it arrives (fetch by root)")
     args = p.parse_args()
     hr.TRACE_BLOCKS = args.trace_blocks
+    hr.SYNC_MISSING = args.sync
 
     slot_ms = hr.SLOT_MS
     start_ms = args.start * slot_ms
@@ -223,6 +226,14 @@ def main():
         print(f"{slot:4d} | {cols} | {snaps[0]['finalized_slot']:3d} | {agree}{mark}")
     print(f"\nsimulated {total_slots} slots in {time.perf_counter()-t0:.0f}s; held across cut: {dict(net.held)}")
     print(f"rejections per node: {[dict(n.rejected) for n in net.nodes]}")
+    why = Counter()
+    for n in net.nodes:
+        why.update(n.rejected_why)
+    print("rejection reasons (all nodes):")
+    for (kind, fn, line), c in why.most_common(12):
+        print(f"  {c:6d} {kind:5s} {fn}: {line}")
+    if args.sync:
+        print(f"still pending (missing block never arrived): {[sum(map(len, n.pending.values())) for n in net.nodes]}")
 
     heal = args.start + args.slots_down
     print("\n== results ==")

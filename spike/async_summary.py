@@ -14,7 +14,7 @@ import re
 import sys
 from collections import defaultdict
 
-TAG = re.compile(r"props_(.+)_seed(\d+)\.json$")
+TAG = re.compile(r"props_(.+)_seed(\d+)(_\w+)?\.json$")
 SPR = 8
 
 
@@ -44,9 +44,10 @@ def main(results_dir):
             continue
         with open(path) as fh:
             p = json.load(fh)
-        log = os.path.join(results_dir, f"run_{m.group(1)}_seed{m.group(2)}.log")
+        suffix = m.group(3) or ""
+        log = os.path.join(results_dir, f"run_{m.group(1)}_seed{m.group(2)}{suffix}.log")
         p["bare_empty_rounds"] = bare_empty_rounds(log, p["p6_heal_slot"])
-        rows[m.group(1)].append((int(m.group(2)), p))
+        rows[m.group(1) + suffix].append((int(m.group(2)), p))
 
     print("scenario            | P5 | fin(cut-block) after GST | fin(post-GST block) | P7 nodes off / max slots off"
           " / stuck at end | P8 bare-empty rounds | P9 resets | P1c P2c P3 | G1 rounds")
