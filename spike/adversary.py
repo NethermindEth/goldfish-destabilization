@@ -49,12 +49,42 @@ class SplitNetwork(hr.Network):
     windows the network is synchronous (a real heal). The adversary straddles all
     windows and delivers per-group via ``send_split`` (never held)."""
 
-    def __init__(self, latency_ms, jitter_ms, seed, windows):
+    def __init__(self, latency_ms, jitter_ms, seed, windows, regossip=False):
         super().__init__(latency_ms, jitter_ms, seed)
         self.windows = windows  # [(start_ms, end_ms, {node_id: group})]
         self.start_ms = windows[0][0] if windows else 0
         self.end_ms = windows[-1][1] if windows else 0
         self.held = Counter()
+        self.regossip = regossip
+        self.gossiped = defaultdict(set)  # node_id -> {msg keys it has already forwarded}
+
+    @staticmethod
+    def _key(kind, msg):
+        if kind == "block":
+            return ("block", bytes(spec.hash_tree_root(msg.message)))
+        return (kind, bytes(spec.hash_tree_root(msg)))
+
+    def deliver_until(self, t_ms):
+        while self.queue and self.queue[0][0] <= t_ms:
+            at, _, dst, kind, msg = heapq.heappop(self.queue)
+            node = self.nodes[dst]
+            node.receive(kind, msg)
+            if not self.regossip:
+                continue
+            key = self._key(kind, msg)
+            if key in self.gossiped[dst]:
+                continue
+            self.gossiped[dst].add(key)
+            # Flood to peers (gossipsub): cross-partition copies are held to the
+            # window's GST bound, intra-partition copies ride normal latency.
+            w = self.active_window(at)
+            for other in self.nodes:
+                if other.id == dst:
+                    continue
+                arr = at + self.latency_ms
+                if w is not None and w[2][other.id] != w[2][dst]:
+                    arr = max(arr, w[1] + self.latency_ms)
+                heapq.heappush(self.queue, (arr, next(self.seq), other.id, kind, msg))
 
     def active_window(self, now_ms):
         for w in self.windows:
@@ -274,6 +304,7 @@ def main():
     p.add_argument("--passive", action="store_true", help="adversary holds validators but casts nothing (control)")
     p.add_argument("--adv-stop", type=int, default=0, help="adversary goes fully silent after this slot (0=never)")
     p.add_argument("--no-leak", action="store_true", help="suppress cross-group leakage of equivocation evidence")
+    p.add_argument("--regossip", action="store_true", help="honest nodes re-flood every first-seen message (gossipsub)")
     p.add_argument("--sync", action="store_true")
     p.add_argument("--json", help="write a machine-readable summary here")
     p.add_argument("--trace-blocks", action="store_true")
@@ -296,7 +327,7 @@ def main():
     if args.start2:
         windows.append((args.start2 * slot_ms, (args.start2 + args.slots_down2) * slot_ms, group_of))
     genesis = hr.make_genesis(args.validators, args.seed)
-    net = SplitNetwork(args.latency_ms, args.jitter_ms, args.seed, windows)
+    net = SplitNetwork(args.latency_ms, args.jitter_ms, args.seed, windows, regossip=args.regossip)
     honest_assign, adv_validators = assign_with_adversary(args.validators, nh, args.adv_validators, args.seed)
     net.nodes = [hr.Node(i, genesis, honest_assign[i]) for i in range(nh)]
     adversary = Adversary(adv_validators, net.nodes, group_of, net,
