@@ -114,6 +114,7 @@ def main():
     p.add_argument("--start", type=int, default=24, help="first partitioned slot")
     p.add_argument("--slots-down", type=int, default=16, help="partition duration D in slots")
     p.add_argument("--after", type=int, default=24, help="slots to run after healing")
+    p.add_argument("--props", help="check stable-root properties (stability_props) and write them here")
     args = p.parse_args()
     hr.TRACE_BLOCKS = args.trace_blocks
 
@@ -125,6 +126,9 @@ def main():
     net = PartitionedNetwork(args.latency_ms, args.jitter_ms, args.seed, group_of, start_ms, end_ms)
     assignment = hr.assign_validators(args.validators, args.nodes, args.seed)
     net.nodes = [hr.Node(i, genesis, assignment[i]) for i in range(args.nodes)]
+    if args.props:
+        import stability_props as sp
+        sp.install(net.nodes)
     stake = Counter(group_of[n.id] for n in net.nodes for _ in n.validators)
     total = sum(stake.values())
     print(
@@ -157,6 +161,8 @@ def main():
             net.deliver_until(now)
         snaps = [tracker.observe(slot, n) for n in net.nodes]
         states.append({"slot": slot, "nodes": snaps})
+        if args.props:
+            sp.observe_slot(slot, net.nodes)
         if not finality_timeline or finality_timeline[-1][1] != snaps[0]["finalized_slot"]:
             finality_timeline.append((slot, snaps[0]["finalized_slot"]))
         heads = {x["head_slot"] for x in snaps}
@@ -203,6 +209,8 @@ def main():
                        "deadlines_ms": [hr.ATT_DUE_MS, hr.CONF_DUE_MS, hr.FREEZE_DUE_MS],
                        "slots_per_round": int(spec.get_slots_per_round_at_slot(spec.Slot(0))),
                        "group_of": group_of, "messages": net.events, "states": states, "outcomes": hr.OUTCOMES}, fh)
+    if args.props:
+        sp.report(net.nodes, args.start, heal, args.props)
     if args.json:
         with open(args.json, "w") as fh:
             json.dump(summarize(args, net, tracker, group_of, agree_since, finality_timeline), fh, indent=1)
