@@ -114,15 +114,46 @@ def _wrapped_freeze(store):
     })
 
 
+CONF_RESETS = []  # update_confirmed_head took the "should be unreachable" finalized-conflict branch
+_orig_update_confirmed = spec.update_confirmed_head
+
+
+def _wrapped_update_confirmed(store, previous, candidate):
+    result = _orig_update_confirmed(store, previous, candidate)
+    prev_root = previous[0]
+    if prev_root in store.blocks and id(store) in _NODE_OF and prev_root != candidate:
+        fin = store.finalized_checkpoint.root
+        if not is_ancestor_root(store, fin, prev_root) and result[0] == candidate:
+            CONF_RESETS.append({
+                "node": _NODE_OF[id(store)], "slot": int(spec.get_current_slot(store)),
+                "previous_slot": _slot(store, prev_root), "candidate_slot": _slot(store, candidate),
+                "finalized_slot": _slot(store, fin),
+                "record": "fast" if previous is store.fast_confirmed_head else "available",
+            })
+    return result
+
+
 def install(nodes):
     for n in nodes:
         _NODE_OF[id(n.store)] = n.id
     spec.freeze_tsq_selection = _wrapped_select
     spec.freeze_stable_root = _wrapped_freeze
+    spec.update_confirmed_head = _wrapped_update_confirmed
+
+
+TRACE = []  # per slot: {node: (finalized_root, justified_root, justified_height, latest_conf_root)}
 
 
 def observe_slot(slot, nodes):
-    """P3 at the 75% snapshot: each node's stable root vs every node's safe head and G0."""
+    """Per-slot trace for P5-P7, and P3 in the first two slots of each round."""
+    TRACE.append((slot, {
+        n.id: (n.store.finalized_checkpoint.root, n.store.justified_checkpoint.root,
+               int(getattr(n.store, "justified_height", -1)), n.store.latest_confirmed_head[0])
+        for n in nodes
+    }))
+    spr = int(spec.get_slots_per_round_at_slot(spec.Slot(0)))
+    if slot % spr > 1:
+        return
     rnd = int(spec.compute_round_at_slot(spec.Slot(slot)))
     roots = {}
     for n in nodes:
@@ -210,7 +241,61 @@ def report(nodes, cut_start, heal, path=None):
     pre_freeze_diff = sorted({(row["round"], k) for row in per_round for k, v in row["nodes"].items()
                               if v["g1_before_freeze"] != v["chosen"]})
 
+    # P5 finality safety: finalized checkpoints pairwise on one chain; no two justified
+    # checkpoints at the same height on conflicting branches.
+    p5 = []
+    for slot, row in TRACE:
+        fins = {v[0] for v in row.values()}
+        if any(relation(ref, a, b) == "conflict" for a in fins for b in fins):
+            p5.append({"slot": slot, "kind": "finalized conflict"})
+        by_height = {}
+        for v in row.values():
+            by_height.setdefault(v[2], set()).add(v[1])
+        for h, roots in by_height.items():
+            if any(relation(ref, a, b) == "conflict" for a in roots for b in roots):
+                p5.append({"slot": slot, "kind": f"justified conflict at height {h}"})
+
+    # P6 post-GST finality: first slot at which every node has finalized a block proposed at
+    # or after the cut start (resp. at or after GST).
+    def first_all(pred):
+        for slot, row in TRACE:
+            if slot >= heal and all(pred(_slot(ref, v[0])) for v in row.values()):
+                return slot
+        return None
+
+    fin_cut = first_all(lambda s: s is not None and s >= cut_start)
+    fin_gst = first_all(lambda s: s is not None and s >= heal)
+    last_slot = TRACE[-1][0] if TRACE else None
+    final_fin = sorted({_slot(ref, v[0]) for v in TRACE[-1][1].values()}) if TRACE else []
+
+    # P7 user-facing (non-retracting) confirmation off the final canonical chain after GST.
+    canon = nodes[0].head().root
+    p7 = {}
+    for n in nodes:
+        off = [slot for slot, row in TRACE if slot >= heal and not is_ancestor_root(ref, row[n.id][3], canon)]
+        if off:
+            p7[n.id] = {"slots_off_after_gst": len(off), "last_off_slot": off[-1],
+                        "still_off_at_end": off[-1] == last_slot}
+
+    # P8 rounds after GST where validators cast no height-progress marker (empty vote) or no vote.
+    p8 = {}
+    for rnd in range(heal_round, (last_slot or 0) // spr + 1):
+        kinds = Counter()
+        for n in nodes:
+            kinds.update(n.vote_kinds.get(rnd, {}))
+        no_marker = sum(c for k, c in kinds.items() if k.startswith("empty"))
+        no_vote = kinds.get("skipped", 0) + kinds.get("refused", 0)
+        if no_marker or no_vote:
+            p8[rnd] = {"empty": no_marker, "no_vote": no_vote, "total": sum(kinds.values())}
+
     out = {
+        "p5_finality_safety_violations": p5,
+        "p6_first_slot_all_finalized_block_from_cut_or_later": fin_cut,
+        "p6_first_slot_all_finalized_post_gst_block": fin_gst,
+        "p6_heal_slot": heal, "p6_last_slot": last_slot, "p6_final_finalized_slots": final_fin,
+        "p7_user_confirmation_off_canonical_after_gst": p7,
+        "p8_rounds_with_empty_or_missing_votes_after_gst": p8,
+        "p9_unreachable_confirmation_resets": CONF_RESETS,
         "p1_conflicting_rounds": [r["round"] for r in per_round if r["p1_cross_node"] == "conflict"],
         "p1_nested_rounds": [r["round"] for r in per_round if r["p1_cross_node"] == "nested"],
         "p2": p2,
@@ -232,6 +317,13 @@ def report(nodes, cut_start, heal, path=None):
     for g in g1_rounds:
         print(f"G1 used: round {g['round']} ({g['phase']}): {g['g1_nodes']} | others {g['others']}")
     print(f"live G1 before freeze != frozen root (round, node): {len(pre_freeze_diff)} cases")
+    print(f"P5 finality safety violations: {len(p5)} {p5[:3]}")
+    print(f"P6 heal {heal}: all nodes finalized a block from the cut or later at slot {fin_cut}, "
+          f"a post-GST block at slot {fin_gst} (run ends {last_slot}, finalized {final_fin})")
+    print(f"P7 user-facing confirmation off the canonical chain after GST: {p7}")
+    print(f"P8 empty/missing finality votes per round after GST: {p8}")
+    print(f"P9 'unreachable' finalized-conflict reset of a confirmation record: {len(CONF_RESETS)} "
+          f"{CONF_RESETS[:4]}")
     if path:
         with open(path, "w") as fh:
             json.dump(out, fh, indent=1)
