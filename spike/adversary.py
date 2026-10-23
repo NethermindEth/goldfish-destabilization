@@ -407,6 +407,7 @@ def main():
     p.add_argument("--straggle-ms", type=int, default=0, help="delay honest available votes to half the nodes by this much (straggler snapshot attack)")
     p.add_argument("--sync", action="store_true")
     p.add_argument("--json", help="write a machine-readable summary here")
+    p.add_argument("--events", help="write per-message + per-slot state JSON for the explorer (make_figures.py)")
     p.add_argument("--trace-blocks", action="store_true")
     args = p.parse_args()
     hr.TRACE_BLOCKS = args.trace_blocks
@@ -456,6 +457,9 @@ def main():
     t0 = time.perf_counter()
     agree_since = None
     fin_timeline = []
+    states = []  # per-slot per-node snapshots for the explorer
+    if args.events:
+        net.events = []
     # orphan-vote log: honest validator cast a target/finality vote; recorded with the root.
     target_votes = []  # (slot, round, node, height, target_root)
     for slot in range(1, total_slots + 1):
@@ -486,6 +490,8 @@ def main():
                 if data is not None and data.target != spec.Checkpoint():
                     target_votes.append((slot, rnd, node.id, int(data.height), data.target.root))
         snaps = [tracker.observe(slot, n) for n in net.nodes]
+        if args.events:
+            states.append({"slot": slot, "nodes": snaps})
         if not fin_timeline or fin_timeline[-1][1] != snaps[0]["finalized_slot"]:
             fin_timeline.append((slot, snaps[0]["finalized_slot"]))
         agree = len({n.head().root for n in net.nodes}) == 1
@@ -570,6 +576,21 @@ def main():
         }
         with open(args.json, "w") as fh:
             json.dump(out, fh, indent=1)
+    if args.events:
+        # Config shaped for make_figures.compact(): it reads nodes/split/start/
+        # slots_down/seed/latency_ms/jitter_ms/validators. Map honest_nodes->nodes.
+        cfg = dict(vars(args))
+        cfg["nodes"] = nh
+        cfg.setdefault("split", args.split)
+        with open(args.events, "w") as fh:
+            json.dump({
+                "config": cfg, "slot_ms": slot_ms,
+                "deadlines_ms": [hr.ATT_DUE_MS, hr.CONF_DUE_MS, hr.FREEZE_DUE_MS],
+                "slots_per_round": int(spec.get_slots_per_round_at_slot(spec.Slot(0))),
+                "group_of": {str(k): v for k, v in group_of.items()},
+                "messages": net.events or [], "states": states, "outcomes": hr.OUTCOMES,
+            }, fh)
+        print(f"wrote explorer events -> {args.events} ({len(net.events or [])} msgs, {len(states)} slots)")
     print("finality vote kinds per round:")
     for rnd in sorted({r for n in net.nodes for r in n.vote_kinds}):
         merged = Counter()
