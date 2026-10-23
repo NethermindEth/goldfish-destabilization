@@ -96,6 +96,9 @@ class SplitNetwork(hr.Network):
         w = self.active_window(now_ms)
         return w[2] if w else None
 
+    straggle_ms = 0
+    straggle_set = ()  # node ids that receive straggler (late) available votes
+
     def broadcast(self, sender, now_ms, kind, msg):
         self.sent[kind] += 1
         w = self.active_window(now_ms)
@@ -105,6 +108,13 @@ class SplitNetwork(hr.Network):
             if w is not None and node is not sender and w[2][node.id] != w[2][sender.id]:
                 at, held = max(at, w[1] + self.latency_ms), True
                 self.held[kind] += 1
+            # Straggler delivery (within the GST delay budget): honest available
+            # votes reach the straggler set only AFTER their 50% confirmation
+            # freeze, so those nodes freeze a different available-confirmation
+            # snapshot -- the spec's admitted-unproven cross-node agreement.
+            if (self.straggle_ms and kind == "avail" and node is not sender
+                    and node.id in self.straggle_set):
+                at += self.straggle_ms
             self.record(sender, node, now_ms, at, kind, msg, held=held)
             heapq.heappush(self.queue, (at, next(self.seq), node.id, kind, msg))
 
@@ -394,6 +404,7 @@ def main():
     p.add_argument("--regossip", action="store_true", help="honest nodes re-flood every first-seen message (gossipsub)")
     p.add_argument("--balance", action="store_true", help="Goldfish balancing attack (no partition; split available votes across honest halves)")
     p.add_argument("--timing", action="store_true", help="sub-slot bouncing: pre-schedule split available boosts to land before each half's view freeze")
+    p.add_argument("--straggle-ms", type=int, default=0, help="delay honest available votes to half the nodes by this much (straggler snapshot attack)")
     p.add_argument("--sync", action="store_true")
     p.add_argument("--json", help="write a machine-readable summary here")
     p.add_argument("--trace-blocks", action="store_true")
@@ -419,6 +430,9 @@ def main():
               if (args.balance or args.timing) else None)
     genesis = hr.make_genesis(args.validators, args.seed)
     net = SplitNetwork(args.latency_ms, args.jitter_ms, args.seed, windows, regossip=args.regossip)
+    if args.straggle_ms:
+        net.straggle_ms = args.straggle_ms
+        net.straggle_set = tuple(n for n in range(nh) if n % 2 == 1)
     honest_assign, adv_validators = assign_with_adversary(args.validators, nh, args.adv_validators, args.seed)
     net.nodes = [hr.Node(i, genesis, honest_assign[i]) for i in range(nh)]
     adversary = Adversary(adv_validators, net.nodes, group_of, net,
