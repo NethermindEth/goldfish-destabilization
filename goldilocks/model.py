@@ -19,9 +19,12 @@ through the global registry BLOCKS (it holds content only; each node's FG decide
 blocks it has accepted). Chain states are pure in (parent state, block), so they are cached
 globally as well.
 
-Not modelled (yet): restarts and sleeping nodes (restart_time stays -inf, every node is
-always joined), signatures, slashing evidence, attestation committees (every validator
-attests at the action time of every round, as in the abstract model, where K_s = V).
+Simplifications: a node hosts several validators and keeps one AC state for all of them
+(they vote the same head and see each other's votes at once, as in spike/honest_run.py);
+no signatures, wire/payload form checks or slashing evidence; no attestation committees
+(every validator attests at the action time of every round, as in the abstract model,
+where K_s = V). Sleep and restart (sections 1.1, 1.3, 3.2) are modelled; the driver is
+sim.py.
 """
 
 import hashlib
@@ -98,8 +101,8 @@ ANC = {GEN: frozenset([GEN])}  # ancestor-or-self sets: B ⪯ C  iff  B in ANC[C
 
 
 def make_block(slot, parent, proposer, attestations, votes, support_votes):
-    digest = hashlib.sha256(repr((parent, slot, proposer, attestations, votes, support_votes)).encode()).hexdigest()
-    root = f"{slot:03d}{digest[:5]}"
+    # B.root is a digest, so "a fixed root order" is a pseudo-random order, not slot order
+    root = hashlib.sha256(repr((parent, slot, attestations, votes, support_votes)).encode()).hexdigest()[:16]
     if root not in BLOCKS:
         BLOCKS[root] = Block(root, slot, parent, proposer, tuple(attestations), tuple(votes), tuple(support_votes))
         DEPTH[root] = DEPTH[parent] + 1
@@ -562,7 +565,7 @@ class AC:
         self.__init__(self.P, self.local, self.log)
         self.locks, self.latest_confirmed = locks, record
         self.restart_time = t
-        for B in sorted(phi.tree - {GEN}, key=lambda r: DEPTH[r]):  # parent order
+        for B in sorted(phi.tree - {GEN}, key=lambda r: (DEPTH[r], r)):  # parent order, siblings by root
             self.on_block(t, BLOCKS[B])
 
     @staticmethod
@@ -647,9 +650,10 @@ class Node:
     def __init__(self, nid, P, validators, log=None):
         self.id, self.P = nid, P
         self.validators = list(validators)
-        self.log = log if log is not None else (lambda *a, **k: None)
+        sink = log if log is not None else (lambda *a, **k: None)
+        self.log = lambda kind, **kw: sink(kind, node=nid, **kw)
         self.fg = FG(P)
-        self.ac = AC(P, self.validators, log=lambda kind, **kw: self.log(kind, node=nid, **kw))
+        self.ac = AC(P, self.validators, log=self.log)
         self.clients = {v: Client(v) for v in self.validators}
         self.orphans = {}  # parent root -> [blocks]: re-delivery of a refused block (1.6)
         self.last_fg_confirmed = None

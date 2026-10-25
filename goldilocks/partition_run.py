@@ -81,9 +81,10 @@ def main(argv=None):
         windows.append((args.start2 * slot_ms, (args.start2 + args.slots_down2) * slot_ms, g2))
     sleep = {}
     for item in filter(None, args.sleep.split(",")):
-        nid, a, b = (int(x) for x in item.split(":"))
-        sleep.setdefault(nid, []).append((a * slot_ms, b * slot_ms))
-    heal = max([w[1] // slot_ms for w in windows] + [b // slot_ms for ws in sleep.values() for _, b in ws], default=0)
+        nid, a, b = item.split(":")  # slots; fractions allowed (a wake between public times)
+        sleep.setdefault(int(nid), []).append((round(float(a) * slot_ms), round(float(b) * slot_ms)))
+    heal = max([w[1] // slot_ms for w in windows] + [-(-b // slot_ms) for ws in sleep.values() for _, b in ws],
+               default=0)
     shares = [int(x) for x in args.shares.split(",")] if args.shares else None
     world = World(P, args.nodes, args.latency_ms, args.jitter_ms, windows, shares, record=bool(args.events),
                   sleep=sleep, release_spread_ms=args.release_spread_ms)

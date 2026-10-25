@@ -102,7 +102,7 @@ class World:
         self.nodes = [Node(i, P, vals, log=self._log) for i, vals in enumerate(assign(P.n, nodes, shares))]
         self.node_of = {v: n.id for n in self.nodes for v in n.validators}
         self.sleep = sleep or {}
-        self.was_asleep = set()
+        self.woken = set()
 
     def _log(self, kind, **kw):
         kw["t"], kw["kind"] = self.t, kind
@@ -115,9 +115,20 @@ class World:
                 return b
         return None
 
+    def wake_due(self, now):
+        """Restart every node whose sleep window ended at or before `now`, at its wake time
+        (section 1.1: a waking node restarts before it ticks or processes anything)."""
+        for nid, ws in self.sleep.items():
+            for a, b in ws:
+                if b <= now and (nid, b) not in self.woken:
+                    self.woken.add((nid, b))
+                    self.t = b
+                    self.nodes[nid].restart(b)
+
     def step(self, t):
         """Deliver every message that arrived before t, then run the tick at t."""
         for at, _, dst, kind, payload in self.net.pop_before(t):
+            self.wake_due(at)
             wake = self.wake_time(dst, at)
             if wake is not None:  # delivered after the next wake
                 heapq.heappush(self.net.queue, (wake + self.net.latency_ms, next(self.net.seq), dst, kind, payload))
@@ -132,14 +143,11 @@ class World:
             else:
                 for a in payload:
                     node.on_attestation(a)
+        self.wake_due(t)
         self.t = t
         for node in self.nodes:
             if self.wake_time(node.id, t) is not None:
-                self.was_asleep.add(node.id)
                 continue
-            if node.id in self.was_asleep:
-                self.was_asleep.discard(node.id)
-                node.restart(t)
             for kind, payload in node.on_tick(t):
                 self.net.broadcast(node.id, t, kind, payload, self.nodes)
 
