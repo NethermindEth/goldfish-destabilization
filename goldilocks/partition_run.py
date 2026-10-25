@@ -137,6 +137,8 @@ def summarize(args, world, tracker, heal, group_of, t_end):
             "head_stepbacks": len(tracker.head_stepbacks[n.id]),
             "conf_reversals": tracker.conf_reversals[n.id], "conf_stepbacks": len(tracker.conf_stepbacks[n.id]),
             "orphaned_confirmed": tracker.orphaned_confirmed(n, t_end),
+            "last_slot_with_orphaned_conf": max((seen for _, seen in tracker.orphaned_confirmed(n, t_end, True)),
+                                                default=None),
             "final_F_slot": BLOCKS[n.fg.F].slot, "final_hj": n.fg.hj, "final_hmax": n.fg.hmax,
         })
     lc_after = [s for s, _ in tracker.lock_conflicts if s >= heal] if heal else []

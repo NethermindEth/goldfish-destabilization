@@ -196,7 +196,7 @@ class Tracker:
         self.agree = []  # (slot, heads agree, confirmed tips agree) over awake nodes
         self.conf_reversals = {i: [] for i in ids}  # confirmed tip replaced by a conflicting one
         self.conf_stepbacks = {i: [] for i in ids}  # confirmed tip moved to a strict ancestor
-        self.ever_conf = {i: set() for i in ids}
+        self.ever_conf = {i: {} for i in ids}
         self.lock_conflicts = []  # slots with conflicting live locks across honest nodes
         self.states = []
         self.finality = []  # (slot, F_slot of node 0)
@@ -221,7 +221,7 @@ class Tracker:
                     self.conf_reversals[n.id].append((s, BLOCKS[p["conf"]].slot, x["conf_slot"]))
                 elif p["conf"] != x["conf"] and prec(x["conf"], p["conf"]):
                     self.conf_stepbacks[n.id].append((s, BLOCKS[p["conf"]].slot, x["conf_slot"]))
-            self.ever_conf[n.id].add(x["conf"])
+            self.ever_conf[n.id][x["conf"]] = s  # confirmed tip -> last slot it was the tip
             self.prev[n.id] = x
         for n, x in zip(world.nodes, snaps):  # section 1.5, requirement 3 and the three tips
             if not (prec(x["F"], x["conf"]) and prec(x["conf"], x["head"]) and prec(x["fc_root"], x["head"])):
@@ -253,6 +253,9 @@ class Tracker:
             since = (row[0] if since is None else since) if row[which] else None
         return since
 
-    def orphaned_confirmed(self, node, t):
+    def orphaned_confirmed(self, node, t, with_seen=False):
+        """Blocks that were this node's confirmed tip at some slot and are off its final chain
+        (with the last slot at which each was the confirmed tip, if with_seen)."""
         head = node.head(t)
-        return sorted(BLOCKS[c].slot for c in self.ever_conf[node.id] if not prec(c, head))
+        out = sorted((BLOCKS[c].slot, seen) for c, seen in self.ever_conf[node.id].items() if not prec(c, head))
+        return out if with_seen else [b for b, _ in out]
