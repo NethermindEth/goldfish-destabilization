@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="270" viewBox="0 0 780 270" role="img" aria-label="Fork-choice root and head height floor: the three cases">
+<title>Fork-choice root and head height floor: the three cases</title>
+<rect width="780" height="270" fill="white"/>
+<defs>
+<marker id="a1f7a6d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1f7a6d"/></marker>
+<marker id="ab07d00" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b07d00"/></marker>
+<marker id="a1d5f9e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1d5f9e"/></marker>
+<marker id="ac4661f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c4661f"/></marker>
+<marker id="ab03a2e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b03a2e"/></marker>
+<marker id="a333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/></marker>
+<marker id="a777777" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#777777"/></marker>
+</defs><g font-family="DejaVu Sans, sans-serif" fill="#333333" font-size="15">
+<rect x="10" y="10" width="250" height="250" rx="3" fill="#fbfbfb" stroke="#777777" stroke-width="1.5"/>
+<text x="22" y="34" text-anchor="start" font-size="14" fill="#333333" font-weight="bold">1 · no J at h_max−1 yet</text>
+<text x="22" y="60" text-anchor="start" font-size="11" fill="#777777">h_max−1</text>
+<text x="180" y="60" text-anchor="start" font-size="11" fill="#777777">h_max</text>
+<path d="M160 66 L160 200" fill="none" stroke="#dddddd" stroke-width="1"/>
+<rect x="27.0" y="127.0" width="34" height="26" rx="3" fill="#eaf1f8" stroke="#1d5f9e" stroke-width="1.5"/>
+<text x="44" y="145" text-anchor="middle" font-size="13" fill="#1d5f9e" font-weight="bold">F</text>
+<rect x="103.0" y="92.0" width="34" height="26" rx="3" fill="white" stroke="#333333" stroke-width="1.5"/>
+<text x="120" y="110" text-anchor="middle" font-size="13" fill="#333333" font-weight="bold">·</text>
+<rect x="103.0" y="162.0" width="34" height="26" rx="3" fill="white" stroke="#333333" stroke-width="1.5"/>
+<text x="120" y="180" text-anchor="middle" font-size="13" fill="#333333" font-weight="bold">·</text>
+<path d="M103 105 C80 105 80 140 61 140" fill="none" stroke="#777777" stroke-width="2" opacity="1" marker-end="url(#a777777)"/>
+<path d="M103 175 C80 175 80 140 61 140" fill="none" stroke="#777777" stroke-width="2" opacity="1" marker-end="url(#a777777)"/>
+<rect x="193.0" y="92.0" width="34" height="26" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="210" y="110" text-anchor="middle" font-size="13" fill="#1f7a6d" font-weight="bold">✓</text>
+<path d="M193 105 L137 105" fill="none" stroke="#777777" stroke-width="2" marker-end="url(#a777777)"/>
+<rect x="23" y="123" width="42" height="34" rx="3" fill="none" stroke="#b03a2e" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="22" y="226.0" text-anchor="start" font-size="11.5" fill="#333333">root F; floor h_max−1;</text>
+<text x="22" y="243.0" text-anchor="start" font-size="11.5" fill="#333333">blocks at h_max−1 and h_max viable</text>
+<rect x="270" y="10" width="250" height="250" rx="3" fill="#fbfbfb" stroke="#777777" stroke-width="1.5"/>
+<text x="282" y="34" text-anchor="start" font-size="14" fill="#333333" font-weight="bold">2 · J revealed</text>
+<text x="282" y="60" text-anchor="start" font-size="11" fill="#777777">h_max−1</text>
+<text x="440" y="60" text-anchor="start" font-size="11" fill="#777777">h_max</text>
+<path d="M420 66 L420 200" fill="none" stroke="#dddddd" stroke-width="1"/>
+<rect x="287.0" y="127.0" width="34" height="26" rx="3" fill="#eaf1f8" stroke="#1d5f9e" stroke-width="1.5"/>
+<text x="304" y="145" text-anchor="middle" font-size="13" fill="#1d5f9e" font-weight="bold">F</text>
+<rect x="363.0" y="92.0" width="34" height="26" rx="3" fill="#eaf1f8" stroke="#1d5f9e" stroke-width="1.5"/>
+<text x="380" y="110" text-anchor="middle" font-size="13" fill="#1d5f9e" font-weight="bold">J</text>
+<rect x="363.0" y="162.0" width="34" height="26" rx="3" fill="white" stroke="#333333" stroke-width="1.5"/>
+<text x="380" y="180" text-anchor="middle" font-size="13" fill="#333333" font-weight="bold">·</text>
+<path d="M363 105 C340 105 340 140 321 140" fill="none" stroke="#777777" stroke-width="2" opacity="1" marker-end="url(#a777777)"/>
+<path d="M363 175 C340 175 340 140 321 140" fill="none" stroke="#777777" stroke-width="2" opacity="1" marker-end="url(#a777777)"/>
+<rect x="453.0" y="92.0" width="34" height="26" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="470" y="110" text-anchor="middle" font-size="13" fill="#1f7a6d" font-weight="bold">✓</text>
+<path d="M453 105 L397 105" fill="none" stroke="#777777" stroke-width="2" marker-end="url(#a777777)"/>
+<rect x="359" y="88" width="42" height="34" rx="3" fill="none" stroke="#b03a2e" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="282" y="226.0" text-anchor="start" font-size="11.5" fill="#333333">root J; branches not through J</text>
+<text x="282" y="243.0" text-anchor="start" font-size="11.5" fill="#333333">drop out of the viable tree</text>
+<rect x="530" y="10" width="250" height="250" rx="3" fill="#fbfbfb" stroke="#777777" stroke-width="1.5"/>
+<text x="542" y="34" text-anchor="start" font-size="14" fill="#333333" font-weight="bold">3 · contest</text>
+<text x="542" y="60" text-anchor="start" font-size="11" fill="#777777">h_max−1</text>
+<text x="700" y="60" text-anchor="start" font-size="11" fill="#777777">h_max</text>
+<path d="M680 66 L680 200" fill="none" stroke="#dddddd" stroke-width="1"/>
+<rect x="547.0" y="127.0" width="34" height="26" rx="3" fill="#eaf1f8" stroke="#1d5f9e" stroke-width="1.5"/>
+<text x="564" y="145" text-anchor="middle" font-size="13" fill="#1d5f9e" font-weight="bold">F</text>
+<rect x="623.0" y="92.0" width="34" height="26" rx="3" fill="#eaf1f8" stroke="#1d5f9e" stroke-width="1.5"/>
+<text x="640" y="110" text-anchor="middle" font-size="13" fill="#1d5f9e" font-weight="bold">J</text>
+<rect x="623.0" y="162.0" width="34" height="26" rx="3" fill="white" stroke="#333333" stroke-width="1.5"/>
+<text x="640" y="180" text-anchor="middle" font-size="13" fill="#333333" font-weight="bold">·</text>
+<path d="M623 105 C600 105 600 140 581 140" fill="none" stroke="#777777" stroke-width="2" opacity="1" marker-end="url(#a777777)"/>
+<path d="M623 175 C600 175 600 140 581 140" fill="none" stroke="#777777" stroke-width="2" opacity="1" marker-end="url(#a777777)"/>
+<rect x="713.0" y="92.0" width="34" height="26" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="730" y="110" text-anchor="middle" font-size="13" fill="#1f7a6d" font-weight="bold">✓</text>
+<path d="M713 105 L657 105" fill="none" stroke="#777777" stroke-width="2" marker-end="url(#a777777)"/>
+<rect x="713.0" y="162.0" width="34" height="26" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="730" y="180" text-anchor="middle" font-size="13" fill="#1f7a6d" font-weight="bold">✓</text>
+<path d="M713 175 L657 175" fill="none" stroke="#777777" stroke-width="2" marker-end="url(#a777777)"/>
+<rect x="543" y="123" width="42" height="34" rx="3" fill="none" stroke="#b03a2e" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="542" y="226.0" text-anchor="start" font-size="11.5" fill="#333333">a block at h_max not on J:</text>
+<text x="542" y="243.0" text-anchor="start" font-size="11.5" fill="#333333">root F, floor h_max</text>
+</g></svg>

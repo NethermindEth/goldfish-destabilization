@@ -33,6 +33,9 @@ SCENARIOS = {
     "sleep25_s48_d16": ["--slots-down", "0", "--sleep", "3:48:64"],
     "sleep75_s48_d16": ["--slots-down", "0", "--sleep", "1:48:64,2:48:64,3:48:64"],
     "sleep50_s48_d16": ["--slots-down", "0", "--sleep", "2:48:64,3:48:64"],
+    # one-slot glitch at a round start (slot 48 = rR) vs mid-round: fg_confirmed reads only slot rR
+    "glitch_s48_d1": ["--groups", "2,2", "--start", "48", "--slots-down", "1", "--after", "40"],
+    "glitch_s49_d1": ["--groups", "2,2", "--start", "49", "--slots-down", "1", "--after", "40"],
     # messier heal: held messages trickle out over two slots after GST
     "p50_s48_d16_spread": ["--groups", "2,2", "--start", "48", "--slots-down", "16", "--release-spread-ms", "12000"],
     "p75_s48_d16_spread": ["--groups", "3,1", "--start", "48", "--slots-down", "16", "--release-spread-ms", "12000"],
