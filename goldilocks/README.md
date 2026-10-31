@@ -13,6 +13,8 @@ python partition_run.py --groups 3,1 --start 48 --slots-down 16 --events out.eve
 python scenarios.py                       # the first partition study -> results/first/
 python sweep.py --seeds 10                # shapes x release spread x seeds vs the 2L healing claim
 python explorer.py results/first/explorer.html --index results/first     # interactive HTML
+python adversary.py --strategy skew_fast --seed 7 --round-start --group-a 0 --skew 0:2   # one attack
+bash attack_suite.sh                      # every attack and its control
 ```
 
 | File | Contents |
@@ -22,6 +24,9 @@ python explorer.py results/first/explorer.html --index results/first     # inter
 | `partition_run.py` | CLI: one scenario, per-slot table, summary, `--events` for the explorer |
 | `scenarios.py` | Named scenarios of the first study (50/50, 75/25, 50/25/25, 52/48, short/long/repeated cuts, sleep, one-slot glitches, spread heals) |
 | `sweep.py` | Seeded sweep, measured against effective GST |
+| `adversary.py` | A one-third Byzantine adversary under synchrony: per-node delivery inside Δ, relay of every object (also a second vote), equivocation, timing attacks, random fuzzing; checks the synchrony claims. `--relay first-seen` and `--skew` leave the spec's model on purpose |
+| `fuzz_batch.py` | Many seeded adversary runs in parallel; lists every run that breaks a claim |
+| `attack_suite.sh`, `attack_explorer.sh` | The adversary study in one go, and its explorer page |
 | `explorer.py` | Interactive explorer: per-node tips (lag), locks, block tree, FG heights, held messages, per-slot state/events/messages |
 
 **Model.** `n` validators of weight 1 on `N` nodes; Δ = Δ_F = 1500 ms (slot 6 s); R = 8,

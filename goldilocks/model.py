@@ -50,6 +50,7 @@ class Params:
     KW: int = 4  # PENDING_FINALITY_WINDOW
     delta_t: int = 8  # timeout delay in slots (TIMEOUT_DELAY_SLOTS = SLOTS_PER_ROUND)
     seed: int = 0
+    fast_strict: bool = False  # NOT the spec: fast test 2·score > |K_s| instead of ≥, for comparison only
 
     @property
     def q(self):
@@ -540,6 +541,8 @@ class AC:
         path = [B for B in phi.tree if B != GEN and prec(B, C)]
 
         def fast(B):
+            if P.fast_strict:
+                return 2 * self.confirmation_score(phi, s, B) > P.n
             return 2 * self.confirmation_score(phi, s, B) >= P.n
 
         def slow(B):
@@ -558,7 +561,8 @@ class AC:
             d = P.t(s + P.k) + 5 * P.delta
             self.locks[d] = lb
             how = "fast" if lb in fasts else "slow"
-        self.log("confirm", slot=s, result=C, vetoed=False, lock=lb, how=how)
+        self.log("confirm", slot=s, result=C, vetoed=False, lock=lb, how=how,
+                 fast=deepest(fasts) if fasts else None)
 
     def restart(self, phi, t):  # F7.50: keep the locks and the record, reset the rest
         locks, record = self.locks, self.latest_confirmed
