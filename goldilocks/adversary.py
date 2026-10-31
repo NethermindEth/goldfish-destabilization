@@ -53,6 +53,14 @@ class AdvNetwork(Network):
         self.sent_log = []  # every honest send: (local time, src, kind, payload)
         self.got = {}  # (kind, key, dst) -> earliest local arrival already scheduled (adversary objects)
         self.dropped = 0  # first-seen mode: equivocating votes ignored by a node
+        self.windows = []  # [(start_ms, end_ms, {node: group})]: honest traffic across the cut waits for the heal
+
+    def held_until(self, src, dst, real_now):
+        """End of the cut that separates src and dst at real time real_now, or None."""
+        for a, b, g in self.windows:
+            if a <= real_now < b and g[src] != g[dst]:
+                return b
+        return None
 
     def bound(self, kind):
         return self.P.delta_f if kind == "att" else self.P.delta
@@ -72,7 +80,8 @@ class AdvNetwork(Network):
                 continue
             d = self.latency_ms if self.honest_delay is None else self.honest_delay(src, dst.id, kind, payload, now)
             d = min(max(1, d), self.bound(kind) - 1)
-            at = self.local(t0 + d, dst.id)
+            end = self.held_until(src, dst.id, t0)
+            at = self.local(max(t0, end) + d if end is not None else t0 + d, dst.id)
             heapq.heappush(self.queue, (at, next(self.seq), dst.id, kind, payload, "honest"))
             if self.events is not None:
                 self.events.append(message_event(now, at, src, dst.id, kind, payload, False))
@@ -98,10 +107,11 @@ class AdvNetwork(Network):
         """src received an adversary object at local time `at`: every other node has it by then
         + relay_ms (real)."""
         d = self.bound(kind) - 1 if self.relay_ms is None else min(self.relay_ms, self.bound(kind) - 1)
-        t0 = self.real(at, src) + d
+        r0 = self.real(at, src)
         for n in nodes:
             if n.id != src:
-                self._schedule(kind, obj, n.id, self.local(t0, n.id), src, sent=at)
+                end = self.held_until(src, n.id, r0)
+                self._schedule(kind, obj, n.id, self.local((r0 if end is None else end) + d, n.id), src, sent=at)
 
 
 class AdvWorld(World):
@@ -124,6 +134,11 @@ class AdvWorld(World):
     def step(self, t):
         for at, _, dst, kind, payload, origin in self.net.pop_before(t):
             node = self.nodes[dst]
+            self.wake_due(at)
+            wake = self.wake_time(dst, at)
+            if wake is not None:  # asleep: delivered after the next wake (section 1.1)
+                heapq.heappush(self.net.queue, (wake + self.net.latency_ms, next(self.net.seq), dst, kind, payload, origin))
+                continue
             self.t = at
             if self.hold_early:
                 # Clients accept gossip up to MAXIMUM_GOSSIP_CLOCK_DISPARITY early and hold it to its
@@ -149,8 +164,11 @@ class AdvWorld(World):
                     node.on_attestation(a)
             if origin != "honest" and obj is not None:
                 self.net.relay_from(dst, at, kind, obj, self.nodes)
+        self.wake_due(t)
         self.t = t
         for node in self.nodes:
+            if self.wake_time(node.id, t) is not None:
+                continue
             for kind, payload in node.on_tick(t):
                 self.net.broadcast(node.id, t, kind, payload, self.nodes)
         if self.adv is not None:
@@ -435,6 +453,112 @@ class SkewFreeze(_TwoSlots):
                 self.vote(v, s, self.Q.root, self.at(self.all_nodes(), t + 1))
 
 
+class TwoFace(Adversary):
+    """Partial synchrony. During the cut the adversary is honest-looking on both sides at once:
+    it votes each side's head to that side, proposes one block per side at its slots, and
+    attests each side's own entry with that side's finality pair (it ignores its anti-slashing
+    record: equivocating attestations are slashable, not prevented). With a 22/21 honest split
+    each side sees 43 or 42 participants, so the side that reaches q justifies and may finalize
+    on its own. After the heal (GST) it follows `post`:
+      passive  abstain;
+      balance  every slot, vote the weaker of the two heaviest conflicting branches, early, to
+               keep honest votes split;
+      fuzz     random behaviour as Fuzz;
+      reveal   it also kept back its side-B blocks during the cut and releases them one by one
+               after the heal, at random times, to reopen contests and frame changes."""
+
+    name = "twoface"
+    post = "passive"
+
+    def __init__(self, world, rng, groups):
+        super().__init__(world, rng, groups)
+        self.kept = []  # blocks withheld during the cut (reveal mode)
+        self.fuzz = None
+
+    def in_cut(self, t):
+        return any(a <= t < b for a, b, _ in self.w.net.windows)
+
+    def after_cut(self, t):
+        return self.w.net.windows and t >= max(b for _, b, _ in self.w.net.windows)
+
+    def sides(self):
+        return [g for g in self.groups if g]
+
+    def act(self, t):
+        if self.after_cut(t) and self.post == "fuzz":
+            if self.fuzz is None:
+                self.fuzz = Fuzz(self.w, self.rng, self.groups)
+                self.fuzz.cast, self.fuzz.proposed = self.cast, self.proposed
+            return self.fuzz.act(t)
+        return super().act(t)
+
+    def at_slot_start(self, s, t):
+        P = self.P
+        if self.in_cut(t):
+            if not self.mine(s):
+                return
+            for k, g in enumerate(self.sides()):
+                H = self.head(g[0], t)
+                prev = [x for x in self.honest_votes(s - 1) if True] + [Vote(v, s - 1, h) for (ss, v, h) in self.cast
+                                                                        if ss == s - 1 and h in self.w.nodes[g[0]].fg.T]
+                support = [x for x in prev if x.H in self.w.nodes[g[0]].fg.T and BLOCKS[x.H].slot <= s - 1]
+                atts = [a for a in self.w.nodes[g[0]].fg.pool]
+                B = self.block(s, H, prev, support, [a for a in self.valid_atts(H, atts)])
+                if B is None:
+                    continue
+                if self.post == "reveal" and k == 1 and self.rng.random() < 0.5:
+                    self.kept.append(B)
+                else:
+                    self.send_block(B, self.at(g, t + 1))
+            return
+        if self.after_cut(t):
+            if self.post == "reveal" and self.kept and self.rng.random() < 0.5:
+                B = self.kept.pop(0)
+                self.send_block(B, self.at([self.rng.choice(self.all_nodes())], t + self.rng.choice((1, P.delta - 1, 2 * P.delta))))
+            if self.post in ("balance",) and self.mine(s):
+                H = self.head(0, t)
+                B = self.block(s, H)
+                if B is not None:
+                    self.send_block(B, self.at(self.all_nodes(), t + 1))
+
+    def at_vote(self, s, t):
+        P = self.P
+        if self.in_cut(t):
+            for g in self.sides():
+                H = self.head(g[0], t)
+                for v in self.vals:
+                    self.vote(v, s, H, self.at(g, t + 1))
+            return
+        if self.after_cut(t) and self.post == "balance":
+            heads = [self.head(i, t) for i in self.all_nodes()]
+            # the two heaviest conflicting candidates among the honest heads and their parents
+            cand = sorted(set(heads) | {BLOCKS[h].parent for h in heads if BLOCKS[h].parent})
+            pairs = [(a, b) for a in cand for b in cand if a < b and conflicts(a, b)]
+            if not pairs:
+                return
+            cnt = {c: sum(1 for x in self.honest_votes(s) if prec(c, x.H)) for c in cand}
+            a, b = max(pairs, key=lambda p_: min(cnt[p_[0]], cnt[p_[1]]))
+            weak = a if cnt[a] <= cnt[b] else b
+            for v in self.vals:
+                self.vote(v, s, weak, self.at(self.all_nodes(), t + 1))
+
+    def at_action(self, r, t):
+        if not self.in_cut(t):
+            return
+        for g in self.sides():
+            node = self.w.nodes[g[0]]
+            fgc = node.last_fg_confirmed
+            if fgc is None:
+                continue
+            head = node.head(t)
+            hc, Tc, hj, J, hF = node.fg.attest_inputs(fgc, head)
+            hf, Tf = (hj, J) if hj > hF else (None, None)
+            if hf is not None and hf >= hc:
+                hf, Tf = None, None
+            for v in self.vals:
+                self.w.net.adv_send("att", Att(v, hc, Tc, False, hf, Tf), self.at(g, t + 1))
+
+
 INTERESTING = (1, -1)  # offsets around each boundary
 
 
@@ -536,7 +660,7 @@ class Fuzz(Adversary):
                     self.w.net.adv_send("att", a, arr)
 
 
-STRATEGIES = {c.name: c for c in (Adversary, Equivocate, Split, Fuzz, SkewFast, SkewFreeze)}
+STRATEGIES = {c.name: c for c in (Adversary, Equivocate, Split, Fuzz, SkewFast, SkewFreeze, TwoFace)}
 
 
 # ------------------------------------------------------------------------ checks
@@ -607,7 +731,7 @@ def dump(path, args, world, tracker):
 
 def run(args, quiet=True):
     P = Params(n=args.validators, delta=args.delta_ms, delta_f=args.delta_ms, R=args.R, k=args.k,
-               delta_t=args.R, seed=args.seed, fast_strict=args.fast_strict)
+               delta_t=args.delta_t or args.R, seed=args.seed, fast_strict=args.fast_strict)
     skew = {}
     for item in filter(None, (args.skew or "").split(",")):
         i, ms = item.split(":")
@@ -624,6 +748,14 @@ def run(args, quiet=True):
          [i for i in range(args.nodes) if str(i) not in args.group_a.split(",")]]
     world.adv = STRATEGIES[args.strategy](world, random.Random(f"adv-{args.seed}"), groups)
     world.adv.round_start = args.round_start
+    for item in filter(None, args.sleep.split(",")):
+        nid, a, b = item.split(":")
+        world.sleep.setdefault(int(nid), []).append((round(float(a) * P.slot_ms), round(float(b) * P.slot_ms)))
+    world.adv.post = args.post
+    if args.cut:
+        a, d = (int(x) for x in args.cut.split(":"))
+        A = set(groups[0])
+        world.net.windows.append((P.t(a), P.t(a + d), {n.id: 0 if n.id in A else 1 for n in world.nodes}))
     tracker = Tracker(world)
     for s in range(args.slots + 1):
         world.run_slot(s, tracker.observe)
@@ -633,7 +765,23 @@ def run(args, quiet=True):
                              f" L[{','.join(str(b) for _, b, _ in x['locks'])}]" for x in snaps)
             mine = "P" if world.adv.mine(s) else " "
             print(f"{s:4d} {mine} | {cols} | {'=' if len({x['head'] for x in snaps}) == 1 else 'x'}")
-    res = check(world, tracker, world.t, args.warmup)
+    heal = 0
+    if args.cut:
+        a, d = (int(x) for x in args.cut.split(":"))
+        heal = a + d
+    # claims after GST: conflicting locks gone by GST + L, heads healed by GST + 2L + G (slides 8-9);
+    # L is k slots of lock lifetime, G the wait for an honest proposer. Checked from GST + 2k + 4.
+    res = check(world, tracker, world.t, max(args.warmup, heal + 2 * P.k + 4 if heal else 0))
+    res["heal"] = heal
+    fin = tracker.finality
+    if heal:
+        f_heal = max([f for s_, f in fin if s_ <= heal] or [0])
+        later = [(s_, f) for s_, f in fin if s_ > heal and f > f_heal]
+        res["finality_resumes_slot"] = later[0][0] if later else None
+        res["finality_resume_delay"] = (later[0][0] - heal) if later else None
+    changes = [s_ for s_, _ in fin if s_ > (heal or 40)]
+    gaps = [b - a for a, b in zip([heal or 40] + changes, changes + [args.slots])]
+    res["max_finality_gap"] = max(gaps) if gaps else None
     res["adv_votes"] = len(world.adv.cast)
     res["adv_blocks"] = len(world.adv.proposed)
     res["dropped_first_seen"] = world.net.dropped
@@ -659,6 +807,11 @@ def add_args(p):
     p.add_argument("--skew", default="", help="clock offsets node:ms,... (leaves the spec's model)")
     p.add_argument("--fast-strict", action="store_true", help="fast test > n/2 (NOT the spec), to compare")
     p.add_argument("--round-start", action="store_true", help="skew attacks: only at a round start (FG source)")
+    p.add_argument("--sleep", default="", help="asleep windows node:start:end (slots), comma-separated")
+    p.add_argument("--cut", default="", help="partition start:slots between group A and the rest (GST at the end)")
+    p.add_argument("--post", default="passive", choices=("passive", "balance", "fuzz", "reveal"),
+                   help="twoface: behaviour after the heal")
+    p.add_argument("--delta-t", type=int, default=None, help="timeout delay in slots (default R; the proofs use 2R)")
     p.add_argument("--spec-drop-early", action="store_true",
                    help="with --skew: drop early objects as the spec says, instead of holding them like clients")
 
@@ -678,8 +831,8 @@ def main(argv=None):
           f"blocks {res['adv_blocks']}")
     for k in ("n_tsq", "tsq_violations", "n_dropped", "dropped_fast", "lock_conflict_slots", "conf_reversals",
               "finalized_conflict", "heads_agree_end", "final_F_slots", "finality_timeline", "invariant_violations",
-              "dropped_first_seen"):
-        print(f"  {k}: {res[k]}")
+              "dropped_first_seen", "finality_resume_delay", "max_finality_gap"):
+        print(f"  {k}: {res.get(k)}")
     for line in world.adv.notes:
         print("  adversary:", line)
     print("VIOLATION" if bad(res) else "ok")

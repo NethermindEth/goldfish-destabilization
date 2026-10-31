@@ -43,6 +43,14 @@ def main():
               "rev", {k: v[:2] for k, v in r["conf_reversals"].items() if v}, "inv", r["invariant_violations"][:2])
     for r in errs[:5]:
         print("  crash", r["argv"][-1], r["error"])
+    rd = sorted(r.get("finality_resume_delay") if r.get("finality_resume_delay") is not None else 999
+                for r in out if r.get("heal"))
+    if rd:
+        print(f"  finality resumes after the heal: min {rd[0]}, median {rd[len(rd) // 2]}, max {rd[-1]} slots"
+              f" (999 = never)")
+    mg = sorted(r.get("max_finality_gap") or 0 for r in out if "max_finality_gap" in r)
+    if mg:
+        print(f"  longest gap between finality steps: median {mg[len(mg) // 2]}, max {mg[-1]} slots")
     fin = sorted(min(r["final_F_slots"]) for r in out if "final_F_slots" in r)
     if fin:
         print(f"  final finalized slot (min over nodes): min {fin[0]}, median {fin[len(fin) // 2]}, max {fin[-1]}")
