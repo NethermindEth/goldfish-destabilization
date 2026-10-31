@@ -221,6 +221,9 @@ class Adversary:
             for node in self.nodes:
                 at = now_ms + self.net.latency_ms
                 self.net.sent["block"] += 1
+                # record it for the explorer too: otherwise the final-chain walk stops at the first
+                # adversary block and every older block is drawn as orphaned
+                self.net.record(node, node, now_ms, at, "block", b, held=False)
                 heapq.heappush(self.net.queue, (at, next(self.net.seq), node.id, "block", b))
             self.proposed.append((slot, [hr.short(spec.hash_tree_root(b.message))]))
 
