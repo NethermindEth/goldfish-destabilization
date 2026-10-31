@@ -34,7 +34,7 @@ bash attack_suite.sh                      # every attack and its control
 committee (K_s = V) and attests at every round's action time, as in the abstract spec.
 
 **Simplifications.** Validators of a node share one AC state. There are no signatures,
-slashing or payload form checks, and no Byzantine behaviour yet. A block with a missing parent
+slashing or payload form checks; Byzantine behaviour lives in `adversary.py`. A block with a missing parent
 waits for it (re-delivery).
 
 **Checks.** At every slot the tracker checks F ⪯ confirmed ⪯ head and fc_root ⪯ head
