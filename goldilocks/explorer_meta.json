@@ -1,0 +1,58 @@
+{
+ "01 honest": {
+  "slot": 24,
+  "about": "<p>All 64 validators honest, on 4 nodes, 200 ms latency. This is the reference run: the confirmed tip runs one slot behind the head, each node holds k = 4 live locks (yellow dots), and the finalized tip draws a sawtooth 16–24 slots behind: one FG height per 8-slot round, finalized two rounds after its target.</p>"
+ },
+ "02 partition 50-50": {
+  "slot": 56,
+  "about": "<p>Two halves of 32 validators each (nodes 0,1 | 2,3), cut for slots 48–63, no adversary. Each half confirms its own branch and passes the fast test (32 ≥ n/2), so <b>both halves fast-lock conflicting branches</b>. Neither reaches q = 43, so finality stalls.</p><p>At the heal each lock has exactly 32 opponents and moves back to the last common block: every block of the cut is discarded on both sides (hollow). Heads agree at once, and finality resumes within two rounds.</p>"
+ },
+ "03 partition 75-25": {
+  "slot": 60,
+  "about": "<p>Cut 48–63 with 48 validators on one side and 16 on the other. The majority does not notice the cut: it keeps confirming, fast-locking and finalizing. The minority confirms its own blocks and slow-locks them after k = 4 confirmations. At the heal the majority's votes unlock the minority, which reorgs onto the majority chain (depth 3).</p>"
+ },
+ "04 partition 52-48": {
+  "slot": 60,
+  "about": "<p>Cut 48–63 with 33 validators against 31. Only the 33-side passes the fast test (66 ≥ 64). At the heal its locks have 31 opponents (fewer than n/2) and survive, while the 31-side's locks have 33 and move back. The larger side's branch wins and the other side reorgs (depth 7).</p>"
+ },
+ "05 long cut 50-50": {
+  "slot": 112,
+  "about": "<p>As tab 02, but the cut lasts 64 slots (48–111). Each node discards 28–35 confirmed blocks, and finality stalls for 8 rounds and then resumes. Healing is still immediate: no lock survives the heal.</p>"
+ },
+ "06 messy heal": {
+  "slot": 64,
+  "about": "<p>A 50/50 cut for slots 48–63 whose held messages are released at random times up to 12 s (2 slots) after the heal, instead of all at once. Healing is measured against the moment the last message lands (effective GST). Across 320 seeded runs, heads and confirmed tips always agreed within about three slots, far inside the spec's 2L + G bound.</p>"
+ },
+ "07 one-slot glitch at a round start": {
+  "slot": 49,
+  "about": "<p>A one-slot 50/50 cut at slot 48, the first slot of round 6. The confirmation update of slot 48 gets only 32 votes before the support cutoff on every node. The FG reads its source only from that update, so nobody attests in round 6 and the round is lost for finality: the step expected at slot 50 comes at 58. The same cut at slot 49 costs one slot.</p>"
+ },
+ "08 half asleep": {
+  "slot": 56,
+  "about": "<p>Nodes 2 and 3 (32 validators) are asleep for slots 48–63 (purple band). The awake half keeps confirming and slow-locks, but 32 is less than q = 43, so finality stalls. On waking, the sleepers restart, keep their locks (expired by then) and rejoin within a slot. Finality resumes a round later.</p>"
+ },
+ "09 adversary: silent": {
+  "slot": 40,
+  "about": "<p>From this tab on, 21 of 64 validators (32.8%) are faulty and run by one adversary. The 43 honest validators sit on 4 nodes (11/11/10/11). Here the adversary is silent: it never votes, proposes or attests, so its proposer slots stay empty.</p><p>The 43 honest validators are <b>exactly</b> the quorum q = 43, so finality needs every one of them, and gets it.</p>"
+ },
+ "10 adversary: equivocation": {
+  "slot": 40,
+  "about": "<p>Every slot, every faulty validator votes two conflicting heads, one to each half of the network. At its proposer slots the adversary proposes two blocks, one per half (X in the tree).</p><p>Honest nodes relay everything, including the second vote, so both copies reach everyone within Δ. The equivocators are detected and excluded from confirmations and unlocking, and nothing breaks.</p>"
+ },
+ "11 adversary: two-faced across a cut": {
+  "slot": 60,
+  "about": "<p>A 50/50 cut for slots 48–63 (nodes 0,1 | 2,3). During the cut the adversary acts honestly on both sides at once: votes, blocks and attestations to each side. Side A plus the adversary reaches q and finalizes on its own (allowed before GST). After the heal it releases blocks it kept back during the cut.</p><p>Finality resumes 10 slots after the heal. Across 2,304 seeded runs of this kind, nothing broke after GST.</p>"
+ },
+ "12 ATTACK fin_hide": {
+  "slot": 34,
+  "about": "<p><b>The attack.</b> Synchrony throughout: every honest message and every relay arrives within 200 ms, there is one clock, and everything is relayed. The adversary (21/64) proposes slots 33 and 34; slot 34 is the first slot after the round's action time.</p><p><b>Slot 33.</b> Its block B (X) reaches nodes 0 and 1 just before their vote (22 honest votes). 10 faulty votes for B arrive early everywhere, which makes exactly 32 = n/2 early votes. 11 faulty validators keep their slot-33 votes back.</p><p><b>Slot 34.</b> Three adversary blocks:</p><ul><li><b>FB</b> extends B and carries the round's finality pairs. Only nodes 0–2 get it, 100 ms before their vote.</li><li><b>Q</b> forks off at slot 17, below the checkpoint that FB finalizes, and carries the 11 held-back votes.</li><li><b>Z</b> is a sibling of B.</li></ul><p>Node 3 gets Q and Z 1 ms before its vote. Nodes 0–2 get Q by relay only after FB, so they <b>refuse</b> it: it does not extend their new finalized block, and its votes never reach their available chain.</p><p>Node 3 counts 64 voters, so B (32) is not a majority and node 3 votes Z, as does the adversary. Nodes 0–2 count 53 voters: B is confirmed and fast-locked, and is <b>their confirmed tip in slot 34</b>. In slot 35, Z's 32 votes are n/2 opponents, the locks move back, and B is orphaned (hollow).</p>"
+ },
+ "13 ATTACK fin_hide, > n/2": {
+  "slot": 34,
+  "about": "<p>The same attack with the strict fast test (&gt; n/2, not the spec). Nodes 0–2 write no lock on B, but 32 of 53 voters is still a strict majority, so they <b>confirm B</b>. The adversary sends its Z votes only to the slot-35 proposer, just before it proposes. Nodes 0–2 keep B as their confirmed tip for 3–4.5 s, then their head moves and B is orphaned.</p><p>So &gt; n/2 protects fast locks but not the confirmed tip: 74 of 74 attacked seeds when the Z votes land just before the freeze (shown for 1.5 s), 48 of 74 with this proposer-only variant (shown for 3–4.5 s).</p>"
+ },
+ "14 ATTACK fin_hide + fix": {
+  "slot": 34,
+  "about": "<p>The same attack with the proposed fix (not the spec): the available chain takes the votes of a block even when the FG refuses it. Nodes 0–2 then count the 11 held-back votes too, so B has 32 of 64 voters everywhere and nobody confirms it. Nothing is orphaned. The fix closes every variant, with either threshold (0 of 74 attacked seeds), and 200 random runs stay clean.</p>"
+ }
+}

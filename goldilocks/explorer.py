@@ -65,13 +65,21 @@ def compact(path, name):
             log.append([s, e["node"], k, e.get("what", "")])
         elif k == "fg_pair":
             log.append([s, e["node"], "fg_pair", I(e["fg_confirmed"]), I(e["head"])])
-    msgs = []
+    msgs, vidx = [], {}
     for m in d["messages"]:
         extra = ""
         if m["kind"] == "block":
             extra = I(m["root"])
         elif m["kind"] == "vote":
             extra = [[I(h), c] for h, c in m["heads"]]
+            k = (m["t"], round(m["at"]), m["src"], m["dst"], int(m["held"]))
+            if k in vidx:  # one line per sender, receiver and timing (the adversary sends votes one by one)
+                agg = dict(map(tuple, msgs[vidx[k]][6]))
+                for h, c in extra:
+                    agg[h] = agg.get(h, 0) + c
+                msgs[vidx[k]][6] = [[h, c] for h, c in agg.items()]
+                continue
+            vidx[k] = len(msgs)
         else:
             extra = [m["h"], I(m["T"]), int(bool(m["tau"])), m["hf"], I(m["Tf"]), m["n"]]
         msgs.append([m["t"], round(m["at"]), m["src"], m["dst"], KINDS[m["kind"]], int(m["held"]), extra])
@@ -102,6 +110,12 @@ def compact(path, name):
 
 
 def main(argv):
+    meta = {}
+    if "--meta" in argv:  # {run name: {"about": html, "slot": focus slot}}
+        i = argv.index("--meta")
+        with open(argv[i + 1]) as fh:
+            meta = json.load(fh)
+        argv = argv[:i] + argv[i + 2:]
     out, specs = argv[0], argv[1:]
     runs = []
     if specs and specs[0] == "--index":
@@ -111,6 +125,8 @@ def main(argv):
         for s in specs:
             name, path = s.split("=", 1)
             runs.append(compact(path, name))
+    for r in runs:
+        r["meta"] = meta.get(r["name"], {})
     html = PAGE.replace("/*DATA*/null", json.dumps(runs, separators=(",", ":")))
     with open(out, "w") as fh:
         fh.write(html)
@@ -144,10 +160,12 @@ th{color:var(--ink2);font-weight:600}.tip{position:fixed;pointer-events:none;bac
 box-shadow:0 4px 14px rgba(0,0,0,.15);font-size:12px;display:none;z-index:9;max-width:340px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
 .row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}@media(max-width:900px){.row2{grid-template-columns:1fr}}
 .nav{display:flex;gap:6px;align-items:center}.nav button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:1px 8px;cursor:pointer}
+.about{display:none;margin-top:10px;background:var(--surface);border:1px solid var(--grid);border-left:3px solid var(--s1);border-radius:8px;padding:10px 12px;line-height:1.55;max-width:1100px}
+.about b{color:var(--ink)}.about p{margin:4px 0}
 .ev{margin:0;padding-left:16px}.ev li{margin:2px 0}.warn{color:var(--bad);font-weight:600}
 </style></head><body>
-<header><h1>Goldilocks explorer</h1><div class="sub">Executable model of the FGSA spec (22 Oct 2026) — partitions, sleep and healing. Click any chart to select a slot; ← → step.</div>
-<div class="runs" id="runs"></div><div class="chips" id="chips"></div></header>
+<header><h1>Goldilocks explorer</h1><div class="sub">Executable model of the FGSA spec (22 Oct 2026): partitions, sleep, healing and a one-third adversary. Click any chart to select a slot; ← → step.</div>
+<div class="runs" id="runs"></div><div class="chips" id="chips"></div><div class="about" id="about"></div></header>
 <main>
 <section class="card"><h2>Tips over time, per node</h2>
 <div class="legend"><span><span class="sw" style="background:var(--s1)"></span>head</span><span><span class="sw" style="background:var(--s2)"></span>confirmed tip</span>
@@ -155,7 +173,7 @@ box-shadow:0 4px 14px rgba(0,0,0,.15);font-size:12px;display:none;z-index:9;max-
 <span><span class="dot" style="border:2px solid var(--ink2)"></span>hollow = block not on the final chain</span><span><span class="sw" style="background:var(--shade);height:10px"></span>cut</span><span><span class="sw" style="background:var(--sleep);height:10px"></span>asleep</span></div>
 <div id="tips"></div></section>
 <section class="card"><h2>Block tree <span class="sub" id="treesub"></span></h2>
-<div class="legend"><span>letter = proposer group</span><span><span class="dot" style="background:var(--s3)"></span>finalized (final view, node 0)</span><span><span class="dot" style="border:2px solid var(--muted)"></span>orphaned</span>
+<div class="legend"><span>letter = proposer group, X = adversary</span><span><span class="dot" style="background:var(--s3)"></span>finalized (final view, node 0)</span><span><span class="dot" style="border:2px solid var(--muted)"></span>orphaned</span>
 <span>selected slot: <b style="color:var(--s1)">H</b> head, <b style="color:var(--s2)">C</b> confirmed, <b style="color:var(--s4)">L</b> lock — subscript = node</span></div>
 <div class="scroll" id="tree"></div></section>
 <div class="row2">
@@ -165,7 +183,7 @@ box-shadow:0 4px 14px rgba(0,0,0,.15);font-size:12px;display:none;z-index:9;max-
 <section class="card"><div class="nav"><h2 style="margin:0">Slot <span id="slotno"></span></h2><button id="prev">←</button><button id="next">→</button><span class="sub" id="slotsub"></span></div>
 <div class="scroll" style="margin-top:8px"><table id="tbl"></table></div>
 <div class="row2" style="margin-top:10px"><div><h2>AC / FG events this slot</h2><ul class="ev mono" id="events"></ul></div>
-<div><h2>Messages in flight around this slot</h2><div class="legend"><span><span class="sw" style="background:var(--s1)"></span>block</span><span><span class="sw" style="background:var(--s2)"></span>votes</span><span><span class="sw" style="background:var(--s3)"></span>attestations</span><span>dashed = held by the cut</span></div><div id="msgs"></div></div></div>
+<div><h2>Messages in flight around this slot</h2><div class="legend"><span><span class="sw" style="background:var(--s1)"></span>block</span><span><span class="sw" style="background:var(--s2)"></span>votes</span><span><span class="sw" style="background:var(--s3)"></span>attestations</span><span>dashed = held by the cut</span><span>top row: adversary</span></div><div id="msgs"></div></div></div>
 </section>
 </main><div class="tip" id="tip"></div>
 <script>
@@ -198,6 +216,7 @@ function prepare(run){
   depthFirst(0,0);
   FINAL={canon,fin,lane,lanes:Math.max(...lane)+1};
   const nslots=R.states.length;SEL=Math.min(SEL,nslots-1);
+  if(!SEL&&R.meta&&R.meta.slot!=null)SEL=Math.min(R.meta.slot,nslots-1);
   if(!SEL){const s=R.summary;SEL=(s&&s.heal_slot)?Math.min(s.heal_slot,nslots-1):Math.min(24,nslots-1)}
 }
 function cutAt(s){return R.windows.some(w=>s>=w[0]&&s<w[1])}
@@ -267,8 +286,8 @@ function renderTree(){
     const cx=x(B.slot[i]),cy=y(FINAL.lane[i]),canon=FINAL.canon[i],fin=FINAL.fin[i];
     const g=el("g",{},svg);
     el("rect",{x:cx-6,y:cy-6,width:12,height:12,rx:3,fill:fin?"var(--s3)":canon?"var(--surface)":"var(--bg)",stroke:canon?"var(--ink2)":"var(--muted)","stroke-dasharray":canon?"":"2 2","stroke-width":1.5},g);
-    if(i>0)txt(g,cx,cy+3.5,G(R.groupOf[B.pnode[i]]??0),{"text-anchor":"middle",style:`font-size:8px;font-weight:700;fill:${fin?"#fff":"var(--ink)"}`});
-    g.addEventListener("mousemove",ev=>showTip(ev,`<b>${bname(i)}</b> slot ${B.slot[i]}${i?` · proposer node ${B.pnode[i]} (group ${G(R.groupOf[B.pnode[i]])})`:""}<br>parent ${bname(B.parent[i])} · ${B.natt[i]} attestations · ${B.nvotes[i]} votes<br>${fin?"finalized":canon?"on the final chain":"orphaned"}`));
+    if(i>0)txt(g,cx,cy+3.5,B.pnode[i]<0?"X":G(R.groupOf[B.pnode[i]]??0),{"text-anchor":"middle",style:`font-size:8px;font-weight:700;fill:${fin?"#fff":"var(--ink)"}`});
+    g.addEventListener("mousemove",ev=>showTip(ev,`<b>${bname(i)}</b> slot ${B.slot[i]}${i?(B.pnode[i]<0?" · proposed by the adversary":` · proposer node ${B.pnode[i]} (group ${G(R.groupOf[B.pnode[i]])})`):""}<br>parent ${bname(B.parent[i])} · ${B.natt[i]} attestations · ${B.nvotes[i]} votes<br>${fin?"finalized":canon?"on the final chain":"orphaned"}`));
     g.addEventListener("mouseleave",hideTip);g.addEventListener("click",()=>{SEL=Math.min(n-1,B.slot[i]);renderSel()});
   }
   // markers for the selected slot
@@ -324,20 +343,24 @@ function renderSel(){
 }
 function renderMsgs(){
   const box=$("msgs");box.innerHTML="";const p=R.params,d=p.delta,N=R.validators.length;
-  const t0=SEL*p.slot_ms-d,t1=(SEL+1)*p.slot_ms+2*d,Wm=540,L=46,lh=30,H=N*lh+34;
-  const svg=el("svg",{viewBox:`0 0 ${Wm} ${H}`},box);const x=t=>L+(Wm-L-8)*(t-t0)/(t1-t0),y=k=>14+k*lh+lh/2;
+  const adv=R.msgs.some(m=>m[2]<0),off=adv?1:0;
+  const t0=SEL*p.slot_ms-d,t1=(SEL+1)*p.slot_ms+2*d,Wm=540,L=58,lh=30,H=(N+off)*lh+34;
+  const svg=el("svg",{viewBox:`0 0 ${Wm} ${H}`},box);const x=t=>L+(Wm-L-8)*(t-t0)/(t1-t0),y=k=>14+(k+off)*lh+lh/2;
+  if(adv){txt(svg,L-6,y(-1)+3,"adversary",{"text-anchor":"end",style:"fill:var(--bad);font-weight:600"});el("line",{x1:L,x2:Wm-8,y1:y(-1),y2:y(-1),stroke:"var(--grid)","stroke-dasharray":"2 3"},svg)}
   const names=["prop","vote","cutoff","freeze"];
   for(let s=SEL;s<=SEL+1;s++)for(let i=0;i<4;i++){const t=s*p.slot_ms+i*d;if(t<t0||t>t1)continue;el("line",{x1:x(t),x2:x(t),y1:10,y2:H-18,stroke:i?"var(--grid)":"var(--line)"},svg);txt(svg,x(t),H-6,(s===SEL?"":"+1 ")+names[i],{"text-anchor":"middle"})}
   for(let k=0;k<N;k++){txt(svg,L-6,y(k)+3,"node "+k,{"text-anchor":"end"});el("line",{x1:L,x2:Wm-8,y1:y(k),y2:y(k),stroke:"var(--grid)"},svg)}
   const shown=R.msgs.filter(m=>(m[0]>=t0&&m[0]<=t1)||(m[1]>=t0&&m[1]<=t1&&m[0]<t0));
-  shown.slice(0,400).forEach(m=>{const xa=Math.max(L,x(m[0])),xb=Math.min(Wm-8,x(m[1]));
+  shown.sort((a,b)=>(a[4]!==1)-(b[4]!==1)||(a[2]<0)-(b[2]<0));  // votes first, so blocks and the adversary draw on top
+  shown.slice(-600).forEach(m=>{const xa=Math.max(L,x(m[0])),xb=Math.min(Wm-8,x(m[1]));
     const ln=el("line",{x1:xa,y1:y(m[2]),x2:xb,y2:y(m[3]),stroke:`var(--s${m[4]+1})`,"stroke-width":1.6,"stroke-dasharray":m[5]?"3 3":"",opacity:.85},svg);
     el("circle",{cx:xb,cy:y(m[3]),r:2.4,fill:`var(--s${m[4]+1})`},svg);
     const hit=el("line",{x1:xa,y1:y(m[2]),x2:xb,y2:y(m[3]),stroke:"transparent","stroke-width":8},svg);
     hit.addEventListener("mousemove",ev=>{let w=["block "+bname(m[6]),"votes: "+(m[6]||[]).map(([h,c])=>c+"×"+bname(h)).join(", "),`attestations ×${m[6][5]}: (h ${m[6][0]}, ${bname(m[6][1])}${m[6][2]?", timeout":""})${m[6][3]!=null?` fin (${m[6][3]}, ${bname(m[6][4])})`:""}`][m[4]];
-      showTip(ev,`<b>${w}</b><br>node ${m[2]} → node ${m[3]}<br>sent ${m[0]} ms · arrives ${m[1]} ms${m[5]?" · <b>held by the cut</b>":""}`)});hit.addEventListener("mouseleave",hideTip)});
+      showTip(ev,`<b>${w}</b><br>${m[2]<0?"adversary":"node "+m[2]} → node ${m[3]}<br>sent ${m[0]} ms · arrives ${m[1]} ms${m[5]?" · <b>held by the cut</b>":""}`)});hit.addEventListener("mouseleave",hideTip)});
 }
-function pick(i){prepare(RUNS[i]);document.querySelectorAll(".runs button").forEach((b,j)=>b.classList.toggle("on",i===j));chips();renderSel();try{localStorage.setItem("gl-run",i)}catch(e){}}
+function about(){const a=$("about"),m=(R.meta||{}).about;a.innerHTML=m?"<b>About this experiment</b>"+m:"";a.style.display=m?"block":"none"}
+function pick(i){prepare(RUNS[i]);about();document.querySelectorAll(".runs button").forEach((b,j)=>b.classList.toggle("on",i===j));chips();renderSel();try{localStorage.setItem("gl-run",i)}catch(e){}}
 const _renderSel=renderSel;renderSel=function(){_renderSel();try{history.replaceState(null,"",`#run=${R.name}&slot=${SEL}`)}catch(e){}};
 RUNS.forEach((r,i)=>{const b=document.createElement("button");b.textContent=r.name;b.onclick=()=>{SEL=0;pick(i)};$("runs").appendChild(b)});
 $("prev").onclick=()=>{SEL=Math.max(0,SEL-1);renderSel()};$("next").onclick=()=>{SEL=Math.min(R.states.length-1,SEL+1);renderSel()};

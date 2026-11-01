@@ -84,7 +84,7 @@ class AdvNetwork(Network):
             at = self.local(max(t0, end) + d if end is not None else t0 + d, dst.id)
             heapq.heappush(self.queue, (at, next(self.seq), dst.id, kind, payload, "honest"))
             if self.events is not None:
-                self.events.append(message_event(now, at, src, dst.id, kind, payload, False))
+                self.events.append(message_event(now, at, src, dst.id, kind, payload, end is not None))
 
     def adv_send(self, kind, obj, arrivals):
         """Deliver one adversary object: arrivals maps node -> real arrival time (ms)."""
@@ -92,7 +92,7 @@ class AdvNetwork(Network):
         for dst, real in arrivals.items():
             self._schedule(kind, obj, dst, self.local(real, dst), "adv")
 
-    def _schedule(self, kind, obj, dst, at, origin, sent=None):
+    def _schedule(self, kind, obj, dst, at, origin, sent=None, held=False):
         k = (kind, okey(kind, obj), dst)
         if self.got.get(k, INF) <= at:
             return
@@ -101,7 +101,7 @@ class AdvNetwork(Network):
         heapq.heappush(self.queue, (at, next(self.seq), dst, kind, payload, origin))
         if self.events is not None:  # the adversary is drawn as node -1; a relay starts at its relaying node
             src = -1 if origin == "adv" else origin
-            self.events.append(message_event(at if sent is None else sent, at, src, dst, kind, payload, src != -1))
+            self.events.append(message_event(at if sent is None else sent, at, src, dst, kind, payload, held))
 
     def relay_from(self, src, at, kind, obj, nodes):
         """src received an adversary object at local time `at`: every other node has it by then
@@ -111,7 +111,8 @@ class AdvNetwork(Network):
         for n in nodes:
             if n.id != src:
                 end = self.held_until(src, n.id, r0)
-                self._schedule(kind, obj, n.id, self.local((r0 if end is None else end) + d, n.id), src, sent=at)
+                self._schedule(kind, obj, n.id, self.local((r0 if end is None else end) + d, n.id), src, sent=at,
+                               held=end is not None)
 
 
 class AdvWorld(World):
