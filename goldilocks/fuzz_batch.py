@@ -12,7 +12,7 @@ import adversary
 
 
 def one(argv):
-    p = argparse.ArgumentParser()
+    p = argparse.ArgumentParser(allow_abbrev=False)
     adversary.add_args(p)
     args = p.parse_args(argv)
     try:
@@ -25,7 +25,7 @@ def one(argv):
 
 
 def main():
-    p = argparse.ArgumentParser()
+    p = argparse.ArgumentParser(allow_abbrev=False)  # else "--f 2" is taken for --first-seed
     p.add_argument("--seeds", type=int, default=100)
     p.add_argument("--first-seed", type=int, default=0)
     p.add_argument("--procs", type=int, default=8)
@@ -39,7 +39,7 @@ def main():
     bad = [r for r in out if r.get("bad")]
     print(f"{len(out)} runs in {time.perf_counter() - t0:.0f}s: {len(bad)} with a violation, {len(errs)} crashed")
     for r in bad[:10]:
-        print(" ", r["argv"][-1], "tsq", r["n_tsq"], "dropped", r["n_dropped"], "lockconf", r["lock_conflict_slots"][:5],
+        print(" ", r["argv"][-1], "orph", r.get("n_orphaned"), "tsq", r["n_tsq"], "dropped", r["n_dropped"], "lockconf", r["lock_conflict_slots"][:5],
               "rev", {k: v[:2] for k, v in r["conf_reversals"].items() if v}, "inv", r["invariant_violations"][:2])
     for r in errs[:5]:
         print("  crash", r["argv"][-1], r["error"])
