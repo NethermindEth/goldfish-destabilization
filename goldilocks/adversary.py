@@ -127,6 +127,8 @@ class AdvWorld(World):
         self.sleep, self.woken = {}, set()
         self.adv = None
         self.hold_early = bool(skew)
+        self.conf_seen = {n.id: {} for n in self.nodes}
+        self.conf_tl = {n.id: [] for n in self.nodes}  # (public time, confirmed tip) at every change  # node -> {block: first public time it was the confirmed tip}
 
     def _dup_vote(self, node, x):
         return any(y.v == x.v and y != x for y in node.ac.gf_votes.get(x.s, ()))
@@ -173,6 +175,13 @@ class AdvWorld(World):
                 self.net.broadcast(node.id, t, kind, payload, self.nodes)
         if self.adv is not None:
             self.adv.act(t)
+        for node in self.nodes:  # the user-facing confirmed tip at every public time
+            if self.wake_time(node.id, t) is None:
+                c = node.confirmed(t)
+                if c != self.conf_seen[node.id].get("last"):
+                    self.conf_seen[node.id]["last"] = c
+                    self.conf_seen[node.id].setdefault(c, t)
+                    self.conf_tl[node.id].append((t, c))
 
 
 # ------------------------------------------------------------------------ adversaries
@@ -474,6 +483,7 @@ class FinalityHide(Adversary):
     unlock it. Every delay is inside Δ; the only lever is the acceptance test Σ.F ⪯ B."""
 
     name = "fin_hide"
+    late_z = False
 
     def target(self, s):
         P = self.P
@@ -530,8 +540,28 @@ class FinalityHide(Adversary):
             for v in self.vals[:self.f1]:
                 self.vote(v, s, self.B.root, self.at(self.all_nodes(), t + P.delta - 1))
         elif s0 is not None and s == s0 + 1 and getattr(self, "Z", None):
+            # late_z: the faulty Z votes land just before the freeze, after the fooled nodes' update
+            # (t + Δ): they still enter every frozen view, so the next slot's votes go to Z
+            if self.late_z == "proposer":
+                return  # sent at the freeze, to the next proposer only (at_freeze)
+            at = t + 2 * P.delta - 1 if self.late_z else t + 1
             for v in self.vals:
-                self.vote(v, s, self.Z.root, self.at(self.all_nodes(), t + 1))
+                self.vote(v, s, self.Z.root, self.at(self.all_nodes(), at))
+
+    def at_freeze(self, s, t):
+        """late_z = proposer: the faulty slot-(s0+1) votes for Z reach only the slot-(s0+2) proposer,
+        just before its proposal; its block carries them to everyone (relay brings them too)."""
+        P = self.P
+        s0 = getattr(self, "s0", None)
+        if self.late_z != "proposer" or s0 is None or s != s0 + 1 or not getattr(self, "Z", None):
+            return
+        prop = P.proposer(s + 1)
+        if prop in self.valset:
+            self.notes.append("slot-(s0+2) proposer is faulty: not handled")
+            return
+        dst = self.w.node_of[prop]
+        for v in self.vals:
+            self.vote(v, s, self.Z.root, self.at([dst], P.t(s + 1) - 1))
 
 
 class TwoFace(Adversary):
@@ -786,6 +816,11 @@ def check(world, tracker, t_end, warmup=0):
     # the PR4 property ("the confirmed head never reorgs under synchrony")
     orphaned = {n.id: [(b, seen) for b, seen in tracker.orphaned_confirmed(n, t_end, True) if b >= warmup]
                 for n in nodes}
+    fine = {}
+    for n in nodes:
+        seen = getattr(world, "conf_seen", {}).get(n.id, {})
+        fine[n.id] = sorted((BLOCKS[b].slot, round(t0 / P.slot_ms, 2)) for b, t0 in seen.items()
+                            if b != "last" and BLOCKS[b].slot >= warmup and not prec(b, heads[n.id]))
     lock_conf = [s for s, _ in tracker.lock_conflicts if s >= warmup]
     reversals = {n.id: [r for r in tracker.conf_reversals[n.id] if r[0] >= warmup] for n in nodes}
     fin = tracker.finality
@@ -795,6 +830,10 @@ def check(world, tracker, t_end, warmup=0):
         "dropped_fast": dropped[:20], "n_dropped": len(dropped),
         "lock_conflict_slots": lock_conf, "conf_reversals": reversals,
         "orphaned_confirmed": orphaned, "n_orphaned": sum(len(v) for v in orphaned.values()),
+        "orphaned_confirmed_any_tick": fine, "n_orphaned_any_tick": sum(len(v) for v in fine.values()),
+        "orphaned_shown_ms": {n.id: [b - a for (a, c), (b, _) in zip(world.conf_tl[n.id], world.conf_tl[n.id][1:])
+                                     if BLOCKS[c].slot >= warmup and not prec(c, heads[n.id])]
+                              for n in nodes} if hasattr(world, "conf_tl") else {},
         "finality_timeline": fin, "final_F_slots": [BLOCKS[F].slot for F in fslots],
         "finalized_conflict": tracker.fin_conflict,
         "heads_agree_end": len(set(heads.values())) == 1,
@@ -805,7 +844,7 @@ def check(world, tracker, t_end, warmup=0):
 
 def bad(res):
     return bool(res["n_tsq"] or res["n_dropped"] or res["lock_conflict_slots"] or res["finalized_conflict"]
-                or res.get("n_orphaned")
+                or res.get("n_orphaned") or res.get("n_orphaned_any_tick")
                 or any(res["conf_reversals"].values()) or res["invariant_violations"])
 
 
@@ -819,7 +858,8 @@ def dump(path, args, world, tracker):
 def run(args, quiet=True):
     assert 3 * args.f <= args.validators, f"the adversary holds at most n/3 (f={args.f}, n={args.validators})"
     P = Params(n=args.validators, delta=args.delta_ms, delta_f=args.delta_ms, R=args.R, k=args.k,
-               delta_t=args.delta_t or args.R, seed=args.seed, fast_strict=args.fast_strict)
+               delta_t=args.delta_t or args.R, seed=args.seed, fast_strict=args.fast_strict,
+               refused_votes=args.refused_votes)
     skew = {}
     for item in filter(None, (args.skew or "").split(",")):
         i, ms = item.split(":")
@@ -840,6 +880,7 @@ def run(args, quiet=True):
         nid, a, b = item.split(":")
         world.sleep.setdefault(int(nid), []).append((round(float(a) * P.slot_ms), round(float(b) * P.slot_ms)))
     world.adv.post = args.post
+    world.adv.late_z = args.late_z
     if args.cut:
         a, d = (int(x) for x in args.cut.split(":"))
         A = set(groups[0])
@@ -895,7 +936,11 @@ def add_args(p):
     p.add_argument("--relay-ms", type=int, default=None)
     p.add_argument("--skew", default="", help="clock offsets node:ms,... (leaves the spec's model)")
     p.add_argument("--fast-strict", action="store_true", help="fast test > n/2 (NOT the spec), to compare")
+    p.add_argument("--refused-votes", action="store_true",
+                   help="NOT the spec (proposed fix): take the votes of a block the FG refuses")
     p.add_argument("--round-start", action="store_true", help="skew attacks: only at a round start (FG source)")
+    p.add_argument("--late-z", nargs="?", const="freeze", default=None, choices=("freeze", "proposer"),
+                   help="fin_hide: faulty slot-(s+1) votes just before the freeze, or only to the next proposer")
     p.add_argument("--sleep", default="", help="asleep windows node:start:end (slots), comma-separated")
     p.add_argument("--cut", default="", help="partition start:slots between group A and the rest (GST at the end)")
     p.add_argument("--post", default="passive", choices=("passive", "balance", "fuzz", "reveal"),
@@ -918,7 +963,7 @@ def main(argv=None):
     print(f"\n{args.strategy}: n={args.validators} f={args.f} relay={args.relay} skew={args.skew or 0} "
           f"fast_strict={args.fast_strict} in {time.perf_counter() - t0:.1f}s; adversary votes {res['adv_votes']}, "
           f"blocks {res['adv_blocks']}")
-    for k in ("n_orphaned", "orphaned_confirmed", "n_tsq", "tsq_violations", "n_dropped", "dropped_fast", "lock_conflict_slots", "conf_reversals",
+    for k in ("n_orphaned", "orphaned_confirmed", "n_orphaned_any_tick", "orphaned_confirmed_any_tick", "orphaned_shown_ms", "n_tsq", "tsq_violations", "n_dropped", "dropped_fast", "lock_conflict_slots", "conf_reversals",
               "finalized_conflict", "heads_agree_end", "final_F_slots", "finality_timeline", "invariant_violations",
               "dropped_first_seen", "finality_resume_delay", "max_finality_gap"):
         print(f"  {k}: {res.get(k)}")

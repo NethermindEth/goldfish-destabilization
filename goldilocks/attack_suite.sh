@@ -5,7 +5,7 @@ r() {
   name=$1
   shift
   printf '%-34s ' "$name"
-  python3 adversary.py --quiet "$@" 2>&1 | grep -E "n_orphaned|n_tsq|n_dropped|lock_conflict_slots|final_F|^VIOL|^ok" | tr -s ' \n' ' '
+  python3 adversary.py --quiet "$@" 2>&1 | grep -E "n_orphaned_any_tick|n_tsq|n_dropped|lock_conflict_slots|final_F|^VIOL|^ok" | tr -s ' \n' ' '
   echo
 }
 r "passive" --strategy passive --seed 7
@@ -27,3 +27,6 @@ r "skew_freeze, 500 ms, relay 1100" --strategy skew_freeze --seed 7 --round-star
 r "fin_hide, node 0 fooled" --strategy fin_hide --seed 7 --group-a 0 --relay-ms 200
 r "fin_hide, nodes 0-2 fooled" --strategy fin_hide --seed 7 --group-a 0,1,2 --relay-ms 200
 r "fin_hide, nodes 0-2, > n/2" --strategy fin_hide --seed 7 --group-a 0,1,2 --relay-ms 200 --fast-strict
+r "fin_hide, > n/2, late Z votes" --strategy fin_hide --seed 7 --group-a 0,1,2 --relay-ms 200 --fast-strict --late-z freeze
+r "fin_hide + refused-votes fix" --strategy fin_hide --seed 7 --group-a 0,1,2 --relay-ms 200 --refused-votes
+r "fin_hide, > n/2, late Z + fix" --strategy fin_hide --seed 7 --group-a 0,1,2 --relay-ms 200 --fast-strict --late-z freeze --refused-votes
