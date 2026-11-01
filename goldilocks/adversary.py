@@ -128,6 +128,7 @@ class AdvWorld(World):
         self.sleep, self.woken = {}, set()
         self.adv = None
         self.hold_early = bool(skew)
+        self.relay_carried = False  # --relay-carried: Lean `relay_accepted` + `handlesS`
         self.conf_seen = {n.id: {} for n in self.nodes}
         self.conf_tl = {n.id: [] for n in self.nodes}  # (public time, confirmed tip) at every change  # node -> {block: first public time it was the confirmed tip}
 
@@ -151,8 +152,11 @@ class AdvWorld(World):
                     heapq.heappush(self.net.queue, (self.P.t(slot), next(self.net.seq), dst, kind, payload, origin))
                     continue
             if kind == "block":
-                node.on_block(payload, at)
+                accepted = node.on_block(payload, at)
                 obj = payload
+                if accepted and self.relay_carried:  # the Lean's reading: relay what you accepted, also
+                    for x in payload.votes:           # the votes a block carries, as standalone votes
+                        self.net.relay_from(dst, at, "vote", x, self.nodes)
             elif kind == "vote":
                 obj = payload[0]
                 for x in payload:
@@ -869,6 +873,7 @@ def run(args, quiet=True):
     world = AdvWorld(P, args.f, args.nodes, shares, args.latency_ms, args.relay, args.relay_ms, skew)
     if getattr(args, "events", None):
         world.net.events = []
+    world.relay_carried = args.relay_carried
     if args.spec_drop_early:
         world.hold_early = False  # the spec's rule: drop a block (and a vote) of a future slot
     half = args.nodes // 2
@@ -937,6 +942,8 @@ def add_args(p):
     p.add_argument("--relay-ms", type=int, default=None)
     p.add_argument("--skew", default="", help="clock offsets node:ms,... (leaves the spec's model)")
     p.add_argument("--fast-strict", action="store_true", help="fast test > n/2 (NOT the spec), to compare")
+    p.add_argument("--relay-carried", action="store_true",
+                   help="honest nodes relay the carried votes of every block they accept (the Lean's relay premise)")
     p.add_argument("--refused-votes", action="store_true",
                    help="NOT the spec (proposed fix): take the votes of a block the FG refuses")
     p.add_argument("--round-start", action="store_true", help="skew attacks: only at a round start (FG source)")
