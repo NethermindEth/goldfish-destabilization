@@ -489,6 +489,7 @@ class FinalityHide(Adversary):
 
     name = "fin_hide"
     late_z = False
+    q_offset = None  # ms after t_(s+1) at which Q reaches the holdout nodes (default Δ - 1)
 
     def target(self, s):
         P = self.P
@@ -534,7 +535,8 @@ class FinalityHide(Adversary):
             # relay delay d >= 3 ms works (d = the relay bound used by the driver)
             net = self.w.net
             d = P.delta - 1 if net.relay_ms is None else min(net.relay_ms, P.delta - 1)
-            self.send_block(Q, self.at(others, t + P.delta - 1))
+            q_at = t + (P.delta - 1 if self.q_offset is None else self.q_offset)
+            self.send_block(Q, self.at(others, q_at))
             self.send_block(Z, self.at(others, t + P.delta - 1))
             self.send_block(FB, self.at(X, t + P.delta - 1 - d // 2))
 
@@ -887,6 +889,7 @@ def run(args, quiet=True):
         world.sleep.setdefault(int(nid), []).append((round(float(a) * P.slot_ms), round(float(b) * P.slot_ms)))
     world.adv.post = args.post
     world.adv.late_z = args.late_z
+    world.adv.q_offset = args.q_offset
     if args.cut:
         a, d = (int(x) for x in args.cut.split(":"))
         A = set(groups[0])
@@ -942,6 +945,7 @@ def add_args(p):
     p.add_argument("--relay-ms", type=int, default=None)
     p.add_argument("--skew", default="", help="clock offsets node:ms,... (leaves the spec's model)")
     p.add_argument("--fast-strict", action="store_true", help="fast test > n/2 (NOT the spec), to compare")
+    p.add_argument("--q-offset", type=int, default=None, help="fin_hide: when Q reaches the holdout (ms after t_(s+1))")
     p.add_argument("--relay-carried", action="store_true",
                    help="honest nodes relay the carried votes of every block they accept (the Lean's relay premise)")
     p.add_argument("--refused-votes", action="store_true",
