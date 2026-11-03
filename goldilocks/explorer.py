@@ -173,7 +173,7 @@ box-shadow:0 4px 14px rgba(0,0,0,.15);font-size:12px;display:none;z-index:9;max-
 <span><span class="dot" style="border:2px solid var(--ink2)"></span>hollow = block not on the final chain</span><span><span class="sw" style="background:var(--shade);height:10px"></span>cut</span><span><span class="sw" style="background:var(--sleep);height:10px"></span>asleep</span></div>
 <div id="tips"></div></section>
 <section class="card"><h2>Block tree <span class="sub" id="treesub"></span></h2>
-<div class="legend"><span>letter = proposer group, X = adversary</span><span><span class="dot" style="background:var(--s3)"></span>finalized (final view, node 0)</span><span><span class="dot" style="border:2px solid var(--muted)"></span>orphaned</span>
+<div class="legend"><span>digit = proposer's node, X = adversary</span><span><span class="dot" style="background:var(--s3)"></span>finalized (final view, node 0)</span><span><span class="dot" style="border:2px solid var(--muted)"></span>orphaned</span>
 <span>selected slot: <b style="color:var(--s1)">H</b> head, <b style="color:var(--s2)">C</b> confirmed, <b style="color:var(--s4)">L</b> lock — subscript = node</span></div>
 <div class="scroll" id="tree"></div></section>
 <div class="row2">
@@ -286,7 +286,7 @@ function renderTree(){
     const cx=x(B.slot[i]),cy=y(FINAL.lane[i]),canon=FINAL.canon[i],fin=FINAL.fin[i];
     const g=el("g",{},svg);
     el("rect",{x:cx-6,y:cy-6,width:12,height:12,rx:3,fill:fin?"var(--s3)":canon?"var(--surface)":"var(--bg)",stroke:canon?"var(--ink2)":"var(--muted)","stroke-dasharray":canon?"":"2 2","stroke-width":1.5},g);
-    if(i>0)txt(g,cx,cy+3.5,B.pnode[i]<0?"X":G(R.groupOf[B.pnode[i]]??0),{"text-anchor":"middle",style:`font-size:8px;font-weight:700;fill:${fin?"#fff":"var(--ink)"}`});
+    if(i>0)txt(g,cx,cy+3.5,B.pnode[i]<0?"X":String(B.pnode[i]),{"text-anchor":"middle",style:`font-size:8px;font-weight:700;fill:${fin?"#fff":"var(--ink)"}`});
     g.addEventListener("mousemove",ev=>showTip(ev,`<b>${bname(i)}</b> slot ${B.slot[i]}${i?(B.pnode[i]<0?" · proposed by the adversary":` · proposer node ${B.pnode[i]} (group ${G(R.groupOf[B.pnode[i]])})`):""}<br>parent ${bname(B.parent[i])} · ${B.natt[i]} attestations · ${B.nvotes[i]} votes<br>${fin?"finalized":canon?"on the final chain":"orphaned"}`));
     g.addEventListener("mouseleave",hideTip);g.addEventListener("click",()=>{SEL=Math.min(n-1,B.slot[i]);renderSel()});
   }
