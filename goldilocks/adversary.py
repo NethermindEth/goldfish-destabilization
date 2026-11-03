@@ -15,8 +15,9 @@ Synchrony (section 1.1) binds it in two ways, and the driver enforces both:
 
 Options that leave the spec's model, for the assumption study only:
   --relay first-seen   today's gossip rule (phase0 p2p-interface: IGNORE a second attestation
-                       of a validator): a node that holds a vote of v for slot s drops, and does
-                       not forward, another one;
+                       of a validator; IGNORE a block that is not the first of its proposer
+                       for its slot): a node drops, and does not forward, a second vote of v
+                       for slot s or a second block of proposer p for slot s;
   --skew i:ms,...      clock offsets: node i runs its tick at local public time τ, which is real
                        time τ - ms. Delays are real; stamps are local.
 
@@ -129,6 +130,7 @@ class AdvWorld(World):
         self.adv = None
         self.hold_early = bool(skew)
         self.relay_carried = False  # --relay-carried: Lean `relay_accepted` + `handlesS`
+        self.seen_blocks = {n.id: {} for n in self.nodes}  # first-seen: (proposer, slot) -> first root
         self.conf_seen = {n.id: {} for n in self.nodes}
         self.conf_tl = {n.id: [] for n in self.nodes}  # (public time, confirmed tip) at every change  # node -> {block: first public time it was the confirmed tip}
 
@@ -152,6 +154,11 @@ class AdvWorld(World):
                     heapq.heappush(self.net.queue, (self.P.t(slot), next(self.net.seq), dst, kind, payload, origin))
                     continue
             if kind == "block":
+                key = (payload.proposer, payload.slot)
+                if origin != "honest" and self.net.relay == "first-seen" and self.seen_blocks[dst].get(key, payload.root) != payload.root:
+                    self.net.dropped += 1  # IGNORE: not the first block of this proposer for this slot
+                    continue
+                self.seen_blocks[dst].setdefault(key, payload.root)
                 accepted = node.on_block(payload, at)
                 obj = payload
                 if accepted and self.relay_carried:  # the Lean's reading: relay what you accepted, also
