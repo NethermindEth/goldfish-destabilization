@@ -30,6 +30,8 @@ bash attack_suite.sh                      # every attack and its control
 | `explorer.py` | Interactive explorer: per-node tips (lag), locks, block tree, FG heights, held messages, per-slot state/events/messages |
 | `build_explorer.sh`, `explorer_meta.json` | Every experiment on one explorer page, one tab each, with an About card |
 | `explorer_classic.py`, `build_classic.sh` | The same runs in the previous protocol's explorer UI |
+| `fin_hide_trace.py` | Step-by-step trace of the finalization-hiding attack (`adversary.py --strategy fin_hide`) |
+| `report/` | The finalization-hiding report (Typst sources and `finalization_hiding.pdf`) |
 
 **Model.** `n` validators of weight 1 on `N` nodes; Δ = Δ_F = 1500 ms (slot 6 s); R = 8,
 δ_t = 8, K_W = 4, k = 4 (lock length; not fixed upstream). Every validator is on every slot

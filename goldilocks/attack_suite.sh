@@ -24,3 +24,9 @@ r "skew_fast, 500 ms, relay 1100" --strategy skew_fast --seed 7 --round-start --
 r "skew_freeze, 500 ms, relay 1000" --strategy skew_freeze --seed 7 --round-start --group-a 0 --skew 1:500,2:500,3:500 --relay-ms 1000
 r "skew_freeze, 500 ms, relay 1100" --strategy skew_freeze --seed 7 --round-start --group-a 0 --skew 1:500,2:500,3:500 --relay-ms 1100
 # The in-model result: synchrony, perfect clocks, everything relayed, 200 ms honest relay.
+r "fin_hide, node 0 fooled" --strategy fin_hide --seed 7 --group-a 0 --relay-ms 200
+r "fin_hide, nodes 0-2 fooled" --strategy fin_hide --seed 7 --group-a 0,1,2 --relay-ms 200
+r "fin_hide, nodes 0-2, > n/2" --strategy fin_hide --seed 7 --group-a 0,1,2 --relay-ms 200 --fast-strict
+r "fin_hide, > n/2, late Z votes" --strategy fin_hide --seed 7 --group-a 0,1,2 --relay-ms 200 --fast-strict --late-z freeze
+r "fin_hide + refused-votes fix" --strategy fin_hide --seed 7 --group-a 0,1,2 --relay-ms 200 --refused-votes
+r "fin_hide, > n/2, late Z + fix" --strategy fin_hide --seed 7 --group-a 0,1,2 --relay-ms 200 --fast-strict --late-z freeze --refused-votes
