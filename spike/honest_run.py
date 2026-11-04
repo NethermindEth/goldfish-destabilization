@@ -21,6 +21,7 @@ import heapq
 import itertools
 import random
 import time
+import traceback
 from collections import defaultdict
 from dataclasses import dataclass, field
 
@@ -48,6 +49,10 @@ from eth_consensus_specs.test.helpers.state import (  # noqa: E402
 # tell whether the frozen stable root came from the TSQ lock or from the G1 fallback.
 # The wrapper returns the original value unchanged.
 TSQ_LOCKS = {}  # (id(store), round) -> lock root
+# When True, a message that references an unknown block is held and replayed once that
+# block arrives (models fetching missing blocks by root). Off by default: earlier results
+# were produced without it.
+SYNC_MISSING = False
 _orig_deepest_tsq_root = spec.get_deepest_tsq_root
 
 
@@ -76,7 +81,9 @@ def _observed_jf(state, height_start_slot=None):
         "target_votes": _bits(state.target_participation), "timeouts": _bits(state.timeouts),
         "finality_votes": _bits(state.finality_participation),
         "justified_slot": int(state.justified_checkpoint.slot), "finalized_slot": int(state.finalized_checkpoint.slot),
-        "block_this_slot": height_start_slot is not None,
+        # process_slot passes height_start_slot only when this slot has NO block (the
+        # outcome is settled in the empty slot); process_block passes None.
+        "settled_in_empty_slot": height_start_slot is not None,
     }
     for name in ("current_height_nonjustifiable", "is_current_height_nonjustifiable"):
         if hasattr(state, name):
@@ -147,8 +154,10 @@ class Node:
         # hash_tree_root(attestation) -> Attestation; pruned to the inclusion window
         self.att_pool = {}
         self.rejected = defaultdict(int)
+        self.rejected_why = defaultdict(int)  # (kind, spec function, assert line) -> count
         self.vote_kinds = defaultdict(lambda: defaultdict(int))  # round -> kind -> count
         self._head = None  # memoized get_head; invalidated whenever the store may change
+        self.pending = {}  # missing block root -> [(kind, msg)] held until it arrives (SYNC_MISSING)
 
     def head(self):
         if self._head is None:
@@ -160,8 +169,28 @@ class Node:
         fn(self.store, *args)
 
     # ---- message ingress -------------------------------------------------
+    def missing_dependency(self, kind, msg):
+        """With SYNC_MISSING: the unknown block root a message depends on, else None."""
+        if not SYNC_MISSING:
+            return None
+        if kind == "block":
+            roots = [msg.message.parent_root]
+        else:
+            roots = [msg.data.beacon_block_root]
+            if kind == "att" and msg.data.target != spec.Checkpoint():
+                roots.append(msg.data.target.root)
+        for root in roots:
+            if root not in self.store.blocks:
+                return root
+        return None
+
     def receive(self, kind, msg):
         self._head = None
+        missing = self.missing_dependency(kind, msg)
+        if missing is not None:
+            # Models fetching the missing block by root: hold the message until it arrives.
+            self.pending.setdefault(missing, []).append((kind, msg))
+            return
         try:
             if kind == "block":
                 spec.on_block(self.store, msg)
@@ -171,8 +200,14 @@ class Node:
                 self.pool_attestation(msg)
             elif kind == "avail":
                 spec.on_available_attestation(self.store, msg)
-        except AssertionError:
+        except AssertionError as e:
             self.rejected[kind] += 1
+            frame = traceback.extract_tb(e.__traceback__)[-1]
+            self.rejected_why[(kind, frame.name, (frame.line or "").strip()[:80])] += 1
+            return
+        if kind == "block" and SYNC_MISSING:
+            for waiting in self.pending.pop(spec.hash_tree_root(msg.message), []):
+                self.receive(*waiting)
 
     def store_block_attestations(self, signed_block):
         # Keep block-carried finality votes poolable so later proposers can aggregate them.

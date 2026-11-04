@@ -19,6 +19,7 @@ Run: PYTHONPATH=$SPECS $SPECS/.venv/bin/python partition_run.py --split 2 --star
 import argparse
 import heapq
 import json
+import random
 import time
 from collections import Counter
 
@@ -27,21 +28,52 @@ from honest_run import spec
 
 
 class PartitionedNetwork(hr.Network):
-    def __init__(self, latency_ms, jitter_ms, seed, group_of, start_ms, end_ms):
+    """Asynchrony during [start, end), synchrony (GST) from `end` on.
+
+    Default: messages across groups are held until `end` + latency. With `flap_ms`, group
+    membership is reshuffled (same group sizes) every `flap_ms` during the window. With
+    `messy_ms`, there are no groups: every message gets an extra exponential delay with
+    mean `messy_ms`, capped so it still arrives by `end` + latency (the GST bound).
+    """
+
+    def __init__(self, latency_ms, jitter_ms, seed, group_of, start_ms, end_ms, flap_ms=0, messy_ms=0):
         super().__init__(latency_ms, jitter_ms, seed)
         self.group_of = group_of
         self.start_ms, self.end_ms = start_ms, end_ms
+        self.flap_ms, self.messy_ms = flap_ms, messy_ms
+        self.async_rng = random.Random(f"async-{seed}")  # separate from the jitter draws
+        self.flap_groups = {}
         self.held = Counter()
+
+    def groups_at(self, now_ms):
+        if not self.flap_ms:
+            return self.group_of
+        epoch = (now_ms - self.start_ms) // self.flap_ms
+        if epoch not in self.flap_groups:
+            ids = sorted(self.group_of)
+            labels = [self.group_of[i] for i in ids]
+            self.async_rng.shuffle(labels)
+            self.flap_groups[epoch] = dict(zip(ids, labels))
+        return self.flap_groups[epoch]
 
     def broadcast(self, sender, now_ms, kind, msg):
         self.sent[kind] += 1
+        in_window = self.start_ms <= now_ms < self.end_ms
+        groups = self.groups_at(now_ms) if in_window else self.group_of
         for node in self.nodes:
             at = now_ms + self.delay(sender, node)
-            cut = self.group_of[node.id] != self.group_of[sender.id]
-            if cut and self.start_ms <= now_ms < self.end_ms:
-                at = max(at, self.end_ms + self.latency_ms)
-                self.held[kind] += 1
-            self.record(sender, node, now_ms, at, kind, msg, held=at >= self.end_ms and cut and self.start_ms <= now_ms < self.end_ms)
+            held = False
+            if in_window and node is not sender:
+                gst_bound = max(at, self.end_ms + self.latency_ms)
+                if self.messy_ms:
+                    late = min(at + int(self.async_rng.expovariate(1 / self.messy_ms)), gst_bound)
+                    held = late > at
+                    at = late
+                elif groups[node.id] != groups[sender.id]:
+                    at, held = gst_bound, True
+                if held:
+                    self.held[kind] += 1
+            self.record(sender, node, now_ms, at, kind, msg, held=held)
             heapq.heappush(self.queue, (at, next(self.seq), node.id, kind, msg))
 
 
@@ -114,25 +146,44 @@ def main():
     p.add_argument("--start", type=int, default=24, help="first partitioned slot")
     p.add_argument("--slots-down", type=int, default=16, help="partition duration D in slots")
     p.add_argument("--after", type=int, default=24, help="slots to run after healing")
+    p.add_argument("--props", help="check stable-root properties (stability_props) and write them here")
+    p.add_argument("--groups", help="comma-separated group sizes in nodes, e.g. 3,3,2 (overrides --split)")
+    p.add_argument("--flap", type=int, default=0, help="reshuffle group membership every K slots of the cut")
+    p.add_argument("--messy-ms", type=int, default=0,
+                   help="no groups: every message in the window gets an extra Exp(mean) delay, capped at GST")
+    p.add_argument("--sync", action="store_true",
+                   help="hold messages that reference an unknown block until it arrives (fetch by root)")
     args = p.parse_args()
     hr.TRACE_BLOCKS = args.trace_blocks
+    hr.SYNC_MISSING = args.sync
 
     slot_ms = hr.SLOT_MS
     start_ms = args.start * slot_ms
     end_ms = (args.start + args.slots_down) * slot_ms
-    group_of = {i: 0 if i < args.split else 1 for i in range(args.nodes)}
+    if args.groups:
+        sizes = [int(x) for x in args.groups.split(",")]
+        assert sum(sizes) == args.nodes, "group sizes must add up to --nodes"
+        labels = [g for g, size in enumerate(sizes) for _ in range(size)]
+        group_of = {i: labels[i] for i in range(args.nodes)}
+    else:
+        group_of = {i: 0 if i < args.split else 1 for i in range(args.nodes)}
     genesis = hr.make_genesis(args.validators, args.seed)
-    net = PartitionedNetwork(args.latency_ms, args.jitter_ms, args.seed, group_of, start_ms, end_ms)
+    net = PartitionedNetwork(args.latency_ms, args.jitter_ms, args.seed, group_of, start_ms, end_ms,
+                             flap_ms=args.flap * slot_ms, messy_ms=args.messy_ms)
     assignment = hr.assign_validators(args.validators, args.nodes, args.seed)
     net.nodes = [hr.Node(i, genesis, assignment[i]) for i in range(args.nodes)]
+    if args.props:
+        import stability_props as sp
+        sp.install(net.nodes)
     stake = Counter(group_of[n.id] for n in net.nodes for _ in n.validators)
     total = sum(stake.values())
-    print(
-        f"partition: groups A={sorted(i for i in group_of if group_of[i]==0)} "
-        f"({100*stake[0]//total}% stake) | B={sorted(i for i in group_of if group_of[i]==1)} "
-        f"({100*stake[1]//total}% stake); slots [{args.start}, {args.start+args.slots_down}) cut, "
-        f"heal at slot {args.start+args.slots_down}"
+    groups_desc = " | ".join(
+        f"{'ABCDEFGH'[g]}={sorted(i for i in group_of if group_of[i] == g)} ({100 * stake[g] // total}% stake)"
+        for g in sorted(set(group_of.values()))
     )
+    mode = f"messy Exp({args.messy_ms} ms)" if args.messy_ms else (f"flap every {args.flap} slots" if args.flap else "cut")
+    print(f"partition: {groups_desc}; slots [{args.start}, {args.start+args.slots_down}) {mode}, "
+          f"heal at slot {args.start+args.slots_down}")
     print("slot | per node: head/safe/stable(src)/h  | finalized(n0) | agree")
     tracker = Tracker(net.nodes)
     total_slots = args.start + args.slots_down + args.after
@@ -157,6 +208,8 @@ def main():
             net.deliver_until(now)
         snaps = [tracker.observe(slot, n) for n in net.nodes]
         states.append({"slot": slot, "nodes": snaps})
+        if args.props:
+            sp.observe_slot(slot, net.nodes)
         if not finality_timeline or finality_timeline[-1][1] != snaps[0]["finalized_slot"]:
             finality_timeline.append((slot, snaps[0]["finalized_slot"]))
         heads = {x["head_slot"] for x in snaps}
@@ -173,13 +226,21 @@ def main():
         print(f"{slot:4d} | {cols} | {snaps[0]['finalized_slot']:3d} | {agree}{mark}")
     print(f"\nsimulated {total_slots} slots in {time.perf_counter()-t0:.0f}s; held across cut: {dict(net.held)}")
     print(f"rejections per node: {[dict(n.rejected) for n in net.nodes]}")
+    why = Counter()
+    for n in net.nodes:
+        why.update(n.rejected_why)
+    print("rejection reasons (all nodes):")
+    for (kind, fn, line), c in why.most_common(12):
+        print(f"  {c:6d} {kind:5s} {fn}: {line}")
+    if args.sync:
+        print(f"still pending (missing block never arrived): {[sum(map(len, n.pending.values())) for n in net.nodes]}")
 
     heal = args.start + args.slots_down
     print("\n== results ==")
     for n in net.nodes:
         r = tracker.reorgs[n.id]
         print(
-            f"node {n.id} (group {'AB'[group_of[n.id]]}): reorgs={len(r)} "
+            f"node {n.id} (group {'ABCDEFGH'[group_of[n.id]]}): reorgs={len(r)} "
             f"max_depth={max((d for _, d, _ in r), default=0)} blocks {r[:4]}"
             f" | safe-conf reversals={tracker.safe_reversals[n.id][:3]}"
             f" | abandoned available-conf (first)={tracker.abandoned_conf[n.id][:1]}"
@@ -203,6 +264,8 @@ def main():
                        "deadlines_ms": [hr.ATT_DUE_MS, hr.CONF_DUE_MS, hr.FREEZE_DUE_MS],
                        "slots_per_round": int(spec.get_slots_per_round_at_slot(spec.Slot(0))),
                        "group_of": group_of, "messages": net.events, "states": states, "outcomes": hr.OUTCOMES}, fh)
+    if args.props:
+        sp.report(net.nodes, args.start, heal, args.props)
     if args.json:
         with open(args.json, "w") as fh:
             json.dump(summarize(args, net, tracker, group_of, agree_since, finality_timeline), fh, indent=1)
@@ -235,7 +298,7 @@ def summarize(args, net, tracker, group_of, agree_since, finality_timeline):
         reorgs = tracker.reorgs[n.id]
         per_node.append({
             "node": n.id,
-            "group": "AB"[group_of[n.id]],
+            "group": "ABCDEFGH"[group_of[n.id]],
             "reorgs": len(reorgs),
             "max_reorg_depth": max((d for _, d, _ in reorgs), default=0),
             "safe_retractions": len(tracker.safe_reversals[n.id]),
