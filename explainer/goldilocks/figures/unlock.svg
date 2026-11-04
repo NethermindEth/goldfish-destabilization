@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Two ways to unlock">
+<title>Two ways to unlock</title>
+<rect width="760" height="300" fill="white"/>
+<defs>
+<marker id="a1f7a6d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1f7a6d"/></marker>
+<marker id="ab07d00" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b07d00"/></marker>
+<marker id="a1d5f9e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1d5f9e"/></marker>
+<marker id="ac4661f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c4661f"/></marker>
+<marker id="ab03a2e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b03a2e"/></marker>
+<marker id="a333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/></marker>
+<marker id="a777777" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#777777"/></marker>
+</defs><g font-family="DejaVu Sans, sans-serif" fill="#333333" font-size="15">
+<text x="20" y="26" text-anchor="start" font-size="15" fill="#b07d00" font-weight="bold">Fast: half of one committee against</text>
+<rect x="40.0" y="135.0" width="40" height="30" rx="3" fill="white" stroke="#333333" stroke-width="1.5"/>
+<text x="60" y="155" text-anchor="middle" font-size="13" fill="#333333" font-weight="bold">A</text>
+<rect x="150.0" y="95.0" width="40" height="30" rx="3" fill="white" stroke="#333333" stroke-width="1.5"/>
+<text x="170" y="115" text-anchor="middle" font-size="13" fill="#333333" font-weight="bold">B&#x27;</text>
+<rect x="250.0" y="95.0" width="40" height="30" rx="3" fill="#fbf3df" stroke="#b07d00" stroke-width="1.5"/>
+<text x="270" y="115" text-anchor="middle" font-size="13" fill="#b07d00" font-weight="bold">B</text>
+<rect x="150.0" y="185.0" width="40" height="30" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="170" y="205" text-anchor="middle" font-size="13" fill="#1f7a6d" font-weight="bold">C</text>
+<path d="M150 110 C120 110 100 150 80 150" fill="none" stroke="#777777" stroke-width="2" opacity="1" marker-end="url(#a777777)"/>
+<path d="M250 110 L190 110" fill="none" stroke="#777777" stroke-width="2" marker-end="url(#a777777)"/>
+<path d="M150 200 C120 200 100 150 80 150" fill="none" stroke="#777777" stroke-width="2" opacity="1" marker-end="url(#a777777)"/>
+<path d="M262 92 C230 60 120 60 70 132" fill="none" stroke="#b07d00" stroke-width="2" opacity="1" marker-end="url(#ab07d00)" stroke-dasharray="6 4"/>
+<text x="165" y="58" text-anchor="middle" font-size="12" fill="#b07d00">lock steps back to A</text>
+<circle cx="215" cy="232" r="6" fill="#e9f3f0" stroke="#1f7a6d" stroke-width="1.5"/>
+<circle cx="233" cy="232" r="6" fill="#e9f3f0" stroke="#1f7a6d" stroke-width="1.5"/>
+<circle cx="251" cy="232" r="6" fill="#e9f3f0" stroke="#1f7a6d" stroke-width="1.5"/>
+<circle cx="269" cy="232" r="6" fill="#e9f3f0" stroke="#1f7a6d" stroke-width="1.5"/>
+<circle cx="287" cy="232" r="6" fill="#e9f3f0" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="215" y="262" text-anchor="start" font-size="12" fill="#1f7a6d">≥ n/2 vote for heads conflicting with B, B&#x27;</text>
+<text x="20" y="290" text-anchor="start" font-size="12" fill="#333333">At t_s+5Δ every live lock moves back to the deepest ancestor with &lt; n/2 opponents.</text>
+<text x="420" y="26" text-anchor="start" font-size="15" fill="#b07d00" font-weight="bold">Slow: expiry after k slots</text>
+<path d="M440 150 L440 175" fill="none" stroke="#cccccc" stroke-width="1"/>
+<text x="440" y="195" text-anchor="middle" font-size="12" fill="#777777">s</text>
+<path d="M490 150 L490 175" fill="none" stroke="#cccccc" stroke-width="1"/>
+<text x="490" y="195" text-anchor="middle" font-size="12" fill="#777777">s+1</text>
+<path d="M540 150 L540 175" fill="none" stroke="#cccccc" stroke-width="1"/>
+<text x="540" y="195" text-anchor="middle" font-size="12" fill="#777777">s+2</text>
+<path d="M590 150 L590 175" fill="none" stroke="#cccccc" stroke-width="1"/>
+<text x="590" y="195" text-anchor="middle" font-size="12" fill="#777777">s+3</text>
+<path d="M640 150 L640 175" fill="none" stroke="#cccccc" stroke-width="1"/>
+<text x="640" y="195" text-anchor="middle" font-size="12" fill="#777777">s+4</text>
+<path d="M690 150 L690 175" fill="none" stroke="#cccccc" stroke-width="1"/>
+<text x="690" y="195" text-anchor="middle" font-size="12" fill="#777777">s+5</text>
+<rect x="465" y="120" width="200" height="22" rx="3" fill="#fbf3df" stroke="#b07d00" stroke-width="1.5"/>
+<text x="565" y="136" text-anchor="middle" font-size="12" fill="#b07d00" font-weight="bold">lock on B</text>
+<path d="M690 100 L690 175" fill="none" stroke="#b03a2e" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="690" y="92" text-anchor="middle" font-size="12" fill="#b03a2e" font-weight="bold">expires</text>
+<text x="420" y="232" text-anchor="start" font-size="12" fill="#333333">Written by the update of slot s at t_s+6Δ,</text>
+<text x="420" y="250" text-anchor="start" font-size="12" fill="#333333">deadline t_{s+k}+5Δ: gone at the vote of s+k+1</text>
+<text x="420" y="268" text-anchor="start" font-size="12" fill="#333333">unless a later update writes a new lock (here k = 4).</text>
+</g></svg>
