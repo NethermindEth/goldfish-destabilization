@@ -370,5 +370,77 @@
     65
    ]
   ]
+ },
+ "12 ATTACK fin_hide": {
+  "slot": 34,
+  "about": "<p><b>The attack.</b> Synchrony throughout: every honest message and every relay arrives within 200 ms, there is one clock, and everything is relayed. The adversary (21/64) proposes slots 33 and 34; slot 34 is the first slot after the round's action time.</p><p><b>Slot 33.</b> Its block B (X) reaches nodes 0 and 3 just before their vote (22 honest votes; nodes 1 and 2 vote W). 10 faulty votes for B arrive early everywhere, which makes exactly 32 = n/2 early votes. 11 faulty validators keep their slot-33 votes back.</p><p><b>Slot 34.</b> Three adversary blocks:</p><ul><li><b>FB</b> extends B and carries the round's finality pairs. Only nodes 0–2 get it, 100 ms before their vote.</li><li><b>Q</b> forks off at slot 17, below the checkpoint that FB finalizes, and carries the 11 held-back votes.</li><li><b>Z</b> is a sibling of B.</li></ul><p>Node 3 gets Q and Z 1 ms before its vote. Nodes 0–2 get Q by relay only after FB, so they <b>refuse</b> it: it does not extend their new finalized block, and its votes never reach their available chain.</p><p>Node 3 counts 64 voters, so B (32) is not a majority and node 3 votes Z, as does the adversary. Nodes 0–2 count 53 voters: B is confirmed and fast-locked, and is <b>their confirmed tip in slot 34</b>. In slot 35, Z's 32 votes are n/2 opponents, the locks move back, and B is orphaned (hollow).</p>",
+  "jumps": [
+   [
+    "The attack (s30–37)",
+    30
+   ]
+  ],
+  "zooms": [
+   [
+    "s33: B shown to nodes 0, 1",
+    33
+   ],
+   [
+    "s34: FB, Q, Z — nodes 0–2 confirm B",
+    34
+   ],
+   [
+    "s35: locks move back, B orphaned",
+    35
+   ]
+  ]
+ },
+ "13 ATTACK fin_hide, > n/2": {
+  "slot": 34,
+  "about": "<p>The same attack with the strict fast test (&gt; n/2, not the spec). Nodes 0–2 write no lock on B, but 32 of 53 voters is still a strict majority, so they <b>confirm B</b>. The adversary sends its Z votes only to the slot-35 proposer, just before it proposes. Nodes 0–2 keep B as their confirmed tip for 3–4.5 s, then their head moves and B is orphaned.</p><p>So &gt; n/2 protects fast locks but not the confirmed tip: 74 of 74 attacked seeds when the Z votes land just before the freeze (shown for 1.5 s), 48 of 74 with this proposer-only variant (shown for 3–4.5 s).</p>",
+  "jumps": [
+   [
+    "The attack (s30–37)",
+    30
+   ]
+  ],
+  "zooms": [
+   [
+    "s33",
+    33
+   ],
+   [
+    "s34: nodes 0–2 confirm B (no lock)",
+    34
+   ],
+   [
+    "s35: B orphaned",
+    35
+   ]
+  ]
+ },
+ "14 ATTACK fin_hide + fix": {
+  "slot": 34,
+  "about": "<p>The same attack with the proposed fix (not the spec): the available chain takes the votes of a block even when the FG refuses it. Nodes 0–2 then count the 11 held-back votes too, so B has 32 of 64 voters everywhere and nobody confirms it. Nothing is orphaned. The fix closes every variant, with either threshold (0 of 74 attacked seeds), and 200 random runs stay clean.</p>",
+  "jumps": [
+   [
+    "The attack (s30–37)",
+    30
+   ]
+  ],
+  "zooms": [
+   [
+    "s33",
+    33
+   ],
+   [
+    "s34: nobody confirms B",
+    34
+   ],
+   [
+    "s35",
+    35
+   ]
+  ]
  }
 }

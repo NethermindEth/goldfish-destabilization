@@ -51,6 +51,7 @@ class Params:
     delta_t: int = 8  # timeout delay in slots (TIMEOUT_DELAY_SLOTS = SLOTS_PER_ROUND)
     seed: int = 0
     fast_strict: bool = False  # NOT the spec: fast test 2·score > |K_s| instead of ≥, for comparison only
+    refused_votes: bool = False  # NOT the spec: the AC takes the votes of a block the FG refuses (proposed fix)
 
     @property
     def q(self):
@@ -689,6 +690,9 @@ class Node:
             self.orphans.setdefault(B.parent, []).append(B)
             return False
         if not self.fg.on_block(B):
+            if self.P.refused_votes:  # proposed fix: votes do not depend on the block's place in the tree
+                for vote in B.votes:
+                    self.ac.on_goldfish_vote(t, vote)
             return False
         self.ac.on_block(t, B)
         for child in self.orphans.pop(B.root, []):

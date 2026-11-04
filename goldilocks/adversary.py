@@ -129,6 +129,7 @@ class AdvWorld(World):
         self.sleep, self.woken = {}, set()
         self.adv = None
         self.hold_early = bool(skew)
+        self.relay_carried = False  # --relay-carried: Lean `relay_accepted` + `handlesS`
         self.seen_blocks = {n.id: {} for n in self.nodes}  # first-seen: (proposer, slot) -> first root
         self.conf_seen = {n.id: {} for n in self.nodes}
         self.conf_tl = {n.id: [] for n in self.nodes}  # (public time, confirmed tip) at every change  # node -> {block: first public time it was the confirmed tip}
@@ -158,8 +159,11 @@ class AdvWorld(World):
                     self.net.dropped += 1  # IGNORE: not the first block of this proposer for this slot
                     continue
                 self.seen_blocks[dst].setdefault(key, payload.root)
-                node.on_block(payload, at)
+                accepted = node.on_block(payload, at)
                 obj = payload
+                if accepted and self.relay_carried:  # the Lean's reading: relay what you accepted, also
+                    for x in payload.votes:           # the votes a block carries, as standalone votes
+                        self.net.relay_from(dst, at, "vote", x, self.nodes)
             elif kind == "vote":
                 obj = payload[0]
                 for x in payload:
@@ -470,6 +474,110 @@ class SkewFreeze(_TwoSlots):
                 self.vote(v, s, self.Q.root, self.at(self.all_nodes(), t + 1))
 
 
+class FinalityHide(Adversary):
+    """Under synchrony, no clock skew. It needs the adversary's proposer slots s = rR + 1 and
+    s + 1 = rR + 2, the first slot after the action time a_r, whose block finalizes the latest
+    justification once it carries the round's finality pairs.
+
+    Slot s: the adversary's block B on the head W reaches nodes 0 and 1 just before their vote.
+    f1 faulty votes for B reach everyone early, so B has exactly n/2 early votes; w faulty
+    validators keep their slot-s votes back.
+    Slot s + 1: three blocks of the adversary.
+      FB  extends B and carries the finality pairs: it finalizes J. Only X = node 0 gets it,
+          at t_(s+1) + 2 ms; the others get it by relay, Δ later, after their vote.
+      Q   a fork from J's parent that carries the w held-back votes. The others get it at
+          t_(s+1) + 1 ms and accept it, because their finalized block is still older. X gets it
+          by relay after FB, and refuses it: it does not extend X's finalized block. Its votes
+          never reach X.
+      Z   a sibling of B. The others get it with Q.
+    For the others B has n/2 of n voters, is not eligible, and they vote Z. X counts n - w
+    voters, confirms B (fast lock with ≥ n/2), and keeps it on its chain, until Z's voters
+    unlock it. Every delay is inside Δ; the only lever is the acceptance test Σ.F ⪯ B."""
+
+    name = "fin_hide"
+    late_z = False
+    q_offset = None  # ms after t_(s+1) at which Q reaches the holdout nodes (default Δ - 1)
+
+    def target(self, s):
+        P = self.P
+        if not hasattr(self, "s0") and s >= 32 and s % P.R == 1 and self.mine(s) and self.mine(s + 1):
+            self.s0 = s
+        return getattr(self, "s0", None)
+
+    def at_slot_start(self, s, t):
+        P = self.P
+        X, others = self.groups
+        s0 = self.target(s)
+        if s == s0:
+            self.W = self.head(others[0], t)
+            self.B = self.block(s, self.W, atts=[])
+            # honest supporters: X, then other nodes, until n/2 - a faulty votes leave at least one held back
+            self.voters_B, a = [X[0]], len(self.w.nodes[X[0]].validators)
+            for i in others:
+                if P.n // 2 - a <= len(self.vals) - 1:
+                    break
+                self.voters_B.append(i)
+                a += len(self.w.nodes[i].validators)
+            self.f1 = max(0, P.n // 2 - a)
+            self.send_block(self.B, self.at(self.voters_B, t + P.delta - 1))
+        elif s0 is not None and s == s0 + 1:
+            F_old = self.w.nodes[others[0]].fg.F
+            FB = self.block(s, self.B.root)
+            F_new = STATE[FB.root].F
+            withheld = [Vote(v, s0, self.W) for v in self.vals[self.f1:]]
+            prev = self.honest_votes(s0) + [Vote(v, s0, self.B.root) for v in self.vals[:self.f1]] + withheld
+            support = [x for x in prev if x.H in self.w.nodes[others[0]].fg.T]
+            Q = self.block(s, BLOCKS[F_new].parent, prev, support, atts=[])
+            Z = self.block(s, self.W, atts=[])
+            ok = F_new != F_old and prec(F_old, BLOCKS[F_new].parent) and Q is not None and Z is not None
+            self.notes.append(f"slot {s0}: B={self.B.root[:6]} (faulty early f1={self.f1}, held back "
+                              f"w={len(self.vals) - self.f1}); slot {s}: FB finalizes slot {BLOCKS[F_new].slot} "
+                              f"(was {BLOCKS[F_old].slot}); Q on slot {BLOCKS[BLOCKS[F_new].parent].slot}; "
+                              f"setup {'ok' if ok else 'FAILED'}")
+            if not ok:
+                return
+            self.Z = Z
+            # Q and Z reach the others just before their vote; relay brings Q to X d later. FB reaches
+            # X d/2 before that, and its relay reaches the others d/2 after their vote: any honest
+            # relay delay d >= 3 ms works (d = the relay bound used by the driver)
+            net = self.w.net
+            d = P.delta - 1 if net.relay_ms is None else min(net.relay_ms, P.delta - 1)
+            q_at = t + (P.delta - 1 if self.q_offset is None else self.q_offset)
+            self.send_block(Q, self.at(others, q_at))
+            self.send_block(Z, self.at(others, t + P.delta - 1))
+            self.send_block(FB, self.at(X, t + P.delta - 1 - d // 2))
+
+    def at_vote(self, s, t):
+        P = self.P
+        s0 = getattr(self, "s0", None)
+        if s == s0:
+            for v in self.vals[:self.f1]:
+                self.vote(v, s, self.B.root, self.at(self.all_nodes(), t + P.delta - 1))
+        elif s0 is not None and s == s0 + 1 and getattr(self, "Z", None):
+            # late_z: the faulty Z votes land just before the freeze, after the fooled nodes' update
+            # (t + Δ): they still enter every frozen view, so the next slot's votes go to Z
+            if self.late_z == "proposer":
+                return  # sent at the freeze, to the next proposer only (at_freeze)
+            at = t + 2 * P.delta - 1 if self.late_z else t + 1
+            for v in self.vals:
+                self.vote(v, s, self.Z.root, self.at(self.all_nodes(), at))
+
+    def at_freeze(self, s, t):
+        """late_z = proposer: the faulty slot-(s0+1) votes for Z reach only the slot-(s0+2) proposer,
+        just before its proposal; its block carries them to everyone (relay brings them too)."""
+        P = self.P
+        s0 = getattr(self, "s0", None)
+        if self.late_z != "proposer" or s0 is None or s != s0 + 1 or not getattr(self, "Z", None):
+            return
+        prop = P.proposer(s + 1)
+        if prop in self.valset:
+            self.notes.append("slot-(s0+2) proposer is faulty: not handled")
+            return
+        dst = self.w.node_of[prop]
+        for v in self.vals:
+            self.vote(v, s, self.Z.root, self.at([dst], P.t(s + 1) - 1))
+
+
 class TwoFace(Adversary):
     """Partial synchrony. During the cut the adversary is honest-looking on both sides at once:
     it votes each side's head to that side, proposes one block per side at its slots, and
@@ -677,7 +785,7 @@ class Fuzz(Adversary):
                     self.w.net.adv_send("att", a, arr)
 
 
-STRATEGIES = {c.name: c for c in (Adversary, Equivocate, Split, Fuzz, SkewFast, SkewFreeze, TwoFace)}
+STRATEGIES = {c.name: c for c in (Adversary, Equivocate, Split, Fuzz, SkewFast, SkewFreeze, TwoFace, FinalityHide)}
 
 
 # ------------------------------------------------------------------------ checks
@@ -764,7 +872,8 @@ def dump(path, args, world, tracker):
 def run(args, quiet=True):
     assert 3 * args.f <= args.validators, f"the adversary holds at most n/3 (f={args.f}, n={args.validators})"
     P = Params(n=args.validators, delta=args.delta_ms, delta_f=args.delta_ms, R=args.R, k=args.k,
-               delta_t=args.delta_t or args.R, seed=args.seed, fast_strict=args.fast_strict)
+               delta_t=args.delta_t or args.R, seed=args.seed, fast_strict=args.fast_strict,
+               refused_votes=args.refused_votes)
     skew = {}
     for item in filter(None, (args.skew or "").split(",")):
         i, ms = item.split(":")
@@ -773,6 +882,7 @@ def run(args, quiet=True):
     world = AdvWorld(P, args.f, args.nodes, shares, args.latency_ms, args.relay, args.relay_ms, skew)
     if getattr(args, "events", None):
         world.net.events = []
+    world.relay_carried = args.relay_carried
     if args.spec_drop_early:
         world.hold_early = False  # the spec's rule: drop a block (and a vote) of a future slot
     half = args.nodes // 2
@@ -785,6 +895,8 @@ def run(args, quiet=True):
         nid, a, b = item.split(":")
         world.sleep.setdefault(int(nid), []).append((round(float(a) * P.slot_ms), round(float(b) * P.slot_ms)))
     world.adv.post = args.post
+    world.adv.late_z = args.late_z
+    world.adv.q_offset = args.q_offset
     if args.cut:
         a, d = (int(x) for x in args.cut.split(":"))
         A = set(groups[0])
@@ -840,7 +952,14 @@ def add_args(p):
     p.add_argument("--relay-ms", type=int, default=None)
     p.add_argument("--skew", default="", help="clock offsets node:ms,... (leaves the spec's model)")
     p.add_argument("--fast-strict", action="store_true", help="fast test > n/2 (NOT the spec), to compare")
+    p.add_argument("--q-offset", type=int, default=None, help="fin_hide: when Q reaches the holdout (ms after t_(s+1))")
+    p.add_argument("--relay-carried", action="store_true",
+                   help="honest nodes relay the carried votes of every block they accept (the Lean's relay premise)")
+    p.add_argument("--refused-votes", action="store_true",
+                   help="NOT the spec (proposed fix): take the votes of a block the FG refuses")
     p.add_argument("--round-start", action="store_true", help="skew attacks: only at a round start (FG source)")
+    p.add_argument("--late-z", nargs="?", const="freeze", default=None, choices=("freeze", "proposer"),
+                   help="fin_hide: faulty slot-(s+1) votes just before the freeze, or only to the next proposer")
     p.add_argument("--sleep", default="", help="asleep windows node:start:end (slots), comma-separated")
     p.add_argument("--cut", default="", help="partition start:slots between group A and the rest (GST at the end)")
     p.add_argument("--post", default="passive", choices=("passive", "balance", "fuzz", "reveal"),

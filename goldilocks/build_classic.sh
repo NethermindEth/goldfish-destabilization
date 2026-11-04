@@ -16,4 +16,7 @@ python3 explorer_classic.py "$O/goldilocks-classic.html" --meta explorer_meta.js
   "08 half asleep=$F/sleep50_s48_d16.events.json" \
   "09 adversary: silent=$O/adv_silent.events.json" \
   "10 adversary: equivocation=$O/adv_equiv.events.json" \
-  "11 adversary: two-faced across a cut=$O/adv_twoface.events.json"
+  "11 adversary: two-faced across a cut=$O/adv_twoface.events.json" \
+  "12 ATTACK fin_hide=$O/fin_hide.events.json" \
+  "13 ATTACK fin_hide, > n/2=$O/fin_hide_strict.events.json" \
+  "14 ATTACK fin_hide + fix=$O/fin_hide_fix.events.json"
