@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Two ways to lock">
+<title>Two ways to lock</title>
+<rect width="760" height="300" fill="white"/>
+<defs>
+<marker id="a1f7a6d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1f7a6d"/></marker>
+<marker id="ab07d00" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b07d00"/></marker>
+<marker id="a1d5f9e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1d5f9e"/></marker>
+<marker id="ac4661f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c4661f"/></marker>
+<marker id="ab03a2e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b03a2e"/></marker>
+<marker id="a333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/></marker>
+<marker id="a777777" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#777777"/></marker>
+</defs><g font-family="DejaVu Sans, sans-serif" fill="#333333" font-size="15">
+<text x="20" y="26" text-anchor="start" font-size="15" fill="#b07d00" font-weight="bold">Fast: half of one committee</text>
+<rect x="50.0" y="135.0" width="40" height="30" rx="3" fill="white" stroke="#333333" stroke-width="1.5"/>
+<text x="70" y="155" text-anchor="middle" font-size="13" fill="#333333" font-weight="bold">A</text>
+<rect x="170.0" y="135.0" width="40" height="30" rx="3" fill="#fbf3df" stroke="#b07d00" stroke-width="1.5"/>
+<text x="190" y="155" text-anchor="middle" font-size="13" fill="#b07d00" font-weight="bold">B</text>
+<path d="M170 150 L90 150" fill="none" stroke="#777777" stroke-width="2" marker-end="url(#a777777)"/>
+<circle cx="240" cy="110" r="7" fill="#e9f3f0" stroke="#1f7a6d" stroke-width="1.5"/>
+<circle cx="262" cy="110" r="7" fill="#e9f3f0" stroke="#1f7a6d" stroke-width="1.5"/>
+<circle cx="284" cy="110" r="7" fill="#e9f3f0" stroke="#1f7a6d" stroke-width="1.5"/>
+<circle cx="306" cy="110" r="7" fill="#e9f3f0" stroke="#1f7a6d" stroke-width="1.5"/>
+<circle cx="240" cy="132" r="7" fill="#e9f3f0" stroke="#1f7a6d" stroke-width="1.5"/>
+<circle cx="262" cy="132" r="7" fill="white" stroke="#777777" stroke-width="1.5"/>
+<circle cx="284" cy="132" r="7" fill="white" stroke="#777777" stroke-width="1.5"/>
+<circle cx="306" cy="132" r="7" fill="white" stroke="#777777" stroke-width="1.5"/>
+<text x="240" y="175" text-anchor="start" font-size="12" fill="#1f7a6d">≥ n/2 of the committee</text>
+<text x="240" y="192" text-anchor="start" font-size="12" fill="#1f7a6d">voted for B (resolved early)</text>
+<text x="20" y="240" text-anchor="start" font-size="12" fill="#333333">The confirmation update of slot s sees at</text>
+<text x="20" y="258" text-anchor="start" font-size="12" fill="#333333">least n/2 of the whole committee on B: lock B.</text>
+<text x="410" y="26" text-anchor="start" font-size="15" fill="#b07d00" font-weight="bold">Slow: k confirmations in a row</text>
+<text x="460" y="60" text-anchor="middle" font-size="12" fill="#777777">slot s−3</text>
+<rect x="444.0" y="138.0" width="32" height="24" rx="3" fill="#fbf3df" stroke="#b07d00" stroke-width="1.5"/>
+<text x="460" y="155" text-anchor="middle" font-size="13" fill="#b07d00" font-weight="bold"></text>
+<circle cx="460" cy="100" r="5" fill="#1f7a6d" stroke="#1f7a6d" stroke-width="1.5"/>
+<path d="M460 105 L460 136" fill="none" stroke="#1f7a6d" stroke-width="1.5" opacity="1" stroke-dasharray="6 4"/>
+<text x="540" y="60" text-anchor="middle" font-size="12" fill="#777777">slot s−2</text>
+<rect x="524.0" y="138.0" width="32" height="24" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="540" y="155" text-anchor="middle" font-size="13" fill="#1f7a6d" font-weight="bold"></text>
+<path d="M524 150 L476 150" fill="none" stroke="#777777" stroke-width="2" marker-end="url(#a777777)"/>
+<circle cx="540" cy="100" r="5" fill="#1f7a6d" stroke="#1f7a6d" stroke-width="1.5"/>
+<path d="M540 105 L540 136" fill="none" stroke="#1f7a6d" stroke-width="1.5" opacity="1" stroke-dasharray="6 4"/>
+<text x="620" y="60" text-anchor="middle" font-size="12" fill="#777777">slot s−1</text>
+<rect x="604.0" y="138.0" width="32" height="24" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="620" y="155" text-anchor="middle" font-size="13" fill="#1f7a6d" font-weight="bold"></text>
+<path d="M604 150 L556 150" fill="none" stroke="#777777" stroke-width="2" marker-end="url(#a777777)"/>
+<circle cx="620" cy="100" r="5" fill="#1f7a6d" stroke="#1f7a6d" stroke-width="1.5"/>
+<path d="M620 105 L620 136" fill="none" stroke="#1f7a6d" stroke-width="1.5" opacity="1" stroke-dasharray="6 4"/>
+<text x="700" y="60" text-anchor="middle" font-size="12" fill="#777777">slot s</text>
+<rect x="684.0" y="138.0" width="32" height="24" rx="3" fill="white" stroke="#1f7a6d" stroke-width="1.5"/>
+<text x="700" y="155" text-anchor="middle" font-size="13" fill="#1f7a6d" font-weight="bold"></text>
+<path d="M684 150 L636 150" fill="none" stroke="#777777" stroke-width="2" marker-end="url(#a777777)"/>
+<circle cx="700" cy="100" r="5" fill="#1f7a6d" stroke="#1f7a6d" stroke-width="1.5"/>
+<path d="M700 105 L700 136" fill="none" stroke="#1f7a6d" stroke-width="1.5" opacity="1" stroke-dasharray="6 4"/>
+<text x="460" y="186" text-anchor="middle" font-size="13" fill="#b07d00" font-weight="bold">B</text>
+<text x="410" y="222" text-anchor="start" font-size="12" fill="#333333">Few voters are awake: no slot has n/2 on B,</text>
+<text x="410" y="240" text-anchor="start" font-size="12" fill="#333333">but each of the last k confirmation updates</text>
+<text x="410" y="258" text-anchor="start" font-size="12" fill="#333333">saved a result extending B. Lock B (k = 4).</text>
+</g></svg>

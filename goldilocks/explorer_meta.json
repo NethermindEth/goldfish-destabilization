@@ -1,0 +1,374 @@
+{
+ "01 honest": {
+  "slot": 24,
+  "about": "<p>All 64 validators honest, on 4 nodes, 200 ms latency. This is the reference run: the confirmed tip runs one slot behind the head, each node holds k = 4 live locks (yellow dots), and the finalized tip draws a sawtooth 16–24 slots behind: one FG height per 8-slot round, finalized two rounds after its target.</p>",
+  "jumps": [
+   [
+    "Slots 8–16",
+    8
+   ],
+   [
+    "Slots 24–32",
+    24
+   ]
+  ],
+  "zooms": [
+   [
+    "s8 (round start)",
+    8
+   ],
+   [
+    "s9 (FG action)",
+    9
+   ],
+   [
+    "s24",
+    24
+   ]
+  ]
+ },
+ "02 partition 50-50": {
+  "slot": 56,
+  "about": "<p>Two halves of 32 validators each (nodes 0,1 | 2,3), cut for slots 48–63, no adversary. Each half confirms its own branch and passes the fast test (32 ≥ n/2), so <b>both halves fast-lock conflicting branches</b>. Neither reaches q = 43, so finality stalls.</p><p>At the heal each lock has exactly 32 opponents and moves back to the last common block: every block of the cut is discarded on both sides (hollow). Heads agree at once, and finality resumes within two rounds.</p>",
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ],
+   [
+    "Finality after the heal",
+    66
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s49",
+    49
+   ],
+   [
+    "s63 (last cut slot)",
+    63
+   ],
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ]
+  ]
+ },
+ "03 partition 75-25": {
+  "slot": 60,
+  "about": "<p>Cut 48–63 with 48 validators on one side and 16 on the other. The majority does not notice the cut: it keeps confirming, fast-locking and finalizing. The minority confirms its own blocks and slow-locks them after k = 4 confirmations. At the heal the majority's votes unlock the minority, which reorgs onto the majority chain (depth 3).</p>",
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ],
+   [
+    "Finality after the heal",
+    66
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s49",
+    49
+   ],
+   [
+    "s63 (last cut slot)",
+    63
+   ],
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ]
+  ]
+ },
+ "04 partition 52-48": {
+  "slot": 60,
+  "about": "<p>Cut 48–63 with 33 validators against 31. Only the 33-side passes the fast test (66 ≥ 64). At the heal its locks have 31 opponents (fewer than n/2) and survive, while the 31-side's locks have 33 and move back. The larger side's branch wins and the other side reorgs (depth 7).</p>",
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ],
+   [
+    "Finality after the heal",
+    66
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s49",
+    49
+   ],
+   [
+    "s63 (last cut slot)",
+    63
+   ],
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ]
+  ]
+ },
+ "05 long cut 50-50": {
+  "slot": 112,
+  "about": "<p>As tab 02, but the cut lasts 64 slots (48–111). Each node discards 28–35 confirmed blocks, and finality stalls for 8 rounds and then resumes. Healing is still immediate: no lock survives the heal.</p>",
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s112)",
+    110
+   ],
+   [
+    "Finality after the heal",
+    114
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s49",
+    49
+   ],
+   [
+    "s111 (last cut slot)",
+    111
+   ],
+   [
+    "s112 (heal)",
+    112
+   ],
+   [
+    "s113",
+    113
+   ]
+  ]
+ },
+ "06 messy heal": {
+  "slot": 64,
+  "about": "<p>A 50/50 cut for slots 48–63 whose held messages are released at random times up to 12 s (2 slots) after the heal, instead of all at once. Healing is measured against the moment the last message lands (effective GST). Across 320 seeded runs, heads and confirmed tips always agreed within about three slots, far inside the spec's 2L + G bound.</p>",
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ],
+   [
+    "Finality after the heal",
+    66
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s49",
+    49
+   ],
+   [
+    "s63 (last cut slot)",
+    63
+   ],
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ]
+  ]
+ },
+ "07 one-slot glitch at a round start": {
+  "slot": 49,
+  "about": "<p>A one-slot 50/50 cut at slot 48, the first slot of round 6. The confirmation update of slot 48 gets only 32 votes before the support cutoff on every node. The FG reads its source only from that update, so nobody attests in round 6 and the round is lost for finality: the step expected at slot 50 comes at 58. The same cut at slot 49 costs one slot.</p>",
+  "jumps": [
+   [
+    "The glitch (s48)",
+    46
+   ],
+   [
+    "Finality step (s58)",
+    54
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut, round start)",
+    48
+   ],
+   [
+    "s49 (FG action: no source)",
+    49
+   ],
+   [
+    "s50",
+    50
+   ],
+   [
+    "s57 (next round)",
+    57
+   ]
+  ]
+ },
+ "08 half asleep": {
+  "slot": 56,
+  "about": "<p>Nodes 2 and 3 (32 validators) are asleep for slots 48–63 (purple band). The awake half keeps confirming and slow-locks, but 32 is less than q = 43, so finality stalls. On waking, the sleepers restart, keep their locks (expired by then) and rejoin within a slot. Finality resumes a round later.</p>",
+  "jumps": [
+   [
+    "Sleep (s48)",
+    46
+   ],
+   [
+    "Wake (s64)",
+    62
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (nodes 2,3 asleep)",
+    48
+   ],
+   [
+    "s63",
+    63
+   ],
+   [
+    "s64 (wake)",
+    64
+   ],
+   [
+    "s65 (joined)",
+    65
+   ]
+  ]
+ },
+ "09 adversary: silent": {
+  "slot": 40,
+  "about": "<p>From this tab on, 21 of 64 validators (32.8%) are faulty and run by one adversary. The 43 honest validators sit on 4 nodes (11/11/10/11). Here the adversary is silent: it never votes, proposes or attests, so its proposer slots stay empty.</p><p>The 43 honest validators are <b>exactly</b> the quorum q = 43, so finality needs every one of them, and gets it.</p>",
+  "jumps": [
+   [
+    "Slots 32–40",
+    32
+   ]
+  ],
+  "zooms": [
+   [
+    "s40",
+    40
+   ],
+   [
+    "s41 (FG action)",
+    41
+   ]
+  ]
+ },
+ "10 adversary: equivocation": {
+  "slot": 40,
+  "about": "<p>Every slot, every faulty validator votes two conflicting heads, one to each half of the network. At its proposer slots the adversary proposes two blocks, one per half (X in the tree).</p><p>Honest nodes relay everything, including the second vote, so both copies reach everyone within Δ. The equivocators are detected and excluded from confirmations and unlocking, and nothing breaks.</p>",
+  "jumps": [
+   [
+    "Slots 32–40",
+    32
+   ]
+  ],
+  "zooms": [
+   [
+    "s40",
+    40
+   ],
+   [
+    "s41",
+    41
+   ]
+  ]
+ },
+ "11 adversary: two-faced across a cut": {
+  "slot": 60,
+  "about": "<p>A 50/50 cut for slots 48–63 (nodes 0,1 | 2,3). During the cut the adversary acts honestly on both sides at once: votes, blocks and attestations to each side. Side A plus the adversary reaches q and finalizes on its own (allowed before GST). After the heal it releases blocks it kept back during the cut.</p><p>Finality resumes 10 slots after the heal. Across 2,304 seeded runs of this kind, nothing broke after GST.</p>",
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ],
+   [
+    "Finality after the heal",
+    66
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s49",
+    49
+   ],
+   [
+    "s63 (last cut slot)",
+    63
+   ],
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ]
+  ]
+ }
+}

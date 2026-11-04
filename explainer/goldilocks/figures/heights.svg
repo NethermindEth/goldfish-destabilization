@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="285" viewBox="0 0 780 285" role="img" aria-label="Honest steady state of the FG: one height per round">
+<title>Honest steady state of the FG: one height per round</title>
+<rect width="780" height="285" fill="white"/>
+<defs>
+<marker id="a1f7a6d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1f7a6d"/></marker>
+<marker id="ab07d00" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b07d00"/></marker>
+<marker id="a1d5f9e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1d5f9e"/></marker>
+<marker id="ac4661f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c4661f"/></marker>
+<marker id="ab03a2e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b03a2e"/></marker>
+<marker id="a333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/></marker>
+<marker id="a777777" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#777777"/></marker>
+</defs><g font-family="DejaVu Sans, sans-serif" fill="#333333" font-size="15">
+<rect x="27.0" y="30" width="208" height="24" rx="3" fill="#f4f4f4" stroke="#777777" stroke-width="1.5"/>
+<text x="131.0" y="47" text-anchor="middle" font-size="12" fill="#777777">round 0</text>
+<path d="M40 60 L40 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="40" y="80" text-anchor="middle" font-size="10" fill="#777777">0</text>
+<path d="M66 60 L66 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<path d="M92 60 L92 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="92" y="80" text-anchor="middle" font-size="10" fill="#777777">2</text>
+<path d="M118 60 L118 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<path d="M144 60 L144 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="144" y="80" text-anchor="middle" font-size="10" fill="#777777">4</text>
+<path d="M170 60 L170 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<path d="M196 60 L196 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="196" y="80" text-anchor="middle" font-size="10" fill="#777777">6</text>
+<path d="M222 60 L222 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<rect x="235.0" y="30" width="208" height="24" rx="3" fill="#f4f4f4" stroke="#777777" stroke-width="1.5"/>
+<text x="339.0" y="47" text-anchor="middle" font-size="12" fill="#777777">round 1</text>
+<path d="M248 60 L248 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="248" y="80" text-anchor="middle" font-size="10" fill="#777777">8</text>
+<path d="M274 60 L274 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<path d="M300 60 L300 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="300" y="80" text-anchor="middle" font-size="10" fill="#777777">10</text>
+<path d="M326 60 L326 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<path d="M352 60 L352 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="352" y="80" text-anchor="middle" font-size="10" fill="#777777">12</text>
+<path d="M378 60 L378 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<path d="M404 60 L404 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="404" y="80" text-anchor="middle" font-size="10" fill="#777777">14</text>
+<path d="M430 60 L430 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<rect x="443.0" y="30" width="208" height="24" rx="3" fill="#f4f4f4" stroke="#777777" stroke-width="1.5"/>
+<text x="547.0" y="47" text-anchor="middle" font-size="12" fill="#777777">round 2</text>
+<path d="M456 60 L456 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="456" y="80" text-anchor="middle" font-size="10" fill="#777777">16</text>
+<path d="M482 60 L482 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<path d="M508 60 L508 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="508" y="80" text-anchor="middle" font-size="10" fill="#777777">18</text>
+<path d="M534 60 L534 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<path d="M560 60 L560 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="560" y="80" text-anchor="middle" font-size="10" fill="#777777">20</text>
+<path d="M586 60 L586 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<path d="M612 60 L612 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="612" y="80" text-anchor="middle" font-size="10" fill="#777777">22</text>
+<path d="M638 60 L638 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<rect x="651.0" y="30" width="208" height="24" rx="3" fill="#f4f4f4" stroke="#777777" stroke-width="1.5"/>
+<text x="755.0" y="47" text-anchor="middle" font-size="12" fill="#777777">round 3</text>
+<path d="M664 60 L664 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="664" y="80" text-anchor="middle" font-size="10" fill="#777777">24</text>
+<path d="M690 60 L690 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<path d="M716 60 L716 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<text x="716" y="80" text-anchor="middle" font-size="10" fill="#777777">26</text>
+<path d="M742 60 L742 66" fill="none" stroke="#bbbbbb" stroke-width="1"/>
+<circle cx="282.58000000000004" cy="100" r="5" fill="#1d5f9e" stroke="#1d5f9e" stroke-width="1.5"/>
+<path d="M282.58000000000004 66 L282.58000000000004 94" fill="none" stroke="#d5dfea" stroke-width="1"/>
+<text x="292.58000000000004" y="104" text-anchor="start" font-size="12" fill="#1d5f9e">a_1: attest (h=1, T=gen)</text>
+<circle cx="300" cy="125" r="5" fill="#1d5f9e" stroke="#1d5f9e" stroke-width="1.5"/>
+<path d="M300 66 L300 119" fill="none" stroke="#d5dfea" stroke-width="1"/>
+<text x="310" y="129" text-anchor="start" font-size="12" fill="#1d5f9e">block 10 includes them: justify gen @1; block 10 = target of h=2</text>
+<circle cx="490.5799999999999" cy="150" r="5" fill="#1d5f9e" stroke="#1d5f9e" stroke-width="1.5"/>
+<path d="M490.5799999999999 66 L490.5799999999999 144" fill="none" stroke="#d5dfea" stroke-width="1"/>
+<text x="500.5799999999999" y="154" text-anchor="start" font-size="12" fill="#1d5f9e">a_2: attest (h=2, T=#10) + finality pair (1, gen)</text>
+<circle cx="508" cy="175" r="5" fill="#1d5f9e" stroke="#1d5f9e" stroke-width="1.5"/>
+<path d="M508 66 L508 169" fill="none" stroke="#d5dfea" stroke-width="1"/>
+<text x="518" y="179" text-anchor="start" font-size="12" fill="#1d5f9e">block 18: justify #10 @2 (target of h=3 = #18); finalize gen</text>
+<circle cx="698.5799999999999" cy="200" r="5" fill="#1d5f9e" stroke="#1d5f9e" stroke-width="1.5"/>
+<path d="M698.5799999999999 66 L698.5799999999999 194" fill="none" stroke="#d5dfea" stroke-width="1"/>
+<text x="688.5799999999999" y="204" text-anchor="end" font-size="12" fill="#1d5f9e">a_3: attest (3, #18) + finality pair (2, #10)</text>
+<circle cx="716" cy="225" r="5" fill="#1d5f9e" stroke="#1d5f9e" stroke-width="1.5"/>
+<path d="M716 66 L716 219" fill="none" stroke="#d5dfea" stroke-width="1"/>
+<text x="706" y="229" text-anchor="end" font-size="12" fill="#1d5f9e">block 26: justify #18 @3, finalize #10  → F lags the head by ~2 rounds</text>
+<text x="40" y="268.0" text-anchor="start" font-size="11.5" fill="#777777">Attestations are cast at the action time a_r = t_{rR}+6Δ (slot rR+1, +2Δ) and included two slots into the round.</text>
+</g></svg>
