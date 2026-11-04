@@ -646,8 +646,10 @@ class FinalityHideSeq(Adversary):
             for v in self.vals[:self.f1]:
                 self.vote(v, s, self.B.root, self.at(self.all_nodes(), t + P.delta - 1))
         elif s > s0:  # from then on, vote W (never an opponent of B), early, to everyone
+            # late_z: at s0 + 1, just before the freeze instead, after the fooled nodes' update (> n/2)
+            at = t + 2 * P.delta - 1 if self.late_z and s == s0 + 1 else t + 1
             for v in self.vals:
-                self.vote(v, s, self.W, self.at(self.all_nodes(), t + 1))
+                self.vote(v, s, self.W, self.at(self.all_nodes(), at))
 
 
 class TwoFace(Adversary):
