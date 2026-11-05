@@ -759,6 +759,49 @@ class LateJustification(Adversary):
                 self.send_block(Bk, self.at(self.all_nodes(), t + 1))
 
 
+class Outage(Adversary):
+    """Asynchrony resilience of a confirmation. Under synchrony an honest block B of slot s is
+    confirmed at T = t_(s+1) + 2Δ (the update of slot s). An outage starts at T + τ
+    (--outage-tau, ms, ≥ -2Δ) and lasts d slots (--outage-slots); during it honest traffic
+    between different groups (--outage-groups, e.g. 0/1/2/3 or 0,1,2/3) waits for the heal, while
+    the adversary reaches every node. The adversary proposes C, a sibling of B, in slot s + 1 (it
+    needs that slot) and from then on its validators vote C, early, to every node. A break is a
+    node that showed B as confirmed and ends with B orphaned."""
+
+    name = "outage"
+    tau = 0
+    slots = 2
+    groups_spec = None
+    passive_votes = False  # --outage-passive: same outage, the adversary does not vote (control)
+
+    def at_slot_start(self, s, t):
+        P = self.P
+        if hasattr(self, "B") or s < 33 or not self.mine(s):
+            return
+        B = self.head(0, t)
+        if BLOCKS[B].slot != s - 1 or BLOCKS[B].proposer in self.valset:
+            return
+        self.B, self.s0 = B, s - 1
+        self.C = self.block(s, BLOCKS[B].parent, atts=[])
+        if self.C is None:
+            return
+        self.send_block(self.C, self.at(self.all_nodes(), t + 1))
+        T = P.t(s) + 2 * P.delta
+        start = T + self.tau
+        end = start + self.slots * P.slot_ms
+        spec = self.groups_spec or "/".join(str(i) for i in self.all_nodes())
+        g = {int(i): k for k, part in enumerate(spec.split("/")) for i in part.split(",")}
+        self.w.net.windows.append((start, end, g))
+        self.window = (start, end)
+        self.notes.append(f"B = slot {s - 1} (honest), C = slot {s} on its parent; confirmation at T = t_{s}+2Δ; "
+                          f"outage [{(start - P.t(s)) / P.delta:+.2f}Δ, +{self.slots} slots) groups {spec}")
+
+    def at_vote(self, s, t):
+        if hasattr(self, "C") and self.C is not None and s >= self.s0 + 1 and not self.passive_votes:
+            for v in self.vals:
+                self.vote(v, s, self.C.root, self.at(self.all_nodes(), t + 1))
+
+
 class TwoFace(Adversary):
     """Partial synchrony. During the cut the adversary is honest-looking on both sides at once:
     it votes each side's head to that side, proposes one block per side at its slots, and
@@ -966,7 +1009,7 @@ class Fuzz(Adversary):
                     self.w.net.adv_send("att", a, arr)
 
 
-STRATEGIES = {c.name: c for c in (Adversary, Equivocate, Split, Fuzz, SkewFast, SkewFreeze, TwoFace, FinalityHide, FinalityHideSeq, LateJustification)}
+STRATEGIES = {c.name: c for c in (Adversary, Equivocate, Split, Fuzz, SkewFast, SkewFreeze, TwoFace, FinalityHide, FinalityHideSeq, LateJustification, Outage)}
 
 
 # ------------------------------------------------------------------------ checks
@@ -1073,6 +1116,8 @@ def run(args, quiet=True):
     world.adv = STRATEGIES[args.strategy](world, random.Random(f"adv-{args.seed}"), groups)
     world.adv.round_start = args.round_start
     world.adv.no_reveal = args.no_reveal
+    world.adv.tau, world.adv.slots, world.adv.groups_spec = args.outage_tau, args.outage_slots, args.outage_groups
+    world.adv.passive_votes = args.outage_passive
     for item in filter(None, args.sleep.split(",")):
         nid, a, b = item.split(":")
         world.sleep.setdefault(int(nid), []).append((round(float(a) * P.slot_ms), round(float(b) * P.slot_ms)))
@@ -1142,6 +1187,10 @@ def add_args(p):
                    help="NOT the spec (proposed fix): take the votes of a block the FG refuses")
     p.add_argument("--round-start", action="store_true", help="skew attacks: only at a round start (FG source)")
     p.add_argument("--no-reveal", action="store_true", help="late_j: never reveal X_A (control)")
+    p.add_argument("--outage-tau", type=int, default=0, help="outage: start, ms after the confirmation (>= -2Δ)")
+    p.add_argument("--outage-slots", type=float, default=2, help="outage: length in slots")
+    p.add_argument("--outage-groups", default=None, help="outage: groups, e.g. 0/1/2/3 or 0,1,2/3")
+    p.add_argument("--outage-passive", action="store_true", help="outage: the adversary does not vote (control)")
     p.add_argument("--late-z", nargs="?", const="freeze", default=None, choices=("freeze", "proposer"),
                    help="fin_hide: faulty slot-(s+1) votes just before the freeze, or only to the next proposer")
     p.add_argument("--sleep", default="", help="asleep windows node:start:end (slots), comma-separated")
