@@ -49,3 +49,38 @@
   note((nx, ys.z), [*Z* (slot 34): a sibling of $B$. Sent to node 3, which votes for it.], adv)
   note((nx, ys.q), [*Q* (slot 34): carries the 11 hidden slot-33 votes. Sent to node 3. \ Accepted by node 3 (finalized: slot 10); refused by \ nodes 0–2 (finalized: slot 19), as it does not extend slot 19.], adv)
 })
+
+// fin_hide_seq: the same attack with one block per adversary slot
+#let fin-hide-seq-tree() = cetz.canvas(length: 1cm, {
+  import cetz.draw: *
+  let blk(p, name, body, col, dashed: false, fill: none) = {
+    rect((p.at(0) - 0.55, p.at(1) - 0.3), (p.at(0) + 0.55, p.at(1) + 0.3), radius: 0.08,
+      stroke: (paint: col, thickness: 1pt, dash: if dashed { "dashed" } else { none }),
+      fill: if fill == none { col.lighten(88%) } else { fill }, name: name)
+    content(p, text(size: 7.5pt, body))
+  }
+  let edge(a, b) = line(a, b, stroke: 0.8pt + luma(120))
+  let dotted(a, b) = line(a, b, stroke: (paint: luma(120), thickness: 0.8pt, dash: "dotted"))
+  let note(p, body, col) = content(p, text(size: 6.8pt, fill: col.darken(20%), body), anchor: "west")
+  let honest = luma(80)
+  let adv = c-lock
+  blk((0, 0), "f", [slot 18], honest, fill: luma(215))
+  blk((1.5, 0), "p24", [slot 24], honest)
+  blk((3.0, 0), "j", [slot 26], honest)
+  blk((5.0, 0), "w", $W$, honest)
+  dotted("f.east", "p24.west")
+  edge("p24.east", "j.west")
+  dotted("j.east", "w.west")
+  content((0, 0.5), text(size: 6.5pt, fill: luma(70))[finalized], anchor: "south")
+  content((3.0, 0.5), text(size: 6.5pt, fill: luma(70))[justified], anchor: "south")
+  content((5.0, -0.45), text(size: 6.5pt, fill: luma(70))[honest head], anchor: "north")
+  blk((6.5, 1.1), "fb", [FB], adv, dashed: true)
+  blk((6.5, 0), "b", $B$, adv)
+  blk((8.0, -1.3), "q", $Q$, adv, dashed: true)
+  line("w.east", "fb.west", stroke: 0.8pt + luma(120))
+  edge("w.east", "b.west")
+  line("p24.south", (1.5, -1.3), "q.west", stroke: 0.8pt + luma(120))
+  note((7.25, 1.1), [*FB* (slot 42): carries the round's attestations, which finalize \ slot 26. Kept back, sent to nodes 0–2 only in slot 44.], adv)
+  note((7.25, 0), [*B* (slot 43): sent to nodes 0–2 just before their vote: 32 early votes.], adv)
+  note((8.75, -1.3), [*Q* (slot 44): carries the 21 held-back slot-43 votes. Sent to \ node 3, which accepts it (finalized: slot 18); refused by \ nodes 0–2 (finalized: slot 26), as it does not extend slot 26.], adv)
+})
