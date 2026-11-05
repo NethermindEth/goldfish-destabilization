@@ -652,6 +652,66 @@ class FinalityHideSeq(Adversary):
                 self.vote(v, s, self.W, self.at(self.all_nodes(), at))
 
 
+class FinalityHideDF(FinalityHideSeq):
+    """fin_hide_seq when attestations travel slower than blocks (Δ_F > Δ). Every honest attestation
+    of round r reaches every node only at a_r + Δ_F - 1 (within its bound), and the adversary
+    keeps its own: with 43 honest validators and q = 43, no honest proposer can include a
+    finality quorum before then. So the finalizing block FB need not be in the slot right after
+    the attestations: it is the adversary's block of ANY earlier slot j of the round
+    (rR + 2 <= j < s), built only when it is sent, on the newest block older than j, with all the
+    honest attestations. The attack needs adversary slots j, s, s + 1 with s, s + 1 consecutive,
+    and every honest proposal in [rR + 2, s) before the attestations arrive."""
+
+    name = "fin_hide_df"
+
+    def __init__(self, world, rng, groups):
+        super().__init__(world, rng, groups)
+        P = self.P
+        net = world.net
+
+        def delay(src, dst, kind, payload, now):  # honest attestations as late as the bound allows
+            return P.delta_f - 1 if kind == "att" else net.latency_ms
+        net.honest_delay = delay
+
+    def target(self, s):
+        P = self.P
+        if hasattr(self, "s0") or s < 32 or s % P.R != 2:
+            return getattr(self, "s0", None)
+        r = P.round(s)
+        arrive = P.action_time(r) + P.delta_f - 1
+        for b in range(s + 1, r * P.R + P.R - 1):  # B in slot b, Q in slot b + 1, both in the round
+            if not (self.mine(b) and self.mine(b + 1)):
+                continue
+            js = [j for j in range(s, b) if self.mine(j)]
+            honest = [h for h in range(s, b) if not self.mine(h)]
+            if js and all(P.t(h) < arrive for h in honest) and (not honest or P.t(max(honest)) < arrive):
+                self.s0, self.j = b, js[-1]
+                break
+        return getattr(self, "s0", None)
+
+    def at_slot_start(self, s, t):
+        P = self.P
+        X, others = self.groups
+        s0 = self.target(s)
+        if s0 is None:
+            return
+        if s == s0:
+            self.F_old = self.w.nodes[others[0]].fg.F
+            self.W = self.head(others[0], t)
+            self.B = self.block(s, self.W, atts=[])
+            a = sum(len(self.w.nodes[i].validators) for i in X)
+            self.f1 = max(0, P.n // 2 - a)
+            self.send_block(self.B, self.at(X, t + P.delta - 1))
+        elif s == s0 + 1:
+            # FB: slot j, on the newest block older than j, with every honest attestation
+            older = [r for r in self.tree() if BLOCKS[r].slot < self.j and prec(r, self.W)]
+            parent = max(older, key=lambda r: (DEPTH[r], r))
+            atts = [a for _, _, kind, payload in self.w.net.sent_log if kind == "att" for a in payload]
+            self.FB = self.block(self.j, parent, atts=self.valid_atts(parent, atts))
+            super().at_slot_start(s, t)
+            self.notes[-1] = self.notes[-1].replace(f"slot {s0 - 1}: FB withheld", f"slot {self.j}: FB built late")
+
+
 class LateJustification(Adversary):
     """A justification revealed late, to open a frontier contest. Needs a cut (--cut a:d) that
     starts after round r - 1's attestations spread and before a block includes them, and that
@@ -1009,7 +1069,7 @@ class Fuzz(Adversary):
                     self.w.net.adv_send("att", a, arr)
 
 
-STRATEGIES = {c.name: c for c in (Adversary, Equivocate, Split, Fuzz, SkewFast, SkewFreeze, TwoFace, FinalityHide, FinalityHideSeq, LateJustification, Outage)}
+STRATEGIES = {c.name: c for c in (Adversary, Equivocate, Split, Fuzz, SkewFast, SkewFreeze, TwoFace, FinalityHide, FinalityHideSeq, FinalityHideDF, LateJustification, Outage)}
 
 
 # ------------------------------------------------------------------------ checks
@@ -1095,7 +1155,7 @@ def dump(path, args, world, tracker):
 
 def run(args, quiet=True):
     assert 3 * args.f <= args.validators, f"the adversary holds at most n/3 (f={args.f}, n={args.validators})"
-    P = Params(n=args.validators, delta=args.delta_ms, delta_f=args.delta_ms, R=args.R, k=args.k,
+    P = Params(n=args.validators, delta=args.delta_ms, delta_f=args.delta_f_ms or args.delta_ms, R=args.R, k=args.k,
                delta_t=args.delta_t or args.R, seed=args.seed, fast_strict=args.fast_strict,
                refused_votes=args.refused_votes, lean_finality=args.lean_finality)
     skew = {}
@@ -1177,6 +1237,7 @@ def add_args(p):
     p.add_argument("--strategy", choices=sorted(STRATEGIES), default="fuzz")
     p.add_argument("--relay", choices=("faithful", "first-seen"), default="faithful")
     p.add_argument("--relay-ms", type=int, default=None)
+    p.add_argument("--delta-f-ms", type=int, default=None, help="Δ_F, delivery bound of attestations (default Δ)")
     p.add_argument("--skew", default="", help="clock offsets node:ms,... (leaves the spec's model)")
     p.add_argument("--fast-strict", action="store_true", help="fast test > n/2 (NOT the spec), to compare")
     p.add_argument("--lean-finality", action="store_true", help="NOT the spec: F advances ignoring a contest (Lean model)")
