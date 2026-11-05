@@ -947,7 +947,7 @@ def run(args, quiet=True):
     assert 3 * args.f <= args.validators, f"the adversary holds at most n/3 (f={args.f}, n={args.validators})"
     P = Params(n=args.validators, delta=args.delta_ms, delta_f=args.delta_ms, R=args.R, k=args.k,
                delta_t=args.delta_t or args.R, seed=args.seed, fast_strict=args.fast_strict,
-               refused_votes=args.refused_votes)
+               refused_votes=args.refused_votes, lean_finality=args.lean_finality)
     skew = {}
     for item in filter(None, (args.skew or "").split(",")):
         i, ms = item.split(":")
@@ -1026,6 +1026,7 @@ def add_args(p):
     p.add_argument("--relay-ms", type=int, default=None)
     p.add_argument("--skew", default="", help="clock offsets node:ms,... (leaves the spec's model)")
     p.add_argument("--fast-strict", action="store_true", help="fast test > n/2 (NOT the spec), to compare")
+    p.add_argument("--lean-finality", action="store_true", help="NOT the spec: F advances ignoring a contest (Lean model)")
     p.add_argument("--q-offset", type=int, default=None, help="fin_hide: when Q reaches the holdout (ms after t_(s+1))")
     p.add_argument("--relay-carried", action="store_true",
                    help="honest nodes relay the carried votes of every block they accept (the Lean's relay premise)")

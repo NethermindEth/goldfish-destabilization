@@ -52,6 +52,7 @@ class Params:
     seed: int = 0
     fast_strict: bool = False  # NOT the spec: fast test 2·score > |K_s| instead of ≥, for comparison only
     refused_votes: bool = False  # NOT the spec: the AC takes the votes of a block the FG refuses (proposed fix)
+    lean_finality: bool = False  # NOT the spec: F advances under the floor h_max - 1 even in a contest (the Lean model)
 
     @property
     def q(self):
@@ -291,7 +292,8 @@ class FG:
         return STATE[B].h >= (self.head_height_floor() if floor is None else floor)
 
     def has_viable_descendant(self, B):  # F3.37
-        floor = self.head_height_floor()
+        # lean_finality: the Lean model's acceptViable ignores the contest (floor h_max - 1)
+        floor = self.hmax - 1 if self.P.lean_finality else self.head_height_floor()
         return any(prec(B, X) and self.is_viable(X, floor) for X in self.T)
 
     def frame(self):  # F3.39 fg_to_ac

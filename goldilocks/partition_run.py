@@ -41,11 +41,13 @@ def add_world_args(p):
     p.add_argument("--k", type=int, default=4, help="slow window / lock length in slots")
     p.add_argument("--R", type=int, default=8, help="slots per round")
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--lean-finality", action="store_true",
+                   help="NOT the spec: F advances ignoring a contest, as in the Lean model")
 
 
 def make_params(args):
     return Params(n=args.validators, delta=args.delta_ms, delta_f=args.delta_ms, R=args.R, k=args.k,
-                  delta_t=args.R, seed=args.seed)
+                  delta_t=args.R, seed=args.seed, lean_finality=args.lean_finality)
 
 
 def short(root):
@@ -154,6 +156,7 @@ def summarize(args, world, tracker, heal, group_of, t_end):
         "invariant_violations": tracker.invariant_violations[:10]
         + [(e["t"], e["node"], e["what"]) for e in world.log_events if e["kind"] == "violation"][:10],
         "finality_timeline": tracker.finality,
+        "contest_slots": [st["slot"] for st in tracker.states if any(x["contest"] for x in st["nodes"])],
         "per_node": per_node,
         "held": dict(world.net.held),
     }
