@@ -23,8 +23,8 @@ GROUPS = ["0/1/2/3", "0,1/2,3", "0,1,2/3"]
 
 
 def one(job):
-    groups, d, tau, seed, passive = job
-    argv = ["--f", "21", "--strategy", "outage", "--seed", str(seed), "--slots", "72", "--outage-tau", str(tau),
+    groups, d, tau, seed, passive, k = job
+    argv = ["--k", str(k), "--f", "21", "--strategy", "outage", "--seed", str(seed), "--slots", str(72 + 8 * max(0, k - 4)), "--outage-tau", str(tau),
             "--outage-slots", str(d), "--outage-groups", groups] + (["--outage-passive"] if passive else [])
     p = argparse.ArgumentParser(allow_abbrev=False)
     adversary.add_args(p)
@@ -46,6 +46,7 @@ def main():
     p.add_argument("--taus", default=None, help="comma-separated, in Δ")
     p.add_argument("--lengths", default=None, help="comma-separated, in slots")
     p.add_argument("--groups", default=None, help="semicolon-separated groupings")
+    p.add_argument("--k", type=int, default=4, help="lock length in slots")
     args = p.parse_args()
     global TAUS, LENGTHS, GROUPS
     if args.taus:
@@ -54,7 +55,7 @@ def main():
         LENGTHS = [float(x) for x in args.lengths.split(",")]
     if args.groups:
         GROUPS = args.groups.split(";")
-    jobs = list(itertools.product(GROUPS, LENGTHS, TAUS, range(args.seeds), (False, True)))
+    jobs = [(*j, args.k) for j in itertools.product(GROUPS, LENGTHS, TAUS, range(args.seeds), (False, True))]
     with Pool(args.procs) as pool:
         out = pool.map(one, jobs, chunksize=4)
     cell = defaultdict(lambda: [0, 0])
