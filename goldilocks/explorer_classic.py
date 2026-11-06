@@ -82,7 +82,8 @@ def compact(path, meta=None):
             a = x["anchor"]
             tag = "FLOOR" if (a == x["fc_root"] and a not in lk) else ("G1" if how[i].get(a) == "slow" else "TSQ")
             nrow.append([x["head_slot"], x["head"], x["conf_slot"], x["conf"], x["anchor_slot"], a,
-                         x["F_slot"], x["J_slot"], x["head_h"], tag, x["hmax"]])
+                         x["F_slot"], x["J_slot"], x["head_h"], tag, x["hmax"],
+                         [ls for _, ls, _ in x["locks"]], [b for b, _, _ in x["locks"]]])  # 11, 12: every live lock
             locks.setdefault(s, {})[i] = ", ".join(f"{name(b)}→{dl}" for b, _, dl in x["locks"]) or "none"
         states.append([s, nrow])
 
@@ -316,6 +317,7 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
         <span><i class="sw" style="background:#0891b2;border-top:2px dashed #0891b2;height:0"></i>Justified Side A (dashed cyan)</span>
         <span><i class="sw" style="background:#9333ea;border-top:2px dashed #9333ea;height:0"></i>Justified Side B (dashed purple)</span>
         <span><i class="dot" style="border:2px solid var(--held)"></i>Points at a block later orphaned</span>
+        <span><i class="dot" style="width:6px;height:6px;background:var(--a)"></i><i class="dot" style="width:6px;height:6px;background:var(--b)"></i> panel 3: every live lock (hollow = later orphaned)</span>
         <span><i class="dot" style="background:var(--tsq)"></i>anchor = fast lock (&ge; n/2 early votes)</span>
         <span><i class="sq"></i>no live lock (walk starts at the FG root)</span>
         <span><i class="dia"></i>anchor = slow lock (k confirmations in a row)</span>
@@ -652,7 +654,7 @@ function renderSingle() {
   const panels = [
     ["1. Head slot (ac_head)", 0, 1, "head"],
     ["2. Confirmed tip (ac_confirmed: the confirmation update + locks)", 2, 3, "safe"],
-    ["3. Anchor: deepest locked block, where every head walk starts (fast ● / slow ◆ / no lock □)", 4, 5, "stable"],
+    ["3. Locks: every live lock (dots) and the anchor, the deepest one (line: fast ● / slow ◆ / no lock □)", 4, 5, "stable"],
     ["4. Finality gadget: Finalized (solid blue/orange) & Justified (dashed cyan/purple) + FG height h", 6, null, "fin"],
   ];
   const ph = 138, gap = 36, PH = panels.length * (ph + gap) + 20;
@@ -684,6 +686,10 @@ function renderSingle() {
             const jv = valOf(s, ns[i], 7);
             if (jv !== null) { lo = Math.min(lo, jv); hi = Math.max(hi, jv); }
           }
+          if (kind === "stable") (ns[i][11] || []).forEach(ls => {
+            const lv = isLag ? s - ls : ls;
+            lo = Math.min(lo, lv); hi = Math.max(hi, lv);
+          });
         });
       }
       if (!isFinite(lo)) { lo = 0; hi = maxSlot; }
@@ -791,6 +797,26 @@ function renderSingle() {
         pc.beginPath();
         jPts.forEach((p, i) => i ? pc.lineTo(p[0], p[1]) : pc.moveTo(p[0], p[1]));
         pc.stroke(); pc.setLineDash([]);
+      });
+    }
+
+    // Every live lock of each side's node, one small dot per lock per slot (as in the newer explorer);
+    // hollow when the locked block ends up off the final chain
+    if (kind === "stable") {
+      [[idxB, T.b, +2.2], [idxA, T.a, -2.2]].forEach(([ni, col, dx]) => {
+        if (ni === idxB && !sides) return;
+        run.states.forEach(([s, ns]) => {
+          if (s < sFrom - 1 || s > sTo + 1) return;
+          const st = ns[ni], slots = st[11] || [], roots = st[12] || [];
+          slots.forEach((ls, j) => {
+            const x = PX(s) + (sides ? dx : 0), y = PY(isLag ? s - ls : ls), orph = roots[j] && !final.has(roots[j]);
+            pc.globalAlpha = 0.8;
+            pc.beginPath(); pc.arc(x, y, 2.7, 0, 7);
+            if (orph) { pc.fillStyle = T.panel; pc.fill(); pc.strokeStyle = col; pc.lineWidth = 1.3; pc.stroke(); }
+            else { pc.fillStyle = col; pc.fill(); }
+            pc.globalAlpha = 1;
+          });
+        });
       });
     }
 
@@ -1561,11 +1587,22 @@ window.addEventListener("keydown", e => {
 
 window.addEventListener("resize", render);
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
-// #run=<tab name>&slot=<slot> opens that tab at that slot
+// #run=<tab name>&slot=<slot>&mode=lag&win=16&from=<slot> opens that tab at that slot, plot 1 in
+// lag mode, a 16-slot window starting at <from>
 const HP = new URLSearchParams(location.hash.slice(1));
 const startTab = allTabs.includes(HP.get("run")) ? HP.get("run") : allTabs[0];
 pick(startTab);
-if (HP.get("slot")) { zoomSlot = +HP.get("slot"); renderSingle(); }
+if (HP.get("mode")) {
+  progMode = HP.get("mode");
+  document.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x.dataset.mode === progMode));
+}
+if (HP.get("win")) {
+  winSize = +HP.get("win");
+  $("winSizeTabs").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", +x.dataset.wsize === winSize));
+}
+if (HP.get("from")) winStart = +HP.get("from");
+if (HP.get("slot")) zoomSlot = +HP.get("slot");
+if (HP.get("mode") || HP.get("win") || HP.get("from") || HP.get("slot")) renderSingle();
 </script>
 </body>
 </html>
