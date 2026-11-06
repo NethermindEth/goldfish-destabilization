@@ -27,6 +27,9 @@ bash attack_suite.sh                      # every attack and its control
 | `adversary.py` | A one-third Byzantine adversary under synchrony: per-node delivery inside Δ, relay of every object (also a second vote), equivocation, timing attacks, random fuzzing; checks the synchrony claims. `--relay first-seen` and `--skew` leave the spec's model on purpose |
 | `fuzz_batch.py` | Many seeded adversary runs in parallel; lists every run that breaks a claim |
 | `honest_orphans.py` | Many seeded adversary runs; counts the honest proposals orphaned under synchrony |
+| `contest_compare.py`, `contest_adv.py`, `contest_detail.py` | Frontier contests: the spec's finality rule against the Lean model's (`--lean-finality`), on partitions and adversary runs |
+| `height_events.py` | Which heights on the final chain were justified and which were skipped by timeouts |
+| `outage_sweep.py`, `outage_trace.py` | Asynchrony resilience of a fast confirmation against an adversary that controls an outage |
 | `attack_suite.sh`, `attack_explorer.sh` | The adversary study in one go, and its explorer page |
 | `explorer.py` | Interactive explorer: per-node tips (lag), locks, block tree, FG heights, held messages, per-slot state/events/messages |
 | `build_explorer.sh`, `explorer_meta.json` | Every experiment on one explorer page, one tab each, with an About card |

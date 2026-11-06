@@ -652,6 +652,156 @@ class FinalityHideSeq(Adversary):
                 self.vote(v, s, self.W, self.at(self.all_nodes(), at))
 
 
+class LateJustification(Adversary):
+    """A justification revealed late, to open a frontier contest. Needs a cut (--cut a:d) that
+    starts after round r - 1's attestations spread and before a block includes them, and that
+    contains round r's action time. No equivocation: the adversary never signs two conflicting
+    objects.
+
+    During the cut each side includes round r - 1's attestations in its own block, so the
+    chains enter height h at different blocks, A1 (side A = group A) and B1. Faulty validators
+    are split, not doubled: f_A vote side A's head to side A, the others side B's to side B, so
+    each side reaches n/2 early votes and fast-locks (it can attest). At a_r side A targets
+    (h, A1) and side B (h, B1); the faulty validators also target (h, A1), but only inside X_A,
+    a block on A's chain that the adversary keeps: X_A justifies A1 and nobody knows.
+    After the heal the faulty validators vote B's head: side A's locks move back and everyone
+    follows B. At a_(r+1) side A, having targeted A1 at h, times out at (h, B1); so do the
+    faulty validators. B reaches the progress quorum and, after δt, height h + 1 without a
+    justification. Then the adversary reveals X_A: J = A1 at h, h_max = h + 1, and B's blocks
+    at h + 1 do not extend A1, a contest at every node."""
+
+    name = "late_j"
+
+    def __init__(self, world, rng, groups):
+        super().__init__(world, rng, groups)
+        self.XA = None
+        self.revealed = False
+        self.no_reveal = False  # --no-reveal: keep X_A for good (control: the split alone)
+
+    def cut(self):
+        return self.w.net.windows[0] if self.w.net.windows else None
+
+    def in_cut(self, t):
+        c = self.cut()
+        return c is not None and c[0] <= t < c[1]
+
+    def after_cut(self, t):
+        c = self.cut()
+        return c is not None and t >= c[1]
+
+    def split(self):
+        A, B = self.groups
+        hA = sum(len(self.w.nodes[i].validators) for i in A)
+        fA = max(0, self.P.n // 2 - hA)
+        return self.vals[:fA], self.vals[fA:]
+
+    def at_vote(self, s, t):
+        A, B = self.groups
+        if self.in_cut(t):
+            for side, vals in zip((A, B), self.split()):
+                H = self.head(side[0], t)
+                for v in vals:
+                    self.vote(v, s, H, self.at(side, t + 1))
+        elif self.after_cut(t):
+            H = self.head(B[0], t)
+            for v in self.vals:
+                self.vote(v, s, H, self.at(self.all_nodes(), t + 1))
+
+    def at_action(self, r, t):
+        A, B = self.groups
+        if self.in_cut(t) and self.XA is None and not hasattr(self, "hA"):
+            a = self.w.nodes[A[0]]
+            fgc = a.last_fg_confirmed
+            if fgc is None:
+                self.notes.append(f"round {r}: side A has no fg_confirmed, setup FAILED")
+                return
+            self.hA, self.A1 = STATE[fgc].h, STATE[fgc].Th
+            self.hidden = [Att(v, self.hA, self.A1, False, None, None) for v in self.vals]
+            self.r0 = r
+            b = self.w.nodes[B[0]]
+            self.B1 = STATE[b.last_fg_confirmed].Th if b.last_fg_confirmed else None
+            self.notes.append(f"round {r}: side A targets (h={self.hA}, A1 slot {BLOCKS[self.A1].slot}); side B entry "
+                              f"{BLOCKS[self.B1].slot if self.B1 else None}")
+        elif self.after_cut(t) and hasattr(self, "hA") and not getattr(self, "timed_out", False):
+            node = self.w.nodes[B[0]]
+            fgc = node.last_fg_confirmed or node.head(t)
+            st = STATE[fgc]
+            if st.h == self.hA and st.Th != self.A1:
+                for v in self.vals:
+                    self.w.net.adv_send("att", Att(v, st.h, st.Th, True, None, None), self.at(self.all_nodes(), t + 1))
+                self.timed_out = True
+                self.notes.append(f"round {r}: faulty timeouts at (h={st.h}, B entry slot {BLOCKS[st.Th].slot})")
+
+    def at_slot_start(self, s, t):
+        from model import INCL
+        A, B = self.groups
+        if hasattr(self, "hA") and self.XA is None and self.mine(s):
+            # X_A on A's chain: side A's targets not yet included plus the hidden faulty targets
+            tips = [r for r in self.tree() if STATE[r].h == self.hA and STATE[r].Th == self.A1]
+            if tips:
+                parent = max(tips, key=lambda r: (DEPTH[r], r))
+                if BLOCKS[parent].slot < s:
+                    extra = [a for a in self.pool() if (a.h, a.T) == (self.hA, self.A1) and a not in INCL[parent]]
+                    XA = self.block(s, parent, atts=self.valid_atts(parent, self.hidden + extra))
+                    if XA is not None and STATE[XA.root].hj == self.hA:
+                        self.XA = XA
+                        self.notes.append(f"slot {s}: X_A on slot {BLOCKS[parent].slot} justifies A1 at h={self.hA} (kept)")
+        if self.after_cut(t) and self.XA is not None and not self.revealed and not self.no_reveal:
+            heads = [STATE[self.head(i, t)].h for i in self.all_nodes()]
+            if min(heads) > self.hA:
+                self.send_block(self.XA, self.at(self.all_nodes(), t + 1))
+                self.revealed = True
+                self.notes.append(f"slot {s}: B's chain at h={min(heads)} everywhere; X_A revealed")
+        if self.after_cut(t) and self.mine(s) and (self.XA is None or self.revealed or s != getattr(self.XA, "slot", -1)):
+            H = self.head(B[0], t)
+            Bk = self.block(s, H)
+            if Bk is not None:
+                self.send_block(Bk, self.at(self.all_nodes(), t + 1))
+
+
+class Outage(Adversary):
+    """Asynchrony resilience of a confirmation. Under synchrony an honest block B of slot s is
+    confirmed at T = t_(s+1) + 2Δ (the update of slot s). An outage starts at T + τ
+    (--outage-tau, ms, ≥ -2Δ) and lasts d slots (--outage-slots); during it honest traffic
+    between different groups (--outage-groups, e.g. 0/1/2/3 or 0,1,2/3) waits for the heal, while
+    the adversary reaches every node. The adversary proposes C, a sibling of B, in slot s + 1 (it
+    needs that slot) and from then on its validators vote C, early, to every node. A break is a
+    node that showed B as confirmed and ends with B orphaned."""
+
+    name = "outage"
+    tau = 0
+    slots = 2
+    groups_spec = None
+    passive_votes = False  # --outage-passive: same outage, the adversary does not vote (control)
+
+    def at_slot_start(self, s, t):
+        P = self.P
+        if hasattr(self, "B") or s < 33 or not self.mine(s):
+            return
+        B = self.head(0, t)
+        if BLOCKS[B].slot != s - 1 or BLOCKS[B].proposer in self.valset:
+            return
+        self.B, self.s0 = B, s - 1
+        self.C = self.block(s, BLOCKS[B].parent, atts=[])
+        if self.C is None:
+            return
+        self.send_block(self.C, self.at(self.all_nodes(), t + 1))
+        T = P.t(s) + 2 * P.delta
+        start = T + self.tau
+        end = start + self.slots * P.slot_ms
+        spec = self.groups_spec or "/".join(str(i) for i in self.all_nodes())
+        g = {int(i): k for k, part in enumerate(spec.split("/")) for i in part.split(",")}
+        self.w.net.windows.append((start, end, g))
+        self.window = (start, end)
+        self.notes.append(f"B = slot {s - 1} (honest), C = slot {s} on its parent; confirmation at T = t_{s}+2Δ; "
+                          f"outage [{(start - P.t(s)) / P.delta:+.2f}Δ, +{self.slots} slots) groups {spec}")
+
+    def at_vote(self, s, t):
+        if hasattr(self, "C") and self.C is not None and s >= self.s0 + 1 and not self.passive_votes:
+            for v in self.vals:
+                self.vote(v, s, self.C.root, self.at(self.all_nodes(), t + 1))
+
+
 class TwoFace(Adversary):
     """Partial synchrony. During the cut the adversary is honest-looking on both sides at once:
     it votes each side's head to that side, proposes one block per side at its slots, and
@@ -859,7 +1009,7 @@ class Fuzz(Adversary):
                     self.w.net.adv_send("att", a, arr)
 
 
-STRATEGIES = {c.name: c for c in (Adversary, Equivocate, Split, Fuzz, SkewFast, SkewFreeze, TwoFace, FinalityHide, FinalityHideSeq)}
+STRATEGIES = {c.name: c for c in (Adversary, Equivocate, Split, Fuzz, SkewFast, SkewFreeze, TwoFace, FinalityHide, FinalityHideSeq, LateJustification, Outage)}
 
 
 # ------------------------------------------------------------------------ checks
@@ -947,7 +1097,7 @@ def run(args, quiet=True):
     assert 3 * args.f <= args.validators, f"the adversary holds at most n/3 (f={args.f}, n={args.validators})"
     P = Params(n=args.validators, delta=args.delta_ms, delta_f=args.delta_ms, R=args.R, k=args.k,
                delta_t=args.delta_t or args.R, seed=args.seed, fast_strict=args.fast_strict,
-               refused_votes=args.refused_votes)
+               refused_votes=args.refused_votes, lean_finality=args.lean_finality)
     skew = {}
     for item in filter(None, (args.skew or "").split(",")):
         i, ms = item.split(":")
@@ -965,6 +1115,9 @@ def run(args, quiet=True):
          [i for i in range(args.nodes) if str(i) not in args.group_a.split(",")]]
     world.adv = STRATEGIES[args.strategy](world, random.Random(f"adv-{args.seed}"), groups)
     world.adv.round_start = args.round_start
+    world.adv.no_reveal = args.no_reveal
+    world.adv.tau, world.adv.slots, world.adv.groups_spec = args.outage_tau, args.outage_slots, args.outage_groups
+    world.adv.passive_votes = args.outage_passive
     for item in filter(None, args.sleep.split(",")):
         nid, a, b = item.split(":")
         world.sleep.setdefault(int(nid), []).append((round(float(a) * P.slot_ms), round(float(b) * P.slot_ms)))
@@ -1026,12 +1179,18 @@ def add_args(p):
     p.add_argument("--relay-ms", type=int, default=None)
     p.add_argument("--skew", default="", help="clock offsets node:ms,... (leaves the spec's model)")
     p.add_argument("--fast-strict", action="store_true", help="fast test > n/2 (NOT the spec), to compare")
+    p.add_argument("--lean-finality", action="store_true", help="NOT the spec: F advances ignoring a contest (Lean model)")
     p.add_argument("--q-offset", type=int, default=None, help="fin_hide: when Q reaches the holdout (ms after t_(s+1))")
     p.add_argument("--relay-carried", action="store_true",
                    help="honest nodes relay the carried votes of every block they accept (the Lean's relay premise)")
     p.add_argument("--refused-votes", action="store_true",
                    help="NOT the spec (proposed fix): take the votes of a block the FG refuses")
     p.add_argument("--round-start", action="store_true", help="skew attacks: only at a round start (FG source)")
+    p.add_argument("--no-reveal", action="store_true", help="late_j: never reveal X_A (control)")
+    p.add_argument("--outage-tau", type=int, default=0, help="outage: start, ms after the confirmation (>= -2Δ)")
+    p.add_argument("--outage-slots", type=float, default=2, help="outage: length in slots")
+    p.add_argument("--outage-groups", default=None, help="outage: groups, e.g. 0/1/2/3 or 0,1,2/3")
+    p.add_argument("--outage-passive", action="store_true", help="outage: the adversary does not vote (control)")
     p.add_argument("--late-z", nargs="?", const="freeze", default=None, choices=("freeze", "proposer"),
                    help="fin_hide: faulty slot-(s+1) votes just before the freeze, or only to the next proposer")
     p.add_argument("--sleep", default="", help="asleep windows node:start:end (slots), comma-separated")
