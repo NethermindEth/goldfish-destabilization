@@ -1,7 +1,7 @@
 {
  "01 honest": {
   "slot": 24,
-  "about": "<p>All 64 validators honest, on 4 nodes, 200 ms latency. This is the reference run: the confirmed tip runs one slot behind the head, each node holds k = 4 live locks (yellow dots), and the finalized tip draws a sawtooth 16–24 slots behind: one FG height per 8-slot round, finalized two rounds after its target.</p>",
+  "about": "<p>All 64 validators honest, on 4 nodes, 200 ms latency. This is the reference run: the confirmed tip runs one slot behind the head, each node holds k = 4 live locks (the dots of the lock panel), and the finalized tip draws a sawtooth 16–24 slots behind: one FG height per 8-slot round, finalized two rounds after its target.</p>",
   "jumps": [
    [
     "Slots 8–16",
