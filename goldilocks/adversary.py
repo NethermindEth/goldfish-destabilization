@@ -578,6 +578,80 @@ class FinalityHide(Adversary):
             self.vote(v, s, self.Z.root, self.at([dst], P.t(s + 1) - 1))
 
 
+class FinalityHideSeq(Adversary):
+    """fin_hide without proposer equivocation: one block per adversary slot. It needs the
+    adversary's slots rR + 2, rR + 3 and rR + 4 of one round.
+
+    Slot rR + 2: FB, the first block after the round's attestations, carries them; the adversary
+      withholds it, so no honest node finalizes J yet (the next honest proposer would include
+      the attestations, so every slot up to the hiding block must be the adversary's).
+    Slot s = rR + 3: B on the head W reaches group X just before its vote; f1 faulty early votes
+      bring B to exactly n/2 early votes; the other w faulty validators keep their slot-s votes
+      back (they name W, so they never oppose B).
+    Slot s + 1: Q, a fork from J's parent carrying the w held-back votes, reaches the holdout just
+      before its vote; FB reaches X just before Q's relay does. X finalizes J and refuses Q, counts
+      n - w voters, confirms B and fast-locks it (≥ n/2). The holdout counts n voters, B is no
+      majority, and it votes W. The faulty validators vote W from then on.
+    Nothing opposes B, so X's lock holds until it expires, k slots later; B never regains a
+    majority (X's honest votes only), and every honest head then leaves it."""
+
+    name = "fin_hide_seq"
+
+    def target(self, s):
+        P = self.P
+        if not hasattr(self, "s0") and s >= 32 and s % P.R == 2 and all(self.mine(s + i) for i in range(3)):
+            self.s0 = s + 1
+        return getattr(self, "s0", None)
+
+    def at_slot_start(self, s, t):
+        P = self.P
+        X, others = self.groups
+        s0 = self.target(s)
+        if s0 is None:
+            return
+        if s == s0 - 1:
+            self.F_old = self.w.nodes[others[0]].fg.F
+            self.FB = self.block(s, self.head(others[0], t))  # carries the round's attestations; withheld
+        elif s == s0:
+            self.W = self.head(others[0], t)
+            self.B = self.block(s, self.W, atts=[])
+            a = sum(len(self.w.nodes[i].validators) for i in X)
+            self.f1 = max(0, P.n // 2 - a)
+            assert self.f1 < len(self.vals), "not enough faulty validators for an exact half"
+            self.send_block(self.B, self.at(X, t + P.delta - 1))
+        elif s == s0 + 1:
+            FB = self.FB
+            F_new = STATE[FB.root].F if FB is not None else self.F_old
+            withheld = [Vote(v, s0, self.W) for v in self.vals[self.f1:]]
+            prev = self.honest_votes(s0) + [Vote(v, s0, self.B.root) for v in self.vals[:self.f1]] + withheld
+            support = [x for x in prev if x.H in self.w.nodes[others[0]].fg.T]
+            Q = self.block(s, BLOCKS[F_new].parent, prev, support, atts=[]) if F_new != self.F_old else None
+            ok = FB is not None and Q is not None and prec(self.F_old, BLOCKS[F_new].parent)
+            self.notes.append(f"slot {s0 - 1}: FB withheld, finalizes slot {BLOCKS[F_new].slot} (was {BLOCKS[self.F_old].slot}); "
+                              f"slot {s0}: B (f1={self.f1}, held back w={len(self.vals) - self.f1}); slot {s}: Q; "
+                              f"setup {'ok' if ok else 'FAILED'}")
+            if not ok:
+                return
+            net = self.w.net
+            d = P.delta - 1 if net.relay_ms is None else min(net.relay_ms, P.delta - 1)
+            self.send_block(Q, self.at(others, t + P.delta - 1))
+            self.send_block(FB, self.at(X, t + P.delta - 1 - d // 2))
+
+    def at_vote(self, s, t):
+        P = self.P
+        s0 = getattr(self, "s0", None)
+        if s0 is None:
+            return
+        if s == s0:
+            for v in self.vals[:self.f1]:
+                self.vote(v, s, self.B.root, self.at(self.all_nodes(), t + P.delta - 1))
+        elif s > s0:  # from then on, vote W (never an opponent of B), early, to everyone
+            # late_z: at s0 + 1, just before the freeze instead, after the fooled nodes' update (> n/2)
+            at = t + 2 * P.delta - 1 if self.late_z and s == s0 + 1 else t + 1
+            for v in self.vals:
+                self.vote(v, s, self.W, self.at(self.all_nodes(), at))
+
+
 class TwoFace(Adversary):
     """Partial synchrony. During the cut the adversary is honest-looking on both sides at once:
     it votes each side's head to that side, proposes one block per side at its slots, and
@@ -785,7 +859,7 @@ class Fuzz(Adversary):
                     self.w.net.adv_send("att", a, arr)
 
 
-STRATEGIES = {c.name: c for c in (Adversary, Equivocate, Split, Fuzz, SkewFast, SkewFreeze, TwoFace, FinalityHide)}
+STRATEGIES = {c.name: c for c in (Adversary, Equivocate, Split, Fuzz, SkewFast, SkewFreeze, TwoFace, FinalityHide, FinalityHideSeq)}
 
 
 # ------------------------------------------------------------------------ checks

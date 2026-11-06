@@ -329,13 +329,72 @@ The *confirmed tip* is still exposed. Nodes 0–2 still confirm B, because 32 ou
 
 The last variant fails in the 26 schedules where the slot-35 proposer is faulty, a case our adversary does not handle. So $> n\/2$ protects fast locks, and with them the finality gadget's targets, but not every confirmation. The threshold is not the root cause.
 
+== Without proposer equivocation <sec-seq>
+
+The attack of 3.3 needs three blocks in one slot. Honest nodes accept them under the spec, but Ethereum's gossip layer ignores a proposer's second block for a slot, and under that rule the attack fails. The same idea works with *one block per slot*, and without any conflicting vote, if the adversary proposes three consecutive slots instead of two.
+
+*The finalizing block can come earlier.* FB only has to carry the round's attestations and reach nodes 0–2 at the right moment. It does not have to share a slot with Q: the adversary can propose it in the round's third slot and keep it back. What it needs is that no honest block includes the attestations in the meantime, so every slot from the round's third up to Q must be the adversary's. B then moves to the fourth slot and Q to the fifth. With 21 of 64 validators this happens in about $(21\/64)^3 approx 3.5%$ of rounds.
+
+*The rival block is not needed.* Instead of opposing B, the faulty validators vote for its parent W, which never opposes it. Nothing releases the lock of nodes 0–2, but B never gets a majority again either: when the lock expires, k slots later, every honest head leaves B.
+
+In our example the adversary proposes slots 42, 43 and 44. Before the attack every node has the block of slot 18 finalized and the block of slot 26 justified; W is the honest head.
+
+#figure(
+  fin-hide-seq-tree(),
+  caption: [The blocks of the attack without equivocation: one adversary block in each of slots 42, 43 and 44. FB is dashed because it is kept back until slot 44; $Q$ because nodes 0–2 refuse it.],
+) <fig-finhide-seq>
+
+#table(columns: (auto, 1.1fr, 1.2fr, 1.2fr),
+  table.header([*time*], [*adversary*], [*nodes 0–2*], [*node 3*]),
+  [$t_(42)$], [FB (on W), carrying the round's attestations; kept back], [—], [—],
+  [$t_(43)+Delta-1$ ms], [B (on W) to nodes 0–2, just before their vote. The 21 faulty validators send no vote; their votes, all for W, are kept back], [vote B], [votes W (B arrives by relay, after its vote)],
+  [$t_(43)+2Delta$], [—], [B: 32 early votes; 43 voters], [B: 32 early votes; 43 voters],
+  [$t_(44)+Delta-101$ ms], [FB to nodes 0–2], [slot 26 becomes their finalized block], [—],
+  [$t_(44)+Delta-1$ ms], [Q (on slot 24, carrying the 21 held-back votes) to node 3], [—], [accepts Q: its finalized block is still slot 18. 64 voters],
+  [$t_(44)+Delta$ (vote)], [faulty validators vote W, from now on in every slot], [vote B: 32 of 43 voters, a majority], [votes W: B has 32 of 64 voters, not a majority],
+  [$t_(44)+Delta+99$ ms], [—], [—], [FB arrives by relay, after its vote],
+  [$t_(44)+Delta+199$ ms], [—], [Q arrives by relay: *refused*, it does not extend slot 26], [—],
+  [$t_(44)+2Delta$ (update of 43)], [—], [*B confirmed* ($2 dot 32 > 43$) and *fast-locked* ($2 dot 32 >= 64$) until $t_(48) + Delta$], [confirms W],
+  [slots 45–47], [vote W], [locked on B: vote B's branch (32)], [votes W's side; with the faulty votes, 32],
+  [$t_(48)+Delta$], [—], [the lock expires; B's branch has 32 of 64 votes: the walk stops at W. *B orphaned*], [—],
+)
+
+Nodes 0–2 show B as confirmed from $t_(44) + 2Delta$ until the lock expires at $t_(48) + Delta$: *22.5 s*, against 4.5 s in 3.3. The adversary signs nothing conflicting: one block per slot, one vote per validator per slot. It only withholds and times its messages within Δ.
+
+*Why only three consecutive slots, and not two.* A vote of slot $s$ is accepted only during slots $s$ and $s + 1$ (spec F7.20), so the hidden slot-43 votes must travel in a slot-44 block, Q. FB must reach nodes 0–2 during that same slot, and it cannot be Q. If an honest node proposed slot 44, its block would carry neither the hidden votes nor a finalization the adversary controls. So FB is an earlier block of the adversary, kept back, and B lies between the two.
+
+#table(columns: (2.2fr, 1fr, 1fr),
+  table.header([*setting (300 schedules of 160 slots)*], [*attacked*], [*succeed*]),
+  [spec ($>= n\/2$), nodes 0–2 fooled], [138], [138, B shown for 22.5 s],
+  [Ethereum's first-seen gossip; honest relay 3 or 1499 ms; 8 nodes], [138 each], [138 each],
+  [8 faulty validators of 64 (12.5%)], [62 of 2,000 schedules], [62],
+  [$> n\/2$, faulty votes for W sent at once], [138], [0],
+  [$> n\/2$, faulty votes for W just before the slot-44 view freeze], [80 of 150 schedules], [80, B shown for 1.5 s],
+)
+
+With $> n\/2$ the lock is not written, so the head of nodes 0–2 leaves B as soon as the slot-44 votes for W arrive. If the adversary sends them just before the view freeze instead of at once, B is still shown as confirmed for 1.5 s and then orphaned. Here the exact-$n\/2$ fast test is what turns a short revert into a confirmation that lasts the whole lock.
+
+== Honest proposals are orphaned too
+
+While the lock holds, nodes 0–2 vote for B's branch (32 votes) and node 3 together with the faulty validators vote on W's side (11 + 21 = 32). Neither side has a majority, in every slot, so every honest block proposed in those slots collects only its own side's votes and ends off the final chain. In our example the honest blocks of slots 47 (node 3) and 48 (node 2) are orphaned.
+
+#table(columns: (2.2fr, 1fr, 1.4fr),
+  table.header([*150 schedules of 160 slots*], [*attacked*], [*honest blocks orphaned*]),
+  [fin_hide_seq (spec)], [80], [in 70 attacks: 1–4 blocks, median 2],
+  [passive adversary (control)], [—], [never],
+  [$> n\/2$, votes for W just before the view freeze], [80], [never],
+  [proposed fix (count the votes of refused blocks)], [80], [never],
+)
+
+This contradicts the slides' claim that, once every live lock was formed after GST, "the next honest proposal gets every honest vote". Here the network is synchronous throughout, so every lock was formed after GST. It also gives a minority a way to remove honest proposers' blocks, and the transactions and fees in them, without signing anything slashable.
+
 == The fix
 
 The root cause is that whether a vote counts depends on the *block that carries it*, and whether that block is accepted depends on each node's finalized block. A vote is valid on its own, so it should count wherever it arrives. Two fixes do this, and each is enough on its own:
 - *Count the votes of every well-formed block*, even when the block itself is refused because it does not extend the node's finalized block.
 - *Re-send the votes carried by every accepted block* as separate messages, so that relay spreads them like any other vote. This is what the Lean formalization assumes (appendix).
 
-Either way the 11 hidden votes reach nodes 0–2 before their update, and $V_Y <= V_X$ holds again. Both fixes stop *every* variant, with either threshold: 0 of 74, and 200 runs of the random adversary stay clean.
+Either way the hidden votes reach nodes 0–2 before their update, and $V_Y <= V_X$ holds again. Both fixes stop *every* variant, with either threshold: 0 of 74 for the attack of 3.3, 0 of 138 for the one of 3.5, no honest block orphaned, and 200 runs of the random adversary stay clean.
 
 A tempting alternative is to apply a new finalization only at a fixed moment of the slot, for instance right after voting. That narrows the window but does not close it: the finalizing block can still reach some nodes just before that moment and others just after, they switch one slot apart, and the same split reappears.
 
@@ -349,7 +408,9 @@ A tempting alternative is to apply a new finalization only at a fixed moment of 
 #recap[
 - *The setting.* The network is synchronous throughout. There are 64 validators and 21 of them are faulty (32.8%).
 - *The attack.* When the adversary proposes the two slots around a round's attestations (about 11% of rounds), it makes up to three of four honest nodes *confirm and fast-lock* a block, which every honest node then orphans.
-- *The threshold.* With the spec's fast test ($>= n\/2$) this breaks the claim that every honest head keeps a fast lock. With $> n\/2$ the fast-lock version is gone, but the confirmed tip can still be reverted.
+- *Without equivocation.* When the adversary proposes three consecutive slots after the round's attestations (about 3.5% of rounds), the same attack works with one block per slot and no conflicting vote: three of four honest nodes show the block as confirmed for 22.5 s, also under Ethereum's first-seen gossip, and with as little as 12.5% of the stake.
+- *Honest blocks.* While the fooled nodes' lock holds, no branch has a majority, and honest proposals of those slots are orphaned under synchrony (1–4 per attack).
+- *The threshold.* With the spec's fast test ($>= n\/2$) this breaks the claim that every honest head keeps a fast lock. With $> n\/2$ the fast-lock versions are gone, but the confirmed tip can still be reverted, for 1.5 s.
 - *The root cause.* The votes carried inside a block count only if the node accepts the block, and honest nodes can disagree on that for a moment around each new finalization.
 - *The scope.* The attack works on the spec as written. The Lean proof assumes that honest nodes *re-send the votes carried by every block they accept*, which closes it. The spec never states that obligation (appendix).
 ]
@@ -359,7 +420,7 @@ A tempting alternative is to apply a new finalization only at a fixed moment of 
 - *Spec:* "Goldilocks" (FG-SA) specification, 22 Oct 2026, PDF linked from the decoupled-consensus hub, `hackmd.io/@benjaminion/decoupled-consensus-links`. Figure 8 holds the confirmation and lock rules; §1.6 the block-acceptance rule.
 - *Slides:* "Goldilocks" design deck by the spec's authors, same hub; the safety claim quoted in 3.1 is on the slides "No conflicting live locks after GST" and "Fast locks make FG targets safe".
 - *Lean formalization:* `github.com/fradamt/simplified-dc-lean`.
-- *Simulator and explorer:* `goldilocks/` (`adversary.py`, `fin_hide_trace.py`, `build_explorer.sh`).
+- *Simulator and explorer:* `goldilocks/` (`adversary.py` strategies `fin_hide` and `fin_hide_seq`, `fin_hide_trace.py`, `honest_orphans.py`, `build_explorer.sh`).
 #set text(size: 10pt)
 
 #pagebreak()
