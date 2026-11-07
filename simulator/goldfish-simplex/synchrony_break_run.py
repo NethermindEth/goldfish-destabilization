@@ -1,6 +1,6 @@
 """Reproduce available- and safe-confirmation permanence failure under strict synchrony.
 
-Scenario (see ../SYNCHRONY_CONFIRMATION_FAILURE.md):
+Scenario (see ../../reports/goldfish-simplex-synchrony-confirmation-failure.md):
 - N = 64 equal-stake validators across 4 nodes (16 validators = 25% stake per node):
   - Nodes 0, 1: "Early Honest" (50% of total stake = 32 validators)
   - Node 2:     "Late Honest"  (25% of total stake = 16 validators)
@@ -37,7 +37,7 @@ Scenario (see ../SYNCHRONY_CONFIRMATION_FAILURE.md):
        B_{s+1} (a safe-confirmation reversal!), while `latest_confirmed_head` remains stuck on
        the orphaned block B_s!
 
-Run (from spike/):
+Run (from simulator/goldfish-simplex/):
     PYTHONPATH=$SPECS $SPECS/.venv/bin/python synchrony_break_run.py
 """
 

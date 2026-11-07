@@ -50,4 +50,4 @@ waits for it (re-delivery).
 viable tree under the head (requirement 2). An independent line-by-line audit against the spec
 found no deviation in the protocol logic. The driver issues it found are fixed.
 
-The write-up, with all results, is `explainer/goldilocks/goldilocks-textbook.pdf`, chapter 9.
+The write-up, with all results, is `../../explainer/goldilocks/goldilocks-textbook.pdf`, chapter 9. The attack report is `../../reports/goldilocks-finalization-hiding/finalization_hiding.pdf`.

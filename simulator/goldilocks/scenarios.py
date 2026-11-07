@@ -1,6 +1,6 @@
 """The first partition study on Goldilocks: named scenarios, one process each.
 
-Mirrors the shapes run on the SG protocol (spike/partition_run.py): 50/50 and 75/25 cuts,
+Mirrors the shapes run on the SG protocol (../goldfish-simplex/partition_run.py): 50/50 and 75/25 cuts,
 before and after finality starts, short (< k) and long (> R) cuts, a three-way cut, a
 repeated cut, and a 52/48 near-tie. Writes <out>/<name>.{log,json,events.json}.
 

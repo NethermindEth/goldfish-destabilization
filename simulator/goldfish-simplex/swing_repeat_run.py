@@ -16,7 +16,7 @@ Modes for who gets the block early (< 25% deadline) and who gets it late (> 25% 
             the break work (early share > 50% of the 50%-frozen votes but <= 50% of all
             seats once its own votes land); it plays honestly in slots with no such subset
 
-Run (from spike/):
+Run (from simulator/goldfish-simplex/):
     PYTHONPATH=$SPECS:$SPECS/tests/core/pyspec $SPECS/.venv/bin/python swing_repeat_run.py \
         --mode adaptive --slots 96 --json out.json
 """

@@ -1,4 +1,4 @@
-"""The Goldilocks explorer in the old protocol's explorer UI (spike/make_figures.py).
+"""The Goldilocks explorer in the old protocol's explorer UI (../goldfish-simplex/make_figures.py).
 
 Same layout, controls and plots as the PR #5 explorer: (1) what each side believed, slot by
 slot, (2) the block tree with confirmation reversals, (3) the single-slot deadline and message

@@ -1,6 +1,7 @@
-# Decoupled Consensus — Textbook Edition
+# Goldfish + stabilization gadget — textbook
 
-This directory (`explainer/textbook/`) is a standalone, progressive textbook edition of the illustrated protocol explanation. The original `explainer/illustrated/` directory is left completely untouched.
+A progressive textbook of the first protocol we studied: Goldfish with the stabilization gadget
+(`fradamt/consensus-specs@simplex-healing`). Its simulator is `simulator/goldfish-simplex/`.
 
 - `decoupled-consensus-textbook.pdf` (and `decoupled-consensus-illustrated.pdf`): compiled 41-page textbook edition.
 - `main.typ`: document entry point, preface, and outline.

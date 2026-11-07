@@ -1,6 +1,8 @@
-# Spike: multi-node harness around the simplex pyspec
+# Goldfish + stabilization gadget: multi-node harness around the simplex pyspec
 
-Feasibility prototype built 7–8 Oct 2026. Answers one question: can the executable spec
+The simulator of the first protocol we studied (Goldfish with the stabilization gadget,
+`fradamt/consensus-specs@simplex-healing`). It drives the executable spec itself. It started as a
+feasibility prototype (7–8 Oct 2026) that answered one question: can the executable spec
 (`fradamt/consensus-specs@simplex-healing`, commit `5750e57`) be driven as N nodes over a
 simulated network fast enough to run experiments? **Yes.**
 
@@ -10,7 +12,7 @@ simulated network fast enough to run experiments? **Yes.**
 git clone -b simplex-healing https://github.com/fradamt/consensus-specs ~/Projects/consensus-specs
 cd ~/Projects/consensus-specs && make test fork=simplex   # builds pyspec + .venv; 1219 passed (~14 min)
 export SPECS=~/Projects/consensus-specs
-cd spike
+cd simulator/goldfish-simplex
 PYTHONPATH=$SPECS $SPECS/.venv/bin/python honest_run.py --rounds 8
 PYTHONPATH=$SPECS $SPECS/.venv/bin/python partition_run.py --split 2 --start 24 --slots-down 16
 ```
@@ -27,7 +29,7 @@ In-slot deadlines therefore fall at 1.5 s, 3 s and 4.5 s.
 | `partition_run.py` | `PartitionedNetwork` (cross-cut messages held until heal), reorg / confirmation-reversal / stable-root tracking |
 | `perf.py` | Semantics-preserving caches (see below) |
 | `probe.py` | First import/timing probe |
-| `results/` | Logs of the runs quoted below |
+| `results/` | Logs of the runs quoted below (not committed: 500 MB; rerun the commands to regenerate) |
 
 ## How a slot is driven
 

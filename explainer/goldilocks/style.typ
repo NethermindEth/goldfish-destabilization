@@ -1,4 +1,4 @@
-// Shared look of the Goldilocks textbook; same boxes as explainer/textbook/overview-style.typ.
+// Shared look of the Goldilocks textbook; same boxes as explainer/goldfish-simplex/overview-style.typ.
 #let box-colored(title, color, body) = block(
   fill: color.lighten(88%),
   stroke: (left: 3pt + color),

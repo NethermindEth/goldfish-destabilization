@@ -1,4 +1,4 @@
-// Textbook edition of Decoupled Consensus (leaves explainer/illustrated untouched).
+// Textbook edition of Decoupled Consensus (Goldfish + stabilization gadget, simplex-healing spec).
 // Build: typst compile main.typ decoupled-consensus-textbook.pdf
 #import "overview-style.typ": *
 #set document(title: "Decoupled Consensus — A Progressive Course on Goldfish, Stabilization, and Simplex Finality", author: "Alessandro Bombarda")
