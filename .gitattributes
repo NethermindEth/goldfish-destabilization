@@ -1,0 +1,1 @@
+simulator/goldilocks/data/batches/*.json filter=lfs diff=lfs merge=lfs -text

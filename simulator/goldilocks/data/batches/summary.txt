@@ -1,0 +1,33 @@
+df_12000.json                schedules   200  attacked  167  succeeded  165  shown 22.5-22.5 s  nodes fooled 3-3  other violations 2
+df_1500.json                 schedules   200  attacked   99  succeeded   99  shown 22.5-22.5 s  nodes fooled 3-3
+df_24000.json                schedules   200  attacked  194  succeeded  191  shown 22.5-22.5 s  nodes fooled 3-3  other violations 3
+df_3000.json                 schedules   200  attacked   99  succeeded   99  shown 22.5-22.5 s  nodes fooled 3-3
+df_6000.json                 schedules   200  attacked  128  succeeded  127  shown 22.5-22.5 s  nodes fooled 3-3  other violations 1
+fin_hide.json                schedules   120  attacked   74  succeeded   74  shown 4.5-4.5 s  nodes fooled 3-3
+fin_hide_16_nodes.json       schedules   120  attacked   74  succeeded   74  shown 4.5-4.5 s  nodes fooled 1-1
+fin_hide_8_nodes.json        schedules   120  attacked   74  succeeded   74  shown 4.5-4.5 s  nodes fooled 1-1
+fin_hide_first_seen.json     schedules   120  attacked   74  succeeded    0
+fin_hide_node0_relay_1499.json schedules   120  attacked   74  succeeded   74  shown 4.5-4.5 s  nodes fooled 1-1
+fin_hide_node0_relay_200.json schedules   120  attacked   74  succeeded   74  shown 4.5-4.5 s  nodes fooled 1-1
+fin_hide_node0_relay_3.json  schedules   120  attacked   74  succeeded   74  shown 4.5-4.5 s  nodes fooled 1-1
+fin_hide_node0_relay_50.json schedules   120  attacked   74  succeeded   74  shown 4.5-4.5 s  nodes fooled 1-1
+fin_hide_q_1501.json         schedules   120  attacked   74  succeeded    0
+fin_hide_q_1501_relay_carried.json schedules   120  attacked   74  succeeded    0
+fin_hide_q_2999.json         schedules   120  attacked   74  succeeded    0
+fin_hide_q_2999_relay_carried.json schedules   120  attacked   74  succeeded    0
+fin_hide_refused_votes.json  schedules   120  attacked   74  succeeded    0
+fin_hide_relay_carried.json  schedules   120  attacked   74  succeeded    0
+fin_hide_strict.json         schedules   120  attacked   74  succeeded    0
+fin_hide_strict_latez.json   schedules   120  attacked   74  succeeded   48  shown 4.5-4.5 s  nodes fooled 3-3
+fin_hide_strict_latez_freeze.json schedules   120  attacked   74  succeeded   74  shown 1.5-1.5 s  nodes fooled 3-3
+fuzz.json                    schedules   200  attacked    0  succeeded    0
+seq.json                     schedules   300  attacked  138  succeeded  138  shown 22.5-22.5 s  nodes fooled 3-3
+seq_8_nodes.json             schedules   300  attacked  138  succeeded  138  shown 22.5-22.5 s  nodes fooled 6-6
+seq_f8.json                  schedules  2000  attacked   62  succeeded   62  shown 22.5-22.5 s  nodes fooled 2-2
+seq_first_seen.json          schedules   300  attacked  138  succeeded  138  shown 22.5-22.5 s  nodes fooled 3-3
+seq_refused_votes.json       schedules   300  attacked  138  succeeded    0
+seq_relay_1499ms.json        schedules   300  attacked  138  succeeded  138  shown 22.5-22.5 s  nodes fooled 3-3
+seq_relay_3ms.json           schedules   300  attacked  138  succeeded  138  shown 22.5-22.5 s  nodes fooled 3-3
+seq_relay_carried.json       schedules   300  attacked  138  succeeded    0
+seq_strict.json              schedules   300  attacked  138  succeeded    0
+seq_strict_late_w.json       schedules   150  attacked   80  succeeded   80  shown 1.5-1.5 s  nodes fooled 3-3
