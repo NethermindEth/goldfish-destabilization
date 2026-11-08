@@ -11,6 +11,9 @@ them under partitions and against a Byzantine adversary, and textbooks that expl
 
 ## Start here
 
+- **Explorer:** open `simulator/goldilocks/explorer/goldilocks-explorer.html` in a browser.
+  Each tab is one run (honest, partitions, sleep, adversaries, the attacks and their fixes) with an
+  About card that says what happens and where to look.
 - **Report:** `reports/goldilocks-finalization-hiding/finalization_hiding.pdf`, the
   finalization-hiding attack on Goldilocks.
 - **Textbooks:** `explainer/goldilocks/goldilocks-textbook.pdf` and
@@ -20,7 +23,7 @@ them under partitions and against a Byzantine adversary, and textbooks that expl
 
 | Folder | Contents |
 |---|---|
-| `simulator/goldilocks/` | The Goldilocks model (`model.py`), the network driver, partition scenarios, the adversary (`adversary.py`), batch drivers and the explorer. See its README |
+| `simulator/goldilocks/` | The Goldilocks model (`model.py`), the network driver, partition scenarios, the adversary (`adversary.py`), batch drivers, the explorer and its data (`data/`). See its README |
 | `simulator/goldfish-simplex/` | A multi-node harness around the `simplex-healing` pyspec: partitions, adversaries, stability and margin analyses. Needs a local build of that pyspec (see its README) |
 | `explainer/goldilocks/` | The Goldilocks textbook (Typst sources and PDF) |
 | `explainer/goldfish-simplex/` | The textbook of the first proposal (Typst sources and PDF) |
@@ -38,8 +41,8 @@ them under partitions and against a Byzantine adversary, and textbooks that expl
 - **Status against the live spec.** The attack targets the 22 Oct 2026 text. The live spec
   (`ethlabs-org/eth-consensus-lean`) requires honest nodes to forward the votes carried by every
   block they accept, one of the two fixes the report proposes, and that closes every variant
-  (`adversary.py --relay-carried`). Ethereum's gossip does not forward block-carried votes
-  today, so clients must add it.
+  (explorer tab 17). Ethereum's gossip does not forward block-carried votes today, so clients
+  must add it.
 - **Negative results.** The random adversary, partitions and sleep break no synchrony claim.
   Frontier contests can be built but are harmless. The asynchrony a fast confirmation survives
   matches the Lean formalization's bound exactly. Ethereum's Fast Confirmation Rule is immune to
