@@ -258,7 +258,8 @@ table.summary th, table.summary td { padding: 7px 10px; border-bottom: 1px solid
 table.summary th { font-family: var(--sans); font-weight: 600; color: var(--muted); background: var(--bg); }
 #settlePanel[hidden] { display: none; }
 .about { background: var(--panel); border: 1px solid var(--grid); border-left: 3px solid var(--a); border-radius: 8px;
-  padding: 12px 16px; display: grid; gap: 8px; font-size: 14px; line-height: 1.55; max-width: 100ch; }
+  padding: 14px 18px; display: grid; gap: 8px; font-size: 14px; line-height: 1.55; }
+.about h2 { margin-bottom: 4px; }
 .about[hidden] { display: none; }
 .about .sec { display: grid; grid-template-columns: 70px 1fr; gap: 12px; }
 .about .lab { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--subtle); padding-top: 2px; }
@@ -1444,7 +1445,8 @@ function sideVals(run, g) {
 function renderAbout(run) {
   const a = $("about"), m = run.meta || {};
   const secs = [["Goal", m.goal], ["Setup", m.setup], ["How", m.how], ["Result", m.result]].filter(x => x[1]);
-  a.innerHTML = secs.map(([l, t]) => `<div class="sec"><span class="lab">${l}</span><div>${t}</div></div>`).join("");
+  a.innerHTML = "<h2>About this experiment</h2>" +
+    secs.map(([l, t]) => `<div class="sec"><span class="lab">${l}</span><div>${t}</div></div>`).join("");
   a.hidden = !secs.length;
 }
 function render() {
