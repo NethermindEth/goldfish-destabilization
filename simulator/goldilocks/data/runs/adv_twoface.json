@@ -1,0 +1,80 @@
+{
+ "tsq_violations": [],
+ "n_tsq": 0,
+ "dropped_fast": [],
+ "n_dropped": 0,
+ "lock_conflict_slots": [],
+ "conf_reversals": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "orphaned_confirmed": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "n_orphaned": 0,
+ "orphaned_confirmed_any_tick": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "n_orphaned_any_tick": 0,
+ "orphaned_shown_ms": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "finality_timeline": [
+  [
+   0,
+   0
+  ],
+  [
+   26,
+   10
+  ],
+  [
+   34,
+   18
+  ],
+  [
+   47,
+   26
+  ],
+  [
+   50,
+   34
+  ],
+  [
+   59,
+   47
+  ],
+  [
+   74,
+   59
+  ]
+ ],
+ "final_F_slots": [
+  59,
+  59,
+  59,
+  59
+ ],
+ "finalized_conflict": false,
+ "heads_agree_end": true,
+ "invariant_violations": [],
+ "heal": 64,
+ "finality_resumes_slot": 74,
+ "finality_resume_delay": 10,
+ "max_finality_gap": 10,
+ "notes": [],
+ "adv_votes": 672,
+ "adv_blocks": 10,
+ "dropped_first_seen": 0
+}

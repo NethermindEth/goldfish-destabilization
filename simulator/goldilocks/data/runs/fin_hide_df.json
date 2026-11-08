@@ -1,0 +1,121 @@
+{
+ "tsq_violations": [],
+ "n_tsq": 0,
+ "dropped_fast": [
+  [
+   "fast",
+   44,
+   0,
+   44,
+   [
+    0,
+    1,
+    2,
+    3
+   ]
+  ]
+ ],
+ "n_dropped": 1,
+ "lock_conflict_slots": [],
+ "conf_reversals": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "orphaned_confirmed": {
+  "0": [
+   [
+    44,
+    48
+   ]
+  ],
+  "1": [
+   [
+    44,
+    48
+   ]
+  ],
+  "2": [
+   [
+    44,
+    48
+   ]
+  ],
+  "3": []
+ },
+ "n_orphaned": 3,
+ "orphaned_confirmed_any_tick": {
+  "0": [
+   [
+    44,
+    45.5
+   ]
+  ],
+  "1": [
+   [
+    44,
+    45.5
+   ]
+  ],
+  "2": [
+   [
+    44,
+    45.5
+   ]
+  ],
+  "3": []
+ },
+ "n_orphaned_any_tick": 3,
+ "orphaned_shown_ms": {
+  "0": [
+   22500
+  ],
+  "1": [
+   22500
+  ],
+  "2": [
+   22500
+  ],
+  "3": []
+ },
+ "finality_timeline": [
+  [
+   0,
+   0
+  ],
+  [
+   28,
+   12
+  ],
+  [
+   37,
+   20
+  ],
+  [
+   45,
+   28
+  ],
+  [
+   61,
+   37
+  ]
+ ],
+ "final_F_slots": [
+  37,
+  37,
+  37,
+  37
+ ],
+ "finalized_conflict": false,
+ "heads_agree_end": true,
+ "invariant_violations": [],
+ "heal": 0,
+ "max_finality_gap": 16,
+ "notes": [
+  "slot 42: FB built late, finalizes slot 28 (was 20); slot 44: B (f1=0, held back w=21); slot 45: Q; setup ok"
+ ],
+ "adv_votes": 420,
+ "adv_blocks": 3,
+ "dropped_first_seen": 0
+}

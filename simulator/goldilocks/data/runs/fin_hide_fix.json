@@ -1,0 +1,68 @@
+{
+ "tsq_violations": [],
+ "n_tsq": 0,
+ "dropped_fast": [],
+ "n_dropped": 0,
+ "lock_conflict_slots": [],
+ "conf_reversals": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "orphaned_confirmed": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "n_orphaned": 0,
+ "orphaned_confirmed_any_tick": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "n_orphaned_any_tick": 0,
+ "orphaned_shown_ms": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "finality_timeline": [
+  [
+   0,
+   0
+  ],
+  [
+   26,
+   10
+  ],
+  [
+   34,
+   19
+  ],
+  [
+   42,
+   26
+  ]
+ ],
+ "final_F_slots": [
+  26,
+  26,
+  26,
+  26
+ ],
+ "finalized_conflict": false,
+ "heads_agree_end": true,
+ "invariant_violations": [],
+ "heal": 0,
+ "max_finality_gap": 6,
+ "notes": [
+  "slot 33: B=021c4b (faulty early f1=10, held back w=11); slot 34: FB finalizes slot 19 (was 10); Q on slot 17; setup ok"
+ ],
+ "adv_votes": 31,
+ "adv_blocks": 4,
+ "dropped_first_seen": 0
+}
