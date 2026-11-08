@@ -1,0 +1,1577 @@
+{
+ "honest": {
+  "args": [
+   "--slots-down",
+   "0",
+   "--after",
+   "72"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "R": 8,
+    "seed": 0,
+    "lean_finality": false,
+    "groups": "2,2",
+    "start": 24,
+    "slots_down": 0,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 72,
+    "quiet": true,
+    "json": "data/runs/honest.json",
+    "events": "data/runs/honest.events.json"
+   },
+   "heal_slot": 0,
+   "reconverge_head_slots": null,
+   "reconverge_conf_slots": null,
+   "agree_head_since": 0,
+   "agree_conf_since": 0,
+   "lock_conflict_slots": [],
+   "last_lock_conflict_after_heal": null,
+   "finalized_conflict": false,
+   "invariant_violations": [],
+   "finality_timeline": [
+    [
+     0,
+     0
+    ],
+    [
+     26,
+     10
+    ],
+    [
+     34,
+     18
+    ],
+    [
+     42,
+     26
+    ],
+    [
+     50,
+     34
+    ],
+    [
+     58,
+     42
+    ],
+    [
+     66,
+     50
+    ],
+    [
+     74,
+     58
+    ],
+    [
+     82,
+     66
+    ],
+    [
+     90,
+     74
+    ]
+   ],
+   "contest_slots": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 11,
+     "final_hmax": 12
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 11,
+     "final_hmax": 12
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 11,
+     "final_hmax": 12
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 11,
+     "final_hmax": 12
+    }
+   ],
+   "held": {}
+  }
+ },
+ "p50_s48_d16": {
+  "args": [
+   "--groups",
+   "2,2",
+   "--start",
+   "48",
+   "--slots-down",
+   "16"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "R": 8,
+    "seed": 0,
+    "lean_finality": false,
+    "groups": "2,2",
+    "start": 48,
+    "slots_down": 16,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p50_s48_d16.json",
+    "events": "data/runs/p50_s48_d16.events.json"
+   },
+   "heal_slot": 64,
+   "reconverge_head_slots": 0,
+   "reconverge_conf_slots": 0,
+   "agree_head_since": 64,
+   "agree_conf_since": 64,
+   "lock_conflict_slots": [
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+   ],
+   "last_lock_conflict_after_heal": null,
+   "finalized_conflict": false,
+   "invariant_violations": [],
+   "finality_timeline": [
+    [
+     0,
+     0
+    ],
+    [
+     26,
+     10
+    ],
+    [
+     34,
+     18
+    ],
+    [
+     42,
+     26
+    ],
+    [
+     65,
+     34
+    ],
+    [
+     74,
+     42
+    ],
+    [
+     82,
+     65
+    ],
+    [
+     90,
+     74
+    ]
+   ],
+   "contest_slots": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50,
+      55,
+      58,
+      59,
+      60
+     ],
+     "last_slot_with_orphaned_conf": 63,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50,
+      55,
+      58,
+      59,
+      60
+     ],
+     "last_slot_with_orphaned_conf": 63,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      61,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 63,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      61,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 63,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    }
+   ],
+   "held": {
+    "block": 32,
+    "vote": 128,
+    "att": 8
+   }
+  }
+ },
+ "p75_s48_d16": {
+  "args": [
+   "--groups",
+   "3,1",
+   "--start",
+   "48",
+   "--slots-down",
+   "16"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "R": 8,
+    "seed": 0,
+    "lean_finality": false,
+    "groups": "3,1",
+    "start": 48,
+    "slots_down": 16,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p75_s48_d16.json",
+    "events": "data/runs/p75_s48_d16.events.json"
+   },
+   "heal_slot": 64,
+   "reconverge_head_slots": 0,
+   "reconverge_conf_slots": 1,
+   "agree_head_since": 64,
+   "agree_conf_since": 65,
+   "lock_conflict_slots": [
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+   ],
+   "last_lock_conflict_after_heal": null,
+   "finalized_conflict": false,
+   "invariant_violations": [],
+   "finality_timeline": [
+    [
+     0,
+     0
+    ],
+    [
+     26,
+     10
+    ],
+    [
+     34,
+     18
+    ],
+    [
+     42,
+     26
+    ],
+    [
+     50,
+     34
+    ],
+    [
+     58,
+     42
+    ],
+    [
+     66,
+     50
+    ],
+    [
+     74,
+     58
+    ],
+    [
+     82,
+     66
+    ],
+    [
+     90,
+     74
+    ]
+   ],
+   "contest_slots": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 11,
+     "final_hmax": 12
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 11,
+     "final_hmax": 12
+    },
+    {
+     "node": 2,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 11,
+     "final_hmax": 12
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 3,
+     "reorg_list": [
+      [
+       64,
+       3,
+       47
+      ]
+     ],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      52,
+      57,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 63,
+     "final_F_slot": 74,
+     "final_hj": 11,
+     "final_hmax": 12
+    }
+   ],
+   "held": {
+    "block": 22,
+    "vote": 96,
+    "att": 6
+   }
+  }
+ },
+ "p52_s48_d16": {
+  "args": [
+   "--groups",
+   "2,2",
+   "--shares",
+   "17,16,16,15",
+   "--start",
+   "48",
+   "--slots-down",
+   "16"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": "17,16,16,15",
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "R": 8,
+    "seed": 0,
+    "lean_finality": false,
+    "groups": "2,2",
+    "start": 48,
+    "slots_down": 16,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p52_s48_d16.json",
+    "events": "data/runs/p52_s48_d16.events.json"
+   },
+   "heal_slot": 64,
+   "reconverge_head_slots": 0,
+   "reconverge_conf_slots": 1,
+   "agree_head_since": 64,
+   "agree_conf_since": 65,
+   "lock_conflict_slots": [
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+   ],
+   "last_lock_conflict_after_heal": null,
+   "finalized_conflict": false,
+   "invariant_violations": [],
+   "finality_timeline": [
+    [
+     0,
+     0
+    ],
+    [
+     26,
+     10
+    ],
+    [
+     34,
+     18
+    ],
+    [
+     42,
+     26
+    ],
+    [
+     66,
+     34
+    ],
+    [
+     74,
+     42
+    ],
+    [
+     82,
+     66
+    ],
+    [
+     90,
+     74
+    ]
+   ],
+   "contest_slots": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 17,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 7,
+     "reorg_list": [
+      [
+       64,
+       7,
+       47
+      ]
+     ],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      57,
+      61,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 63,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 15,
+     "reorgs": 1,
+     "max_reorg_depth": 7,
+     "reorg_list": [
+      [
+       64,
+       7,
+       47
+      ]
+     ],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      57,
+      61,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 63,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    }
+   ],
+   "held": {
+    "block": 32,
+    "vote": 128,
+    "att": 4
+   }
+  }
+ },
+ "p50_s48_d64": {
+  "args": [
+   "--groups",
+   "2,2",
+   "--start",
+   "48",
+   "--slots-down",
+   "64"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "R": 8,
+    "seed": 0,
+    "lean_finality": false,
+    "groups": "2,2",
+    "start": 48,
+    "slots_down": 64,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p50_s48_d64.json",
+    "events": "data/runs/p50_s48_d64.events.json"
+   },
+   "heal_slot": 112,
+   "reconverge_head_slots": 0,
+   "reconverge_conf_slots": 0,
+   "agree_head_since": 112,
+   "agree_conf_since": 112,
+   "lock_conflict_slots": [
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111
+   ],
+   "last_lock_conflict_after_heal": null,
+   "finalized_conflict": false,
+   "invariant_violations": [],
+   "finality_timeline": [
+    [
+     0,
+     0
+    ],
+    [
+     26,
+     10
+    ],
+    [
+     34,
+     18
+    ],
+    [
+     42,
+     26
+    ],
+    [
+     113,
+     34
+    ],
+    [
+     122,
+     42
+    ],
+    [
+     130,
+     113
+    ],
+    [
+     138,
+     122
+    ]
+   ],
+   "contest_slots": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50,
+      55,
+      58,
+      59,
+      60,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      70,
+      71,
+      73,
+      74,
+      77,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      91,
+      92,
+      93,
+      95,
+      98,
+      105,
+      106,
+      107,
+      108,
+      110
+     ],
+     "last_slot_with_orphaned_conf": 111,
+     "final_F_slot": 122,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50,
+      55,
+      58,
+      59,
+      60,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      70,
+      71,
+      73,
+      74,
+      77,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      91,
+      92,
+      93,
+      95,
+      98,
+      105,
+      106,
+      107,
+      108,
+      110
+     ],
+     "last_slot_with_orphaned_conf": 111,
+     "final_F_slot": 122,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      61,
+      62,
+      69,
+      72,
+      75,
+      76,
+      78,
+      79,
+      87,
+      88,
+      89,
+      90,
+      94,
+      96,
+      97,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      109
+     ],
+     "last_slot_with_orphaned_conf": 111,
+     "final_F_slot": 122,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      61,
+      62,
+      69,
+      72,
+      75,
+      76,
+      78,
+      79,
+      87,
+      88,
+      89,
+      90,
+      94,
+      96,
+      97,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      109
+     ],
+     "last_slot_with_orphaned_conf": 111,
+     "final_F_slot": 122,
+     "final_hj": 9,
+     "final_hmax": 10
+    }
+   ],
+   "held": {
+    "block": 128,
+    "vote": 512,
+    "att": 8
+   }
+  }
+ },
+ "p50_s48_d16_spread": {
+  "args": [
+   "--groups",
+   "2,2",
+   "--start",
+   "48",
+   "--slots-down",
+   "16",
+   "--release-spread-ms",
+   "12000"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "R": 8,
+    "seed": 0,
+    "lean_finality": false,
+    "groups": "2,2",
+    "start": 48,
+    "slots_down": 16,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 12000,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p50_s48_d16_spread.json",
+    "events": "data/runs/p50_s48_d16_spread.events.json"
+   },
+   "heal_slot": 64,
+   "reconverge_head_slots": 2,
+   "reconverge_conf_slots": 2,
+   "agree_head_since": 66,
+   "agree_conf_since": 66,
+   "lock_conflict_slots": [
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65
+   ],
+   "last_lock_conflict_after_heal": 65,
+   "finalized_conflict": false,
+   "invariant_violations": [],
+   "finality_timeline": [
+    [
+     0,
+     0
+    ],
+    [
+     26,
+     10
+    ],
+    [
+     34,
+     18
+    ],
+    [
+     42,
+     26
+    ],
+    [
+     65,
+     34
+    ],
+    [
+     74,
+     42
+    ],
+    [
+     82,
+     67
+    ],
+    [
+     90,
+     74
+    ]
+   ],
+   "contest_slots": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 1,
+     "reorg_list": [
+      [
+       65,
+       1,
+       63
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50,
+      55,
+      58,
+      59,
+      60,
+      63
+     ],
+     "last_slot_with_orphaned_conf": 65,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 1,
+     "reorg_list": [
+      [
+       65,
+       1,
+       63
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50,
+      55,
+      58,
+      59,
+      60,
+      63
+     ],
+     "last_slot_with_orphaned_conf": 65,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      61,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 65,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      61,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 65,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    }
+   ],
+   "held": {
+    "block": 32,
+    "vote": 128,
+    "att": 8
+   }
+  }
+ },
+ "glitch_s48_d1": {
+  "args": [
+   "--groups",
+   "2,2",
+   "--start",
+   "48",
+   "--slots-down",
+   "1",
+   "--after",
+   "40"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "R": 8,
+    "seed": 0,
+    "lean_finality": false,
+    "groups": "2,2",
+    "start": 48,
+    "slots_down": 1,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 40,
+    "quiet": true,
+    "json": "data/runs/glitch_s48_d1.json",
+    "events": "data/runs/glitch_s48_d1.events.json"
+   },
+   "heal_slot": 49,
+   "reconverge_head_slots": 0,
+   "reconverge_conf_slots": 0,
+   "agree_head_since": 49,
+   "agree_conf_since": 49,
+   "lock_conflict_slots": [],
+   "last_lock_conflict_after_heal": null,
+   "finalized_conflict": false,
+   "invariant_violations": [],
+   "finality_timeline": [
+    [
+     0,
+     0
+    ],
+    [
+     26,
+     10
+    ],
+    [
+     34,
+     18
+    ],
+    [
+     42,
+     26
+    ],
+    [
+     58,
+     34
+    ],
+    [
+     66,
+     42
+    ],
+    [
+     74,
+     58
+    ],
+    [
+     82,
+     66
+    ]
+   ],
+   "contest_slots": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 66,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 66,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 66,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 66,
+     "final_hj": 9,
+     "final_hmax": 10
+    }
+   ],
+   "held": {
+    "block": 2,
+    "vote": 8
+   }
+  }
+ },
+ "sleep50_s48_d16": {
+  "args": [
+   "--slots-down",
+   "0",
+   "--sleep",
+   "2:48:64,3:48:64"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "R": 8,
+    "seed": 0,
+    "lean_finality": false,
+    "groups": "2,2",
+    "start": 24,
+    "slots_down": 0,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "2:48:64,3:48:64",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/sleep50_s48_d16.json",
+    "events": "data/runs/sleep50_s48_d16.events.json"
+   },
+   "heal_slot": 64,
+   "reconverge_head_slots": 0,
+   "reconverge_conf_slots": 1,
+   "agree_head_since": 64,
+   "agree_conf_since": 65,
+   "lock_conflict_slots": [],
+   "last_lock_conflict_after_heal": null,
+   "finalized_conflict": false,
+   "invariant_violations": [],
+   "finality_timeline": [
+    [
+     0,
+     0
+    ],
+    [
+     26,
+     10
+    ],
+    [
+     34,
+     18
+    ],
+    [
+     42,
+     26
+    ],
+    [
+     66,
+     34
+    ],
+    [
+     74,
+     42
+    ],
+    [
+     82,
+     66
+    ],
+    [
+     90,
+     74
+    ]
+   ],
+   "contest_slots": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null,
+     "final_F_slot": 74,
+     "final_hj": 9,
+     "final_hmax": 10
+    }
+   ],
+   "held": {}
+  }
+ }
+}
