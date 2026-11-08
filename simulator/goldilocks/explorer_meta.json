@@ -421,7 +421,7 @@
  },
  "14 ATTACK fin_hide + fix": {
   "slot": 34,
-  "about": "<p>The same attack with the proposed fix (not the spec): the available chain takes the votes of a block even when the FG refuses it. Nodes 0–2 then count the 11 held-back votes too, so B has 32 of 64 voters everywhere and nobody confirms it. Nothing is orphaned. The fix closes every variant, with either threshold (0 of 74 attacked seeds), and 200 random runs stay clean.</p>",
+  "about": "<p>The same attack with the proposed fix (not the spec): the available chain takes the votes of a block even when the FG refuses it. Nodes 0–2 then count the 11 held-back votes too, so B has 32 of 64 voters everywhere and nobody confirms it. Nothing is orphaned. Tab 17 shows the other fix, forwarding the carried votes, which the live spec adopted. Either fix closes every variant, with either threshold (0 of 74 attacked seeds), and 200 random runs stay clean.</p>",
   "jumps": [
    [
     "The attack (s30–37)",
@@ -440,6 +440,190 @@
    [
     "s35",
     35
+   ]
+  ]
+ },
+ "15 ATTACK fin_hide_seq, no equivocation": {
+  "slot": 44,
+  "about": "<p><b>The attack without equivocation.</b> Synchrony throughout (200 ms relay). The adversary (21/64) proposes slots 42, 43 and 44, one block each, and signs nothing conflicting.</p><ul><li><b>Slot 42: FB</b>, on the honest head W, carries the round's attestations. The adversary keeps it back.</li><li><b>Slot 43: B</b>, on W, reaches nodes 0–2 just before their vote: 32 honest votes, exactly n/2. Node 3 votes W. The 21 faulty validators keep their votes (all for W) back.</li><li><b>Slot 44: Q</b> forks below slot 26, the block that FB finalizes, and carries the 21 hidden votes. Q reaches node 3 1 ms before its vote; FB reaches nodes 0–2 100 ms before theirs.</li></ul><p>Node 3 accepts Q and counts 64 voters: B is not a majority, so it votes W. Nodes 0–2 have just finalized slot 26, so they <b>refuse</b> Q and count 43 voters. At t44+2Δ they confirm B (2·32 &gt; 43) and fast-lock it (2·32 ≥ 64).</p><p>From slot 45 the faulty validators vote W. Nodes 0–2 (locked on B, 32 votes) and node 3 with the faulty validators (11 + 21 = 32) tie, so B never regains a majority. The lock expires at t48+Δ and B is orphaned: nodes 0–2 <b>show B as confirmed for 22.5 s</b>. The tie also orphans the honest blocks of slots 47 and 48.</p>",
+  "jumps": [
+   [
+    "The attack (s40–49)",
+    40
+   ]
+  ],
+  "zooms": [
+   [
+    "s43: B to nodes 0–2",
+    43
+   ],
+   [
+    "s44: FB and Q; B confirmed",
+    44
+   ],
+   [
+    "s47: an honest block orphaned",
+    47
+   ],
+   [
+    "s48: the lock expires",
+    48
+   ]
+  ]
+ },
+ "16 ATTACK fin_hide_seq, first-seen gossip": {
+  "slot": 44,
+  "about": "<p>The run of tab 15 under Ethereum's gossip rule: a node ignores a proposer's second block for a slot and relays only the first copy of each vote. This attack has one block per slot and one vote per validator, so the rule changes nothing: nodes 0–2 show B as confirmed for 22.5 s, as in tab 15. The attack with equivocation (tab 12) fails under this rule.</p>",
+  "jumps": [
+   [
+    "The attack (s40–49)",
+    40
+   ]
+  ],
+  "zooms": [
+   [
+    "s43",
+    43
+   ],
+   [
+    "s44: B confirmed",
+    44
+   ],
+   [
+    "s48: the lock expires",
+    48
+   ]
+  ]
+ },
+ "17 ATTACK fin_hide_seq + vote forwarding": {
+  "slot": 44,
+  "about": "<p>The run of tab 15 with the rule of the live Goldilocks spec (Nov 2026, <code>ethlabs-org/eth-consensus-lean</code>): an honest node forwards the votes it admits from an accepted block as messages of their own, whether or not other nodes accept that block (<code>--relay-carried</code>).</p><p>Node 3 accepts Q at t44+Δ−1 ms and forwards the 21 hidden votes. They reach nodes 0–2 before their update at t44+2Δ, so every node counts 64 voters, B (32) is not a majority anywhere, and nobody confirms it. No honest block is orphaned.</p><p>The timing is tight by design: an honest node votes by t44+Δ, the update runs at t44+2Δ, and forwarding takes less than Δ. Every vote that changed an honest vote reaches every node before its update.</p>",
+  "jumps": [
+   [
+    "The attack (s40–49)",
+    40
+   ]
+  ],
+  "zooms": [
+   [
+    "s43",
+    43
+   ],
+   [
+    "s44: nobody confirms B",
+    44
+   ],
+   [
+    "s45",
+    45
+   ]
+  ]
+ },
+ "18 ATTACK fin_hide_df, slow attestations": {
+  "slot": 45,
+  "about": "<p>The attack when attestations are slower than blocks: Δ<sub>F</sub> = 8Δ = 12 s (the spec only asks Δ<sub>F</sub> ≥ Δ). The adversary delays every honest attestation of the round as far as Δ<sub>F</sub> allows and keeps its own, so no honest proposer can finalize before then.</p><p>FB therefore no longer has to sit just before B. Here it is the adversary's block of slot 42, built late on the newest block older than slot 42 and carrying every honest attestation; slot 43 is an honest block. B is slot 44 and Q slot 45, as in tab 15.</p><p>Nodes 0–2 finalize slot 28 through FB, refuse Q, confirm and lock B, and show it for 22.5 s before it is orphaned. The attack needs B and Q consecutive plus one earlier adversary slot in the round, instead of three consecutive slots: with Δ<sub>F</sub> = 8Δ about 11% of rounds qualify, against 4% when Δ<sub>F</sub> = Δ.</p>",
+  "jumps": [
+   [
+    "The attack (s40–50)",
+    40
+   ]
+  ],
+  "zooms": [
+   [
+    "s42: FB (built late)",
+    42
+   ],
+   [
+    "s44: B",
+    44
+   ],
+   [
+    "s45: Q; B confirmed",
+    45
+   ],
+   [
+    "s49: the lock expires",
+    49
+   ]
+  ]
+ },
+ "19 adversary: late justification, contest": {
+  "slot": 68,
+  "about": "<p>A frontier contest, built on purpose. Nodes 0–1 and 2–3 are cut apart for slots 50–57, over an FG action time, so each side enters height 7 at its own block. The faulty validators side with each half and also justify side A's entry inside a block X_A that the adversary keeps (slot 62). After the heal everyone follows side B; side A and the faulty validators time out at height 7.</p><p>At slot 68 the adversary reveals X_A: every node now holds a justification at height 7 on a branch that its height-8 blocks do not extend, a <b>contest</b>, for 6 slots (68–73). No equivocation is needed.</p><p>The contest is harmless here. The spec's rule and the Lean model's (which ignores contests) give the same outcome, and the one round of finality lost comes from the split targets: the same run without the reveal loses it too.</p>",
+  "jumps": [
+   [
+    "The cut (s46–60)",
+    46
+   ],
+   [
+    "The contest (s64–76)",
+    64
+   ]
+  ],
+  "zooms": [
+   [
+    "s50: the cut",
+    50
+   ],
+   [
+    "s62: X_A kept",
+    62
+   ],
+   [
+    "s68: X_A revealed",
+    68
+   ],
+   [
+    "s74: contest over",
+    74
+   ]
+  ]
+ },
+ "20 outage of 3 slots, B kept": {
+  "slot": 47,
+  "about": "<p>How long an asynchronous period a fast confirmation survives. The honest block B of slot 44 is confirmed and fast-locked everywhere at t45+2Δ. Then every node is cut off from every other for 3 slots, [t47+Δ, t50+Δ), while the adversary votes for C, a sibling of B.</p><p>Every node keeps B after the heal. 3 slots is exactly the Lean formalization's bound for this phase (the outage plus its offset within the slot is at most (4k−1)Δ = 15Δ).</p>",
+  "jumps": [
+   [
+    "The outage (s42–54)",
+    42
+   ]
+  ],
+  "zooms": [
+   [
+    "s45: B confirmed",
+    45
+   ],
+   [
+    "s47: the outage starts",
+    47
+   ],
+   [
+    "s50: the heal",
+    50
+   ]
+  ]
+ },
+ "21 outage of 3.75 slots, B reverted": {
+  "slot": 51,
+  "about": "<p>The run of tab 20 with an outage of 3.75 slots, [t47+Δ, t51), beyond the Lean bound. After the heal C wins: every node drops B at t51+2Δ, after showing it for 36 s, and B is orphaned.</p><p>So the bound of the Lean proof is tight: the real tolerance is between 3 and 3.75 slots, depending on where the outage starts in the slot. The live spec's locks expire at the start of a slot and live Δ less, so its bound is Δ smaller.</p>",
+  "jumps": [
+   [
+    "The outage (s42–56)",
+    42
+   ]
+  ],
+  "zooms": [
+   [
+    "s47: the outage starts",
+    47
+   ],
+   [
+    "s51: the heal",
+    51
+   ],
+   [
+    "s52: B reverted",
+    52
    ]
   ]
  }
