@@ -1,6 +1,6 @@
 #!/bin/bash
 # The adversary study in one go: every targeted attack, its controls, and the threshold comparison.
-# Run from goldilocks/:  bash attack_suite.sh
+# Run from simulator/goldilocks/:  bash attack_suite.sh
 r() {
   name=$1
   shift

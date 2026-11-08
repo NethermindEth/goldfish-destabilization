@@ -1,11 +1,19 @@
 # Goldilocks: executable model and partition harness
 
-An executable transcription of the FGSA Goldilocks spec (`fgsa-spec-22102026.pdf`): the node,
+An executable transcription of the FGSA Goldilocks spec of 22 Oct 2026 (`fgsa-spec-22102026.pdf`): the node,
 the finality gadget, the validator client, the state transition and the Goldilocks available
 chain (Goldfish votes, unlocking, confirmation update, fast/slow locks, anchor, restart).
 Standard-library Python, no pyspec needed. The upstream executable spec
 (`ethereum/consensus-specs@decoupled-consensus`, `specs/_features/eip8453`) has the beacon-chain
 FG only, with no Goldilocks fork choice yet.
+
+**Spec version.** The model follows the 22 Oct 2026 text. The live spec
+(`ethlabs-org/eth-consensus-lean`, `specs/goldilocks/tex/`) has since changed the protocol: honest
+nodes forward the votes carried by every block they accept, nodes vote as soon as they hold a
+ready proposal, blocks declare their support votes, there is an optimistic confirmation at 3/4
+of the committee, fast locks are graded and every lock expires at a slot start. Only the first
+of these is in the model, as `adversary.py --relay-carried`; it closes the finalization-hiding
+attacks.
 
 ```sh
 python partition_run.py --groups 2,2 --start 48 --slots-down 16      # one run, per-slot table

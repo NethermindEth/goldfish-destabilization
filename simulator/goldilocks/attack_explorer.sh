@@ -1,6 +1,6 @@
 #!/bin/bash
 # Event files of the adversary study and one explorer page for them.
-# Run from goldilocks/:  bash attack_explorer.sh   -> results/adversary/attack-explorer.html
+# Run from simulator/goldilocks/:  bash attack_explorer.sh   -> results/adversary/attack-explorer.html
 set -e
 O=results/adversary/explore
 mkdir -p "$O"
