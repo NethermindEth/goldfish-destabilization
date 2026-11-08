@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .venv/
 .claude/
+# Local outputs of the simulators (large; the committed data is under simulator/goldilocks/data/)
+simulator/*/results/
+local/

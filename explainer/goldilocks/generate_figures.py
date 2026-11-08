@@ -2,7 +2,7 @@
 """Figures for the Goldilocks textbook: concept diagrams + plots from the simulator.
 
 Standard library only. The data figures re-run the scenarios they show through
-goldilocks/partition_run.py (each takes well under a second), so the book rebuilds from
+simulator/goldilocks/partition_run.py (each takes well under a second), so the book rebuilds from
 committed code alone:  python3 generate_figures.py && typst compile main.typ
 """
 import contextlib
@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "figures"
-SIM = ROOT.parent.parent / "goldilocks"
+SIM = ROOT.parent.parent / "simulator" / "goldilocks"
 OUT.mkdir(exist_ok=True)
 
 # Mechanism colours, shared with the text (style.typ): Goldfish, lock, FG, proposer, danger

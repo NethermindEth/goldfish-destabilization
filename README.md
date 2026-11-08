@@ -1,0 +1,46 @@
+# Decoupled consensus: simulators, attacks and explainers
+
+Executable models of two decoupled-consensus proposals for Ethereum, the experiments we ran on
+them under partitions and against a Byzantine adversary, and textbooks that explain each protocol.
+
+1. **Goldfish + stabilization gadget + Simplex finality** (`fradamt/consensus-specs@simplex-healing`),
+   the first proposal. Its simulator drives the executable pyspec itself.
+2. **Goldilocks**: Goldfish with locks, composed with a finality gadget (FGSA spec of 22 Oct 2026).
+   There is no executable fork choice upstream, so the simulator transcribes the spec figure by
+   figure in standard-library Python.
+
+## Start here
+
+- **Report:** `reports/goldilocks-finalization-hiding/finalization_hiding.pdf`, the
+  finalization-hiding attack on Goldilocks.
+- **Textbooks:** `explainer/goldilocks/goldilocks-textbook.pdf` and
+  `explainer/goldfish-simplex/decoupled-consensus-textbook.pdf`.
+
+## Layout
+
+| Folder | Contents |
+|---|---|
+| `simulator/goldilocks/` | The Goldilocks model (`model.py`), the network driver, partition scenarios, the adversary (`adversary.py`), batch drivers and the explorer. See its README |
+| `simulator/goldfish-simplex/` | A multi-node harness around the `simplex-healing` pyspec: partitions, adversaries, stability and margin analyses. Needs a local build of that pyspec (see its README) |
+| `explainer/goldilocks/` | The Goldilocks textbook (Typst sources and PDF) |
+| `explainer/goldfish-simplex/` | The textbook of the first proposal (Typst sources and PDF) |
+| `reports/` | `goldilocks-finalization-hiding/`: the Goldilocks attack report (Typst sources and PDF). `goldfish-simplex-synchrony-confirmation-failure.md`: confirmations of the first proposal broken under synchrony by one malicious proposer |
+
+## Main results on Goldilocks
+
+- **Finalization hiding.** Under synchrony and with at most a third of the stake faulty, an
+  adversary makes 3 of 4 honest nodes confirm and fast-lock a block that is then orphaned. It
+  needs the exact n/2 fast test and a block that some nodes refuse because it does not extend
+  their newly finalized block, so the votes it carries never reach them. The variant without
+  equivocation (three consecutive adversary slots) shows the orphaned block as confirmed for
+  22.5 s, works under Ethereum's first-seen gossip, and also orphans honest proposals. With
+  attestations slower than blocks it needs fewer consecutive slots.
+- **Status against the live spec.** The attack targets the 22 Oct 2026 text. The live spec
+  (`ethlabs-org/eth-consensus-lean`) requires honest nodes to forward the votes carried by every
+  block they accept, one of the two fixes the report proposes, and that closes every variant
+  (`adversary.py --relay-carried`). Ethereum's gossip does not forward block-carried votes
+  today, so clients must add it.
+- **Negative results.** The random adversary, partitions and sleep break no synchrony claim.
+  Frontier contests can be built but are harmless. The asynchrony a fast confirmation survives
+  matches the Lean formalization's bound exactly. Ethereum's Fast Confirmation Rule is immune to
+  the attack, because it counts against the whole committee with an adversarial margin.

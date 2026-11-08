@@ -20,7 +20,7 @@ blocks it has accepted). Chain states are pure in (parent state, block), so they
 globally as well.
 
 Simplifications: a node hosts several validators and keeps one AC state for all of them
-(they vote the same head and see each other's votes at once, as in spike/honest_run.py);
+(they vote the same head and see each other's votes at once, as in ../goldfish-simplex/honest_run.py);
 no signatures, wire/payload form checks or slashing evidence; no attestation committees
 (every validator attests at the action time of every round, as in the abstract model,
 where K_s = V). Sleep and restart (sections 1.1, 1.3, 3.2) are modelled; the driver is

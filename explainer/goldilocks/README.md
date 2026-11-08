@@ -1,8 +1,8 @@
 # Goldilocks — Textbook Edition
 
 A progressive course on Goldilocks (Goldfish with locks, composed with a finality gadget),
-in the style of `explainer/textbook/`, plus the first experiments with our executable
-model (`goldilocks/`).
+in the style of `explainer/goldfish-simplex/`, plus the first experiments with our executable
+model (`simulator/goldilocks/`).
 
 - `goldilocks-textbook.pdf`: compiled book (31 pages).
 - `main.typ`: title page, sources, outline; includes one file per chapter:
@@ -13,7 +13,7 @@ model (`goldilocks/`).
   `ch10-open`.
 - `style.typ`: boxes (problem / idea / worked example / caveat / recap / observed) and colours.
 - `generate_figures.py`: concept diagrams and the data figures. The data figures re-run their
-  scenarios through `goldilocks/partition_run.py`, so the book rebuilds from committed code.
+  scenarios through `simulator/goldilocks/partition_run.py`, so the book rebuilds from committed code.
 
 ## Sources
 

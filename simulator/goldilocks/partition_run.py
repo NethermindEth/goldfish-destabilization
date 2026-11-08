@@ -1,6 +1,6 @@
 """Partition the network for D slots, then heal (GST), and measure the damage.
 
-The Goldilocks counterpart of spike/partition_run.py. Nodes are split into groups; every
+The Goldilocks counterpart of ../goldfish-simplex/partition_run.py. Nodes are split into groups; every
 message sent across the cut during [start, start + D) slots is held and released at the
 heal (+ latency). After the heal the network is synchronous again. A second window
 (--start2/--slots-down2, optional --groups2) gives the repeated-partition shape.

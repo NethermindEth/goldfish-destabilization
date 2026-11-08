@@ -151,11 +151,11 @@ Consider a synchronous network with slot duration $T_{\text{slot}} = 6000\text{ 
 
 ## 5. Empirical Reproduction Against the Executable Spec
 
-The script [`spike/synchrony_break_run.py`](file:///home/ale/Projects/decoupled-consensus/spike/synchrony_break_run.py) reproduces this failure directly on the unmodified `fradamt/consensus-specs@simplex-healing` (`minimal` preset) with **Seed 0** at **Slot 13**:
+The script [`simulator/goldfish-simplex/synchrony_break_run.py`](../simulator/goldfish-simplex/synchrony_break_run.py) reproduces this failure directly on the unmodified `fradamt/consensus-specs@simplex-healing` (`minimal` preset) with **Seed 0** at **Slot 13**:
 
 ```bash
 export SPECS=$HOME/Projects/consensus-specs
-PYTHONPATH=$SPECS:$SPECS/tests/core/pyspec $SPECS/.venv/bin/python spike/synchrony_break_run.py
+PYTHONPATH=$SPECS:$SPECS/tests/core/pyspec $SPECS/.venv/bin/python simulator/goldfish-simplex/synchrony_break_run.py
 ```
 
 ### 5.1 Parameters and Committee Split (Seed 0, Slot 13)
