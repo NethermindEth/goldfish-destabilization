@@ -166,7 +166,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <meta charset="utf-8">
 <title>Goldilocks — Partition, Healing &amp; Attack Explorer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
 :root {
   --bg: #f4f6f9; --panel: #ffffff; --fg: #0f172a; --muted: #475569; --subtle: #64748b;
@@ -175,8 +175,8 @@ TEMPLATE = r"""<!DOCTYPE html>
   --b: #d97706; --bSoft: rgba(217,119,6,0.14);
   --held: #dc2626; --tint: rgba(220,38,38,0.08);
   --heal: #0d9488; --tsq: #16a34a; --g1: #9333ea;
-  --sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: var(--sans);
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0b0f17; --panel: #131b26; --fg: #e2e8f0; --muted: #94a3b8; --subtle: #64748b;
@@ -188,7 +188,8 @@ TEMPLATE = r"""<!DOCTYPE html>
   color-scheme: dark;
 }}
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14.5px; line-height: 1.5; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14.5px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+code { font-family: inherit; }
 .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 20px 64px; display: grid; gap: 20px; }
 header { display: grid; gap: 6px; }
 h1 { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.015em; }
@@ -197,6 +198,7 @@ p { margin: 0; }
 .lead { color: var(--muted); max-width: 88ch; font-size: 14px; }
 .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
 .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.subtabs { display: inline-flex; flex-wrap: wrap; gap: 4px; }
 .tabs button, .subtabs button {
   font: 600 13.5px var(--sans); padding: 7px 14px; border-radius: 6px;
   border: 1px solid var(--gridStrong); background: var(--panel); color: var(--fg); cursor: pointer;
@@ -235,7 +237,7 @@ p { margin: 0; }
 .callout > b:first-child { display: block; margin-bottom: 4px; font-size: 12.5px; }
 canvas { display: block; width: 100%; height: auto; }
 .side-pill {
-  display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px;
+  display: inline-flex; align-items: center; gap: 0; padding: 3px 9px;
   border-radius: 5px; font-weight: 500;
 }
 .side-a { background: var(--aSoft); color: var(--a); border: 1px solid var(--a); }
@@ -256,6 +258,13 @@ table.summary { width: 100%; border-collapse: collapse; font-size: 13px; font-fa
 table.summary th, table.summary td { padding: 7px 10px; border-bottom: 1px solid var(--grid); text-align: left; }
 table.summary th { font-family: var(--sans); font-weight: 600; color: var(--muted); background: var(--bg); }
 #settlePanel[hidden] { display: none; }
+.about { background: var(--panel); border: 1px solid var(--grid); border-left: 3px solid var(--a); border-radius: 8px;
+  padding: 14px 18px; display: grid; gap: 8px; font-size: 14px; line-height: 1.55; }
+.about h2 { margin-bottom: 4px; }
+.about[hidden] { display: none; }
+.about .sec { display: grid; grid-template-columns: 70px 1fr; gap: 12px; }
+.about .lab { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--subtle); padding-top: 2px; }
+.about p, .about ul { margin: 0; } .about ul { padding-left: 18px; } .about b { color: var(--fg); }
 .tip {
   position: fixed; pointer-events: none; background: var(--panel); border: 1px solid var(--gridStrong);
   border-radius: 6px; padding: 7px 10px; font: 12px/1.45 var(--mono); color: var(--fg);
@@ -267,7 +276,7 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
 <div class="wrap">
   <header>
     <h1>Goldilocks — Partition, Healing &amp; Attack Explorer</h1>
-    <p class="lead">Multi-node discrete-event runs of our executable model of the FGSA spec (22 Oct 2026): Goldilocks available chain (Goldfish with fast and slow locks) + finality gadget (heights, targets, finality pairs). 6 s slots (&Delta; = 1.5 s), 8-slot rounds, lock length k = 4, 64 equal-stake validators.</p>
+    <p class="lead">Seeded runs of our executable model of the Goldilocks spec (FGSA, 22 Oct 2026). Slots of 6 s (&Delta; = 1.5 s), rounds of 8 slots, locks of k = 4 slots, 64 validators of equal stake.</p>
   </header>
 
   <div class="topbar">
@@ -276,23 +285,24 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
 
   <div id="singleView" style="display:grid;gap:20px">
     <div class="facts" id="facts"></div>
-    <div class="facts" id="about" style="display:none;line-height:1.55;border-left:3px solid var(--a);padding-left:12px"></div>
+    <div class="about" id="about" hidden></div>
 
     <section class="panel">
       <div class="panel-head">
-        <h2>1. What each partition side believed, slot by slot</h2>
+        <h2>1. Each node's view, slot by slot</h2>
         <div class="controls">
-          <span>Window size:</span>
+          <span>Window:</span>
           <div class="subtabs" id="winSizeTabs">
-            <button type="button" data-wsize="999" aria-pressed="true">All slots</button>
-            <button type="button" data-wsize="16">16 slots (2r)</button>
-            <button type="button" data-wsize="8">8 slots (1r)</button>
+            <button type="button" data-wsize="999" aria-pressed="true">All</button>
+            <button type="button" data-wsize="16">16 slots</button>
+            <button type="button" data-wsize="8">8 slots</button>
             <button type="button" data-wsize="4">4 slots</button>
             <button type="button" data-wsize="1">1 slot</button>
           </div>
+          <span>Y axis:</span>
           <div class="subtabs" id="progMode">
-            <button type="button" data-mode="slot" aria-pressed="true">Block slot</button>
-            <button type="button" data-mode="lag">Lag (slot − pointer)</button>
+            <button type="button" data-mode="slot" aria-pressed="true">Block (by slot)</button>
+            <button type="button" data-mode="lag">Lag (slots behind)</button>
           </div>
         </div>
       </div>
@@ -310,17 +320,13 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
         </div>
       </div>
 
-      <p class="note">Step-function trajectory (vertical jumps at slot <i>x</i>) for <b>Side A</b> (solid blue) vs. <b>Side B</b> (solid orange) across all four protocol layers. Choose a smaller <b>Window size</b> (e.g. <b>16 / 8 / 4 / 1 slot</b>) and drag the slider (or scroll on the plot): <b>each subplot's Y-axis automatically scales to only the values inside the current slot window</b> so you can read individual block indices clearly.</p>
       <div class="legend">
-        <span><i class="sw" style="background:var(--a);height:3.5px"></i>Side A (solid blue)</span>
-        <span><i class="sw" style="background:var(--b);height:3.5px"></i>Side B (solid orange)</span>
-        <span><i class="sw" style="background:#0891b2;border-top:2px dashed #0891b2;height:0"></i>Justified Side A (dashed cyan)</span>
-        <span><i class="sw" style="background:#9333ea;border-top:2px dashed #9333ea;height:0"></i>Justified Side B (dashed purple)</span>
-        <span><i class="dot" style="border:2px solid var(--held)"></i>Points at a block later orphaned</span>
-        <span><i class="dot" style="width:6px;height:6px;background:var(--a)"></i><i class="dot" style="width:6px;height:6px;background:var(--b)"></i> panel 3: every live lock (hollow = later orphaned)</span>
-        <span><i class="dot" style="background:var(--tsq)"></i>anchor = fast lock (&ge; n/2 early votes)</span>
-        <span><i class="sq"></i>no live lock (walk starts at the FG root)</span>
-        <span><i class="dia"></i>anchor = slow lock (k confirmations in a row)</span>
+        <span><i class="sw" style="background:var(--a);height:3.5px"></i>Side A</span>
+        <span><i class="sw" style="background:var(--b);height:3.5px"></i>Side B</span>
+        <span><i class="sw" style="border-top:2px dashed #0891b2;height:0"></i><i class="sw" style="border-top:2px dashed #9333ea;height:0"></i>Justified (A, B)</span>
+        <span><i class="dot" style="border:2px solid var(--held)"></i>Block later orphaned</span>
+        <span><i class="dot" style="width:7px;height:7px;background:var(--a);opacity:0.65"></i><i class="dot" style="width:7px;height:7px;background:var(--b);opacity:0.65"></i>Live locks held in slot (hollow: orphaned)</span>
+        <span>Anchor: <i class="dot" style="background:var(--tsq)"></i>fast lock <i class="dia"></i>slow lock <i class="sq"></i>none</span>
       </div>
       <canvas id="prog" style="cursor:grab"></canvas>
       <div class="callouts" id="callouts"></div>
@@ -328,34 +334,50 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
 
     <section class="panel">
       <div class="panel-head">
-        <h2>2. Block tree &amp; confirmation reversals</h2>
+        <h2>2. Node chains in progress</h2>
+        <div class="controls">
+          <span>View:</span>
+          <div class="subtabs" id="treeViewTabs"></div>
+          <span style="margin-left:6px">Phase:</span>
+          <div class="subtabs" id="treePhaseTabs">
+            <button type="button" data-tphase="end" aria-pressed="true">Slot end</button>
+            <button type="button" data-tphase="25">@25% Vote</button>
+          </div>
+        </div>
       </div>
-      <p class="note">Every block of the run. The top row is the final chain every node ends on; lower rows are orphaned branches. Red rings mark blocks that some node showed as its <b>confirmed tip</b> before they were abandoned. Red blocks were proposed by the adversary.</p>
-      <div class="legend">
-        <span><i class="dot" style="background:var(--a)"></i>Proposed by Side A</span>
-        <span><i class="dot" style="background:var(--b)"></i>Proposed by Side B</span>
-        <span><i class="dot" style="background:var(--held)"></i>Proposed by the adversary</span><span><i class="dot" style="border:2px solid var(--held)"></i>Confirmed tip at some node, later orphaned</span>
-        <span><i class="sq" style="border-color:var(--fg)"></i>Finalized checkpoint</span>
+      <p class="note" id="treeNote">Each node has its own horizontal chain row at the selected slot. Scroll left to right to inspect blocks.</p>
+      <div class="legend" id="treeLegend">
+        <span><i class="dot" style="background:var(--a)"></i>Side A block</span>
+        <span><i class="dot" style="background:var(--b)"></i>Side B block</span>
+        <span><i class="dot" style="background:var(--held)"></i>Adversary block</span>
+        <span><i class="dot" style="border:2px solid var(--held);background:var(--panel)"></i>Later orphaned</span>
+        <span><i class="dot" style="border:2px solid var(--g1)"></i>🔒 Live lock</span>
+        <span><i class="dot" style="border:2px solid var(--heal)"></i>Confirmed tip</span>
       </div>
-      <canvas id="tree"></canvas>
+      <div style="display:flex; border:1px solid var(--grid); border-radius:8px; overflow:hidden; background:var(--panel);">
+        <canvas id="treeLeft" style="flex-shrink:0; border-right:1px solid var(--grid);"></canvas>
+        <div id="treeScroll" style="overflow-x:auto; overflow-y:hidden; flex-grow:1; min-width:0; cursor:grab;">
+          <canvas id="tree"></canvas>
+        </div>
+      </div>
     </section>
 
     <section class="panel">
       <div class="panel-head">
-        <h2>3. Single-slot sub-slot deadline &amp; message anatomy (1 slot at a time across all nodes)</h2>
+        <h2>3. One slot in detail</h2>
         <div class="controls">
-          <span>Message display:</span>
+          <span>Messages:</span>
           <div class="subtabs" id="msgModeTabs">
-            <button type="button" data-msgmode="waves" aria-pressed="true">Clean Broadcast Waves (recommended)</button>
-            <button type="button" data-msgmode="rays">All Peer-to-Peer Rays</button>
+            <button type="button" data-msgmode="waves" aria-pressed="true">Broadcasts</button>
+            <button type="button" data-msgmode="rays">Every message</button>
           </div>
         </div>
       </div>
 
       <div class="winbar" id="slotBar">
-        <button type="button" class="step-btn" id="sPrevBtn">◀ −1 Slot</button>
+        <button type="button" class="step-btn" id="sPrevBtn">◀ Prev</button>
         <input type="range" id="sSlider" min="1" max="64" value="40" aria-label="Select single slot">
-        <button type="button" class="step-btn" id="sNextBtn">+1 Slot ▶</button>
+        <button type="button" class="step-btn" id="sNextBtn">Next ▶</button>
         <span class="win-readout" id="sReadout">Slot 40 / 64</span>
         <div class="subtabs" id="zoomTabs">
           <button type="button" data-slot="23">s23 (Pre-cut · End r2)</button>
@@ -369,15 +391,15 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
         </div>
       </div>
 
-      <p class="note">Inspects a <b>single 6.0-second slot</b> across all nodes and its internal deadlines: <b>0% (+0.0s)</b> block proposal; <b>25% (+1.5s)</b> each node first moves its locks back against the previous slot's votes (unlocking), then casts its <b>Goldfish vote</b>; <b>50% (+3.0s)</b> support cutoff: only votes resolved before it count as support, and each node runs the <b>confirmation update of the previous slot</b> (confirmed tip, fast/slow lock); on the slot after a round start this is also the FG action: nodes send their <b>attestations</b>; <b>75% (+4.5s)</b> view freeze: the next slot's vote reads only votes received before it, plus the next proposal's vote list. <i>Tip: click any slot on Plot 1 or Plot 2 above, or use the slider / Left &amp; Right arrow keys.</i></p>
 
-      <div class="legend" style="background:var(--bg);padding:8px 12px;border-radius:6px;border:1px solid var(--grid)">
-        <span><i class="dot" style="background:var(--a)"></i><b>0% (+0.0s) dot &amp; rays:</b> the slot's proposer sends its block</span>
-        <span><i class="dot" style="background:var(--g1)"></i><b>25% (+1.5s) purple dots &amp; wave:</b> unlocking, then every node sends its <b>Goldfish vote</b></span>
-        <span><i class="dot" style="border:2px solid var(--g1);background:var(--panel)"></i><b>50% (+3.0s) purple ring:</b> support cutoff and confirmation update (Head / Confirmed shown) · <i class="dot" style="background:var(--tsq)"></i> green: FG attestations (action slot)</span>
-        <span><i class="sq" style="background:var(--fg);border-color:var(--fg)"></i><b>75% (+4.5s) black square:</b> view freeze for the next slot's vote</span>
-        <span><i class="sw" style="background:var(--held);border-top:2px dashed var(--held);height:0"></i><b>Red dashed:</b> held by the partition cut</span>
-        <span><i class="sw" style="background:var(--held);height:3.5px"></i><b>Top row, red:</b> adversary messages (blocks blue, votes purple, attestations green)</span>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--a)"></i>Proposal (+0 s)</span>
+        <span><i class="dot" style="background:var(--g1)"></i>Unlock and vote (+1.5 s)</span>
+        <span><i class="dot" style="border:2px solid var(--g1);background:var(--panel)"></i>Confirmation update (+3 s)</span>
+        <span><i class="dot" style="background:var(--tsq)"></i>FG attestations</span>
+        <span><i class="sq" style="background:var(--fg);border-color:var(--fg)"></i>View freeze (+4.5 s)</span>
+        <span><i class="sw" style="border-top:2px dashed var(--held);height:0"></i>Held by the cut</span>
+        <span><i class="sw" style="background:var(--held);height:3.5px"></i>Top row: adversary</span>
       </div>
 
       <canvas id="net"></canvas>
@@ -443,23 +465,63 @@ const SWEEP = DATA.sweep || [];
 const runNames = Object.keys(RUNS);
 const SWEEP_TAB = "30-Run Sweep (16 nodes)";
 const allTabs = SWEEP.length ? [...runNames, SWEEP_TAB] : runNames;
+const GEN = "G";
 let cur = runNames[0];
 let progMode = "slot";
 let winSize = 999;
 let winStart = 1;
 let zoomSlot = 40;
 let msgMode = "waves";
+let treeView = "final";
+let treePhase = "end";
 const $ = id => document.getElementById(id);
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
-function setup(cv, w, h) {
+function setup(cv, w, h, mode = "full") {
   const r = window.devicePixelRatio || 1;
   cv.width = w * r; cv.height = h * r;
-  cv.style.width = "100%"; cv.style.maxWidth = w + "px";
+  cv.style.height = h + "px";
+  if (mode === "scroll" || mode === true) {
+    cv.style.width = w + "px";
+    cv.style.maxWidth = "none";
+  } else if (mode === "fixed") {
+    cv.style.width = w + "px";
+    cv.style.maxWidth = w + "px";
+  } else {
+    cv.style.width = "100%";
+    cv.style.maxWidth = w + "px";
+  }
   const c = cv.getContext("2d");
   c.setTransform(r, 0, 0, r, 0, 0);
   c.font = "12px " + css("--sans");
   return c;
+}
+
+function drawTreeBadge(ctx, x, y, text, strokeCol, bgCol) {
+  ctx.save();
+  ctx.font = "700 9px " + css("--mono");
+  const w = ctx.measureText(text).width + 6;
+  const h = 12;
+  const bx = x - w / 2, by = y - h + 3;
+  ctx.fillStyle = bgCol || "#131b26";
+  ctx.strokeStyle = strokeCol;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(bx, by, w, h, 3);
+  else ctx.rect(bx, by, w, h);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = strokeCol;
+  ctx.textAlign = "center";
+  ctx.fillText(text, x, y + 1);
+  ctx.restore();
+}
+
+function fmtNodeList(arr, total) {
+  if (total && arr.length === total) return "all";
+  if (arr.length > 2 && arr.every((v, i) => i === 0 || v === arr[i - 1] + 1)) {
+    return `${arr[0]}–${arr[arr.length - 1]}`;
+  }
+  return arr.join(",");
 }
 
 function finalChain(run) {
@@ -511,7 +573,7 @@ function clampZoomSlot(maxSlot, spr, slotMs) {
   const posInRound = (zoomSlot % spr) + 1;
   const t0s = (zoomSlot * slotMs / 1000).toFixed(1);
   const t1s = ((zoomSlot + 1) * slotMs / 1000).toFixed(1);
-  $("sReadout").textContent = `Slot ${zoomSlot} / ${maxSlot} · Round ${rIdx} (slot ${posInRound} of ${spr}) · t = ${t0s}s–${t1s}s`;
+  $("sReadout").textContent = `Slot ${zoomSlot} of ${maxSlot} · round ${rIdx}, slot ${posInRound} of ${spr}`;
   [...$("zoomTabs").querySelectorAll("button")].forEach(b => {
     b.setAttribute("aria-pressed", +b.dataset.slot === zoomSlot);
   });
@@ -548,19 +610,19 @@ function renderSlotDetails(run, s, T, shareA, final) {
   const fmtEv = es => es.length ? es.map(e => e[2]).join("<br>") : "—";
   const step1Body = (propNode !== null && propNode >= 0
     ? `<b>${propSide}</b> proposes <b>Block #${s}</b> on <b>#${propParentSlot}</b>${propOrphaned ? ' <span class="delta-down">(later orphaned)</span>' : ''}. ` +
-      (inCut ? `Delivered to its own side; <b>held across the cut</b> until slot ${cutB}.` : `Delivered to every node within +0.2s.`)
-    : (Object.values(run.blocks).some(b => b[0] === s && b[2] < 0) ? `<b>The adversary</b> proposes in slot ${s} (see the top row for who gets what, and when).` : `No block proposed in slot ${s}.`)) +
+      (inCut ? `Delivered to its own side; <b>held across the cut</b> until slot ${cutB}.` : ``)
+    : (Object.values(run.blocks).some(b => b[0] === s && b[2] < 0) ? `<b>The adversary</b> proposes in slot ${s}.` : `No block proposed in slot ${s}.`)) +
     (isHealSlot ? `<br><span style="color:var(--heal);font-weight:700">GST heal:</span> held blocks and votes of slots ${cutA}–${cutB - 1} arrive.` : "") +
-    ((run.advNotes[s] || []).length ? `<br><b style="color:var(--held)">Adversary deliveries (top row):</b><br>` + run.advNotes[s].map(([at, l]) => `• ${l}`).join("<br>") : "");
-  const step2Body = `First <b>unlocking</b> against the slot-${s - 1} votes: a lock moves back to the deepest ancestor with fewer than n/2 opponents. Then every node sends its <b>Goldfish vote</b> for the head of its frozen view (walk from its anchor).<br>` + fmtEv(evFor(["unlock"]));
-  const step3Body = `<b>Support cutoff</b> for slot-${s} votes. The <b>confirmation update of slot ${s - 1}</b> runs: voters = every slot-${s - 1} vote held; support = early non-equivocating votes; the walk takes strict majorities of the voters; the deepest block with &ge; n/2 support is <b>fast-locked</b>, or after k confirmations in a row <b>slow-locked</b>.<br>` + fmtEv(evFor(["confirm"])) +
-    (isAct ? `<br><b>FG action (round ${rIdx}):</b> each node gives the deepest fast-confirmed block (fg_confirmed) to the FG and attests.<br>` + fmtEv(evFor(["fg"])) : "");
-  const step4Body = `<b>View freeze</b>: the slot-${s + 1} vote will read only slot-${s} votes received before +4.5s, plus the vote list of the slot-${s + 1} proposal.`;
+    ((run.advNotes[s] || []).length ? `<br><b style="color:var(--held)">Adversary deliveries:</b><br>` + run.advNotes[s].map(([at, l]) => `• ${l}`).join("<br>") : "");
+  const step2Body = `Locks with n/2 or more opponents among the slot-${s - 1} votes move back; then each node votes.<br>` + fmtEv(evFor(["unlock"]));
+  const step3Body = `Update of slot ${s - 1}: the deepest block with a strict majority of the voters is confirmed, and fast-locked with n/2 support or more.<br>` + fmtEv(evFor(["confirm"])) +
+    (isAct ? `<br><b>FG action (round ${rIdx}):</b> each node attests to its deepest recent fast-locked block.<br>` + fmtEv(evFor(["fg"])) : "");
+  const step4Body = `The slot-${s + 1} vote reads only the slot-${s} votes received before this point, plus those in the slot-${s + 1} proposal.`;
   $("slotStepCards").innerHTML = `
-    <div class="callout" style="border-left-color:var(--a)"><b>① 0% (+0.0s) · Block Proposal${isRb ? " (round start)" : ""}</b>${step1Body}</div>
-    <div class="callout" style="border-left-color:var(--g1)"><b>② 25% (+1.5s) · Unlock + Goldfish Vote</b>${step2Body}</div>
-    <div class="callout" style="border-left-color:var(--tsq)"><b>③ 50% (+3.0s) · Cutoff + Confirmation Update${isAct ? " + FG" : ""}</b>${step3Body}</div>
-    <div class="callout" style="border-left-color:var(--fg)"><b>④ 75% (+4.5s) · View Freeze</b>${step4Body}</div>
+    <div class="callout" style="border-left-color:var(--a)"><b>Proposal · +0 s${isRb ? " · round start" : ""}</b>${step1Body}</div>
+    <div class="callout" style="border-left-color:var(--g1)"><b>Unlock and vote · +1.5 s</b>${step2Body}</div>
+    <div class="callout" style="border-left-color:var(--tsq)"><b>Confirmation update · +3 s${isAct ? " · FG action" : ""}</b>${step3Body}</div>
+    <div class="callout" style="border-left-color:var(--fg)"><b>View freeze · +4.5 s</b>${step4Body}</div>
   `;
 
   // Per-side state comparison table
@@ -590,19 +652,19 @@ function renderSlotDetails(run, s, T, shareA, final) {
       <td>${fmtDelta(n[2], p ? p[2] : null, safeOrph)}</td>
       <td>${fmtDelta(n[4], p ? p[4] : null, false)} · ${srcLabel}</td>
       <td>Justified <b>#${n[7]}</b> / Finalized <b>#${n[6]}</b> (height h=${n[8]})</td>
-      <td><code>${(run.locks[s] && run.locks[s][i]) || "none"}</code></td>
+      <td>${(run.locks[s] && run.locks[s][i]) || "none"}</td>
     </tr>`;
   }).join("");
 
   $("slotStateTable").innerHTML = `
     <table class="summary">
       <thead><tr>
-        <th>Side (Nodes &amp; Validators)</th>
-        <th>Head Block</th>
-        <th>Confirmed Tip</th>
-        <th>Anchor (deepest lock)</th>
-        <th>FG Checkpoints (Height)</th>
-        <th>Live Locks (block→deadline slot)</th>
+        <th>Node</th>
+        <th>Head</th>
+        <th>Confirmed tip</th>
+        <th>Anchor</th>
+        <th>Finality</th>
+        <th>Live locks (block → expiry)</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
@@ -624,6 +686,35 @@ function renderSingle() {
   const final = finalChain(run);
   const maxSlot = run.states.length;
 
+  if (treeView !== "dag" && treeView !== "all" && (typeof treeView !== "number" || treeView >= cfg.nodes)) {
+    treeView = "all";
+  }
+
+  // Populate Section 2 treeViewTabs & treePhaseTabs
+  const tvContainer = $("treeViewTabs");
+  let tvHtml = `<button type="button" data-tview="all"${treeView === "all" ? ' aria-pressed="true"' : ""}>All nodes</button>`;
+  for (let i = 0; i < cfg.nodes; i++) {
+    const grp = sides ? (i < cfg.split ? " (A)" : " (B)") : "";
+    tvHtml += `<button type="button" data-tview="${i}"${treeView === i ? ' aria-pressed="true"' : ""}>Node ${i}${grp}</button>`;
+  }
+  tvHtml += `<button type="button" data-tview="dag"${treeView === "dag" ? ' aria-pressed="true"' : ""}>Final chain</button>`;
+  tvContainer.innerHTML = tvHtml;
+  [...tvContainer.querySelectorAll("button")].forEach(b => {
+    b.onclick = () => {
+      const v = b.dataset.tview;
+      treeView = (v === "dag" || v === "all") ? v : +v;
+      renderSingle();
+    };
+  });
+  [...$("treePhaseTabs").querySelectorAll("button")].forEach(b => {
+    b.setAttribute("aria-pressed", b.dataset.tphase === treePhase);
+    b.onclick = () => {
+      treePhase = b.dataset.tphase;
+      [...$("treePhaseTabs").querySelectorAll("button")].forEach(x => x.setAttribute("aria-pressed", x === b));
+      renderSingle();
+    };
+  });
+
   clampWindow(maxSlot);
   clampZoomSlot(maxSlot, run.spr, run.slotMs);
   const sFrom = winStart;
@@ -634,17 +725,17 @@ function renderSingle() {
 
   // Top facts bar with explicit Side A / Side B node & validator membership
   const sideBadges = sides
-    ? `<span class="side-pill side-a"><b>Side A</b>: Nodes 0–${cfg.split - 1} (${sideVals(run, 0)} honest validators)</span>` +
-      `<span class="side-pill side-b"><b>Side B</b>: Nodes ${cfg.split}–${cfg.nodes - 1} (${sideVals(run, 1)} honest validators)</span>`
-    : `<span class="side-pill side-a"><b>All nodes</b>: Nodes 0–${cfg.nodes - 1} (${sideVals(run, 0)} honest validators)</span>`;
-  const advBadge = run.adv ? `<span class="side-pill" style="border-color:var(--held);color:var(--held)"><b>Adversary</b>: ${run.adv} faulty validators (${Math.round(100 * run.adv / cfg.validators)}%), its own row in panel 3</span>` : "";
+    ? `<span class="side-pill side-a"><b>Side A</b>: ${nodeRange(0, cfg.split - 1)} (${sideVals(run, 0)} honest validators)</span>` +
+      `<span class="side-pill side-b"><b>Side B</b>: ${nodeRange(cfg.split, cfg.nodes - 1)} (${sideVals(run, 1)} honest validators)</span>`
+    : `<span class="side-pill side-a"><b>All nodes</b>: ${nodeRange(0, cfg.nodes - 1)} (${sideVals(run, 0)} honest validators)</span>`;
+  const advBadge = run.adv ? `<span class="side-pill" style="border-color:var(--held);color:var(--held)"><b>Adversary</b>: ${run.adv} faulty validators (${Math.round(100 * run.adv / cfg.validators)}%)</span>` : "";
 
   const meta = run.meta || null;
   $("facts").innerHTML =
     (meta && meta.facts ? meta.facts : sideBadges + advBadge) +
     (meta && meta.facts ? "" : "") +
     (cut && !(meta && meta.facts) ? `<span>partition <b>slots ${cutA}–${cutB - 1} (D=${cfg.slots_down})</b> · GST heal at <b>slot ${cutB}</b></span>` : "") +
-    `<span>latency <b>${cfg.latency_ms}+U[0,${cfg.jitter_ms}] ms</b></span>` +
+    `<span>latency <b>${cfg.latency_ms}${cfg.jitter_ms ? `–${cfg.latency_ms + cfg.jitter_ms}` : ""} ms</b></span>` +
     `<span>seed <b>${cfg.seed}</b></span>`;
 
   renderCallouts(run, shareA);
@@ -652,18 +743,18 @@ function renderSingle() {
   // ---------- 1. Node Beliefs (Windowed X-axis + Auto-Scaling Y-axis) ----------
   const W = 1120;
   const panels = [
-    ["1. Head slot (ac_head)", 0, 1, "head"],
-    ["2. Confirmed tip (ac_confirmed: the confirmation update + locks)", 2, 3, "safe"],
-    ["3. Locks: every live lock (dots) and the anchor, the deepest one (line: fast ● / slow ◆ / no lock □)", 4, 5, "stable"],
-    ["4. Finality gadget: Finalized (solid blue/orange) & Justified (dashed cyan/purple) + FG height h", 6, null, "fin"],
+    ["Head", "head block", 0, 1, "head"],
+    ["Confirmed tip", "confirmed block", 2, 3, "safe"],
+    ["Locks", "each locked block (dots) and anchor (deepest lock, line)", 4, 5, "stable"],
+    ["Finality", "finalized (solid) and justified (dashed) block; h = FG height", 6, null, "fin"],
   ];
   const ph = 138, gap = 36, PH = panels.length * (ph + gap) + 20;
   const pc = setup($("prog"), W, PH);
-  const L = 58, R = 48;
+  const L = 66, R = 48;
   const PX = s => L + ((s - xMinSlot) / Math.max(0.5, xMaxSlot - xMinSlot)) * (W - L - R);
   const idxA = 0, idxB = cfg.nodes - 1;
 
-  panels.forEach(([label, si, ri, kind], k) => {
+  panels.forEach(([label, what, si, ri, kind], k) => {
     const y0 = 18 + k * (ph + gap);
     const isLag = progMode === "lag";
     const valOf = (s, nstate, idx) => {
@@ -707,15 +798,18 @@ function renderSingle() {
     const PY = v => y0 + 22 + (1 - (v - yMin) / Math.max(1, yMax - yMin)) * (ph - 30);
 
     pc.fillStyle = T.fg; pc.font = "600 13px " + css("--sans"); pc.textAlign = "left";
-    pc.fillText(
-      label + (isLag ? " — lag (slots behind current)" : "") + (winSize < maxSlot ? `  [Y-axis: ${yMin}..${yMax}]` : ""),
-      L, y0 + 10
-    );
+    pc.fillText(label, L, y0 + 10);
+    const lw = pc.measureText(label).width;
+    pc.fillStyle = T.muted; pc.font = "12px " + css("--sans");
+    pc.fillText((isLag ? "  ·  slots behind the current slot: " : "  ·  ") + what, L + lw, y0 + 10);
+    pc.save(); pc.translate(16, y0 + 22 + (ph - 30) / 2); pc.rotate(-Math.PI / 2);
+    pc.textAlign = "center"; pc.fillStyle = T.subtle; pc.font = "11px " + css("--sans");
+    pc.fillText(isLag ? "slots behind" : "block (by slot)", 0, 0); pc.restore();
     pc.font = "11px " + css("--mono");
 
     // Determine clean integer tick step for [yMin, yMax]
     const ySpan = yMax - yMin;
-    const yStep = ySpan <= 8 ? 1 : (ySpan <= 18 ? 2 : (ySpan <= 36 ? 4 : (ySpan <= 48 ? 8 : 16)));
+    const yStep = [1, 2, 4, 5, 8, 10, 16, 20, 32, 50].find(st => ySpan / st <= 5) || 64;
     const firstTick = Math.ceil(yMin / yStep) * yStep;
     for (let v = firstTick; v <= yMax; v += yStep) {
       const yy = PY(v);
@@ -810,8 +904,8 @@ function renderSingle() {
           const st = ns[ni], slots = st[11] || [], roots = st[12] || [];
           slots.forEach((ls, j) => {
             const x = PX(s) + (sides ? dx : 0), y = PY(isLag ? s - ls : ls), orph = roots[j] && !final.has(roots[j]);
-            pc.globalAlpha = 0.8;
-            pc.beginPath(); pc.arc(x, y, 2.7, 0, 7);
+            pc.globalAlpha = 0.55;
+            pc.beginPath(); pc.arc(x, y, 2.2, 0, 7);
             if (orph) { pc.fillStyle = T.panel; pc.fill(); pc.strokeStyle = col; pc.lineWidth = 1.3; pc.stroke(); }
             else { pc.fillStyle = col; pc.fill(); }
             pc.globalAlpha = 1;
@@ -881,7 +975,6 @@ function renderSingle() {
           if (stSrc === "G1") {
             pc.fillStyle = T.g1;
             pc.beginPath(); pc.moveTo(x, y - 6); pc.lineTo(x + 6, y); pc.lineTo(x, y + 6); pc.lineTo(x - 6, y); pc.closePath(); pc.fill();
-            pc.fillStyle = T.g1; pc.textAlign = "left"; pc.fillText(`${stSlot} (slow)`, x + 8, y + 12);
           } else if (stSrc === "FLOOR") {
             pc.fillStyle = T.panel; pc.strokeStyle = T.held; pc.lineWidth = 2;
             pc.fillRect(x - 4.5, y - 4.5, 9, 9); pc.strokeRect(x - 4.5, y - 4.5, 9, 9);
@@ -889,7 +982,6 @@ function renderSingle() {
           } else if (stSrc === "TSQ") {
             pc.fillStyle = T.tsq;
             pc.beginPath(); pc.arc(x, y, 4, 0, 7); pc.fill();
-            pc.textAlign = "left"; pc.fillText(`${stSlot}`, x + 5, y - 6);
           }
         });
       }
@@ -933,68 +1025,327 @@ function renderSingle() {
     else rowOf[b.root] = nRows++;
     rowTip[rowOf[b.root]] = b.root;
   });
-  const hasOrphan = nRows > 1;
-  const TH = 84 + (nRows - 1) * 46;
-  const tc = setup($("tree"), W, TH);
-  const TL = 96, TR = 28;
-  const TX = s => TL + (s / maxSlot) * (W - TL - TR);
-  const TY = r => 38 + r * 46;
+  // ---------- 2. Node Chains in Progress (Horizontally Scrollable) ----------
+  const curSlot = Math.min(run.states.length, Math.max(1, zoomSlot));
+  const curState = run.states[curSlot - 1][1];
+  const byRoot = {}; blocks.forEach(b => byRoot[b.root] = b);
+
+  const LW = 155;
+  const stepW = 46;
+  const TL = 28, TR = 40;
+  const TX = s => TL + s * stepW;
+  const TW = TL + maxSlot * stepW + TR;
+  const topH = 34;
+
+  // Update note text
+  const noteEl = $("treeNote");
+  if (treeView === "dag") {
+    noteEl.innerHTML = `Final chain: top row is the final chain; lower rows are orphaned branches. Blue stripe highlights slot <b>${curSlot}</b>. Scroll left to right to inspect blocks.`;
+  } else if (treeView === "all") {
+    noteEl.innerHTML = `All nodes at slot <b>${curSlot}</b> (${treePhase === "25" ? "@25% vote" : "slot end"}): each row shows that node's active canonical chain. Rings mark live locks and confirmed tips. Scroll left to right.`;
+  } else {
+    const singleNst0 = curState[treeView];
+    const hSlot0 = singleNst0 ? singleNst0[0] : "?";
+    noteEl.innerHTML = `Node <b>${treeView}</b> at slot <b>${curSlot}</b> (${treePhase === "25" ? "@25% vote" : "slot end"}): active canonical chain leading to <b>Head #${hSlot0}</b>. Scroll left to right.`;
+  }
+
+  let TH = 100, TY = null, nodesToDraw = [];
+  const rowH = 52, laneH = 82;
+
+  if (treeView === "dag") {
+    TH = topH + nRows * rowH + 16;
+    TY = r => topH + 26 + r * rowH;
+  } else {
+    nodesToDraw = typeof treeView === "number" ? [treeView] : Array.from({ length: cfg.nodes }, (_, i) => i);
+    TH = topH + nodesToDraw.length * laneH;
+  }
+
+  const lc = setup($("treeLeft"), LW, TH, "fixed");
+  const tc = setup($("tree"), TW, TH, "scroll");
+
+  // --- Draw treeLeft (pinned left column) ---
+  lc.fillStyle = T.panel;
+  lc.fillRect(0, 0, LW, TH);
+  lc.strokeStyle = T.grid;
+  lc.lineWidth = 1;
+  lc.beginPath(); lc.moveTo(0, topH); lc.lineTo(LW, topH); lc.stroke();
+
+  lc.fillStyle = T.muted;
+  lc.font = "600 11px " + css("--sans");
+  lc.textAlign = "left";
+  lc.fillText(treeView === "dag" ? "BRANCH" : "NODE / SIDE", 12, 21);
+
+  if (treeView === "dag") {
+    for (let r = 0; r < nRows; r++) {
+      lc.fillStyle = r === 0 ? T.fg : T.held;
+      lc.font = "600 12px " + css("--sans");
+      lc.fillText(r === 0 ? "Final chain" : (nRows > 2 ? `Orphaned ${r}` : "Orphaned"), 12, TY(r) + 4);
+      if (r > 0) {
+        lc.strokeStyle = T.grid; lc.lineWidth = 0.6;
+        lc.beginPath(); lc.moveTo(0, TY(r) - rowH / 2); lc.lineTo(LW, TY(r) - rowH / 2); lc.stroke();
+      }
+    }
+  } else {
+    nodesToDraw.forEach((nodeIdx, laneIdx) => {
+      const y = topH + laneIdx * laneH + laneH / 2;
+      const grp = sides ? (nodeIdx < cfg.split ? "Side A" : "Side B") : "Honest";
+      const nodeCol = !sides ? T.a : (run.groupOf[nodeIdx] === 0 ? T.a : T.b);
+
+      lc.fillStyle = nodeCol;
+      lc.font = "600 12.5px " + css("--sans");
+      lc.fillText(`Node ${nodeIdx}`, 12, y - 8);
+      lc.fillStyle = nodeCol;
+      lc.font = "500 11px " + css("--sans");
+      const nameW = lc.measureText(`Node ${nodeIdx}`).width;
+      lc.fillText(`· ${grp}`, 12 + nameW + 4, y - 8);
+
+      lc.fillStyle = T.muted;
+      lc.font = "10.5px " + css("--sans");
+      lc.fillText(`${run.vals[nodeIdx]} validators`, 12, y + 10);
+
+      // Lane separator
+      lc.strokeStyle = T.grid; lc.lineWidth = 1;
+      lc.beginPath(); lc.moveTo(0, topH + (laneIdx + 1) * laneH); lc.lineTo(LW, topH + (laneIdx + 1) * laneH); lc.stroke();
+    });
+  }
+
+  // --- Draw tree (timeline header & active stripe) ---
+  tc.strokeStyle = T.grid;
+  tc.lineWidth = 1;
+  tc.beginPath(); tc.moveTo(0, topH); tc.lineTo(TW, topH); tc.stroke();
 
   if (cut) {
-    tc.fillStyle = T.tint; tc.fillRect(TX(cutA), 16, TX(cutB) - TX(cutA), TH - 22);
-    tc.strokeStyle = T.held; tc.setLineDash([4, 3]);
-    tc.beginPath(); tc.moveTo(TX(cutA), 16); tc.lineTo(TX(cutA), TH - 6); tc.stroke();
+    tc.fillStyle = T.tint;
+    tc.fillRect(TX(cutA), topH, TX(cutB) - TX(cutA), TH - topH);
+    tc.strokeStyle = T.held; tc.lineWidth = 1.2; tc.setLineDash([4, 3]);
+    tc.beginPath(); tc.moveTo(TX(cutA), topH); tc.lineTo(TX(cutA), TH); tc.stroke();
     tc.strokeStyle = T.heal;
-    tc.beginPath(); tc.moveTo(TX(cutB), 16); tc.lineTo(TX(cutB), TH - 6); tc.stroke();
+    tc.beginPath(); tc.moveTo(TX(cutB), topH); tc.lineTo(TX(cutB), TH); tc.stroke();
     tc.setLineDash([]);
   }
-  // Highlight Section 3 active slot on the block tree
-  const treeStepW = (W - TL - TR) / maxSlot;
+
+  // Active slot vertical highlight
   tc.fillStyle = T.aSoft;
-  tc.fillRect(TX(zoomSlot) - treeStepW * 0.4, 16, Math.max(8, treeStepW * 0.8), TH - 22);
+  tc.fillRect(TX(curSlot) - stepW * 0.5, 0, stepW, TH);
+  tc.strokeStyle = T.a; tc.lineWidth = 1.4;
+  tc.strokeRect(TX(curSlot) - stepW * 0.5, 0, stepW, TH);
+  drawTreeBadge(tc, TX(curSlot), 11, `SLOT ${curSlot}`, T.a, T.panel);
 
-  for (let s = 0; s <= maxSlot; s += run.spr) {
-    tc.strokeStyle = T.grid; tc.beginPath(); tc.moveTo(TX(s), 16); tc.lineTo(TX(s), TH - 6); tc.stroke();
-    tc.fillStyle = T.muted; tc.textAlign = "center"; tc.font = "11px " + css("--mono");
-    tc.fillText(`s${s}`, TX(s), 12);
-  }
-  tc.textAlign = "left"; tc.font = "600 12px " + css("--sans");
-  tc.fillStyle = T.fg; tc.fillText("Final chain", 6, TY(0) + 4);
-  for (let r = 1; r < nRows; r++) { tc.fillStyle = T.held; tc.fillText(nRows > 2 ? `Orphaned ${r}` : "Orphaned", 6, TY(r) + 4); }
-
-  const byRoot = {}; blocks.forEach(b => byRoot[b.root] = b);
-  blocks.forEach(b => {
-    const p = byRoot[b.parent];
-    const px = p ? TX(p.slot) : TX(0), py = p ? TY(rowOf[p.root]) : TY(0);
-    tc.strokeStyle = rowOf[b.root] === 0 ? T.gs : T.held; tc.lineWidth = 1.5;
-    tc.beginPath(); tc.moveTo(px, py); tc.lineTo(TX(b.slot), TY(rowOf[b.root])); tc.stroke();
-  });
-  tc.fillStyle = T.muted; tc.beginPath(); tc.arc(TX(0), TY(0), 4.5, 0, 7); tc.fill();
-  tc.strokeStyle = T.fg; tc.lineWidth = 1.8; tc.strokeRect(TX(0) - 6.5, TY(0) - 6.5, 13, 13);
-
-  const finSlots = new Set([0]); run.states.forEach(r => finSlots.add(r[1][0][6]));
-
-  blocks.forEach(b => {
-    const x = TX(b.slot), y = TY(rowOf[b.root]);
-    tc.fillStyle = b.src < 0 ? T.held : (!sides ? T.a : (run.groupOf[b.src] === 0 ? T.a : T.b));
-    tc.beginPath(); tc.arc(x, y, 4.8, 0, 7); tc.fill();
-    if (rowOf[b.root] === 0 && finSlots.has(b.slot)) {
-      tc.strokeStyle = T.fg; tc.lineWidth = 1.8; tc.strokeRect(x - 6.8, y - 6.8, 13.6, 13.6);
-    }
-    if (rowOf[b.root] > 0) {
-      if (everSafe.has(b.root)) {
-        tc.strokeStyle = T.held; tc.lineWidth = 2;
-        tc.beginPath(); tc.arc(x, y, 7.6, 0, 7); tc.stroke();
+  for (let s = 0; s <= maxSlot; s++) {
+    const isRb = s % run.spr === 0;
+    const isStep4 = s % 4 === 0;
+    if (isRb) {
+      tc.strokeStyle = T.gs; tc.lineWidth = 1.2;
+      tc.beginPath(); tc.moveTo(TX(s), 4); tc.lineTo(TX(s), TH); tc.stroke();
+      if (s !== curSlot) {
+        tc.fillStyle = T.fg; tc.font = "600 11px " + css("--mono"); tc.textAlign = "center";
+        tc.fillText(`slot ${s} (r${s / run.spr})`, TX(s), 21);
       }
-      tc.fillStyle = T.held; tc.font = "600 10px " + css("--mono"); tc.textAlign = "center";
-      tc.fillText(b.slot, x, y + 18);
+    } else if (isStep4) {
+      tc.strokeStyle = T.grid; tc.lineWidth = 0.8;
+      tc.beginPath(); tc.moveTo(TX(s), topH); tc.lineTo(TX(s), TH); tc.stroke();
+      if (s !== curSlot) {
+        tc.fillStyle = T.muted; tc.font = "400 11px " + css("--mono"); tc.textAlign = "center";
+        tc.fillText(`s${s}`, TX(s), 21);
+      }
+    } else {
+      tc.strokeStyle = T.grid; tc.lineWidth = 0.5;
+      tc.beginPath(); tc.moveTo(TX(s), topH - 5); tc.lineTo(TX(s), topH); tc.stroke();
     }
-  });
+  }
 
+  if (treeView === "dag") {
+    // Edges
+    blocks.forEach(b => {
+      const p = byRoot[b.parent];
+      const px = p ? TX(p.slot) : TX(0), py = p ? TY(rowOf[p.root]) : TY(0);
+      const x = TX(b.slot), y = TY(rowOf[b.root]);
+      tc.strokeStyle = rowOf[b.root] === 0 ? T.gs : T.held;
+      tc.lineWidth = 1.6;
+      tc.beginPath(); tc.moveTo(px, py); tc.lineTo(x, y); tc.stroke();
+    });
+
+    // Genesis
+    tc.fillStyle = T.muted; tc.beginPath(); tc.arc(TX(0), TY(0), 4.5, 0, 7); tc.fill();
+    tc.strokeStyle = T.fg; tc.lineWidth = 1.8; tc.strokeRect(TX(0) - 6.5, TY(0) - 6.5, 13, 13);
+
+    const finSlots = new Set([0]); run.states.forEach(r => finSlots.add(r[1][0][6]));
+
+    blocks.forEach(b => {
+      const x = TX(b.slot), y = TY(rowOf[b.root]);
+      const isAdversary = b.src < 0;
+      const baseCol = isAdversary ? T.held : (!sides ? T.a : (run.groupOf[b.src] === 0 ? T.a : T.b));
+      tc.fillStyle = baseCol;
+      tc.beginPath(); tc.arc(x, y, 4.8, 0, 7); tc.fill();
+
+      if (rowOf[b.root] === 0 && finSlots.has(b.slot)) {
+        tc.strokeStyle = T.fg; tc.lineWidth = 1.8; tc.strokeRect(x - 6.8, y - 6.8, 13.6, 13.6);
+      }
+      if (rowOf[b.root] > 0) {
+        if (everSafe.has(b.root)) {
+          tc.strokeStyle = T.held; tc.lineWidth = 2;
+          tc.beginPath(); tc.arc(x, y, 7.6, 0, 7); tc.stroke();
+        }
+        tc.fillStyle = T.held; tc.font = "600 10px " + css("--mono"); tc.textAlign = "center";
+        tc.fillText(b.slot, x, y + 18);
+      }
+    });
+
+  } else {
+    // Swimlanes
+    nodesToDraw.forEach((nodeIdx, laneIdx) => {
+      const y = topH + laneIdx * laneH + laneH / 2;
+      const nst = curState[nodeIdx];
+      if (!nst) return;
+
+      const nodeCol = !sides ? T.a : (run.groupOf[nodeIdx] === 0 ? T.a : T.b);
+
+      // Lane horizontal divider line
+      tc.strokeStyle = T.grid; tc.lineWidth = 1;
+      tc.beginPath(); tc.moveTo(0, topH + (laneIdx + 1) * laneH); tc.lineTo(TW, topH + (laneIdx + 1) * laneH); tc.stroke();
+
+      // Baseline across lane
+      tc.strokeStyle = T.grid; tc.lineWidth = 0.8; tc.setLineDash([2, 4]);
+      tc.beginPath(); tc.moveTo(TL, y); tc.lineTo(TW - TR, y); tc.stroke();
+      tc.setLineDash([]);
+
+      // Head root
+      let hRoot = nst[1];
+      if (treePhase === "25" && run.voteHead && run.voteHead[curSlot] && run.voteHead[curSlot][nodeIdx] !== undefined) {
+        const vSlot = run.voteHead[curSlot][nodeIdx];
+        const match = blocks.find(b => b.slot === vSlot);
+        if (match) hRoot = match.root;
+      }
+      const confRoot = nst[3];
+      const anchorRoot = nst[5];
+      const lockRoots = new Set(nst[12] || []);
+
+      // Trace canonical chain
+      const chain = [];
+      let curR = hRoot;
+      while (curR && curR !== GEN && byRoot[curR]) {
+        chain.push(byRoot[curR]);
+        curR = byRoot[curR].parent;
+      }
+      chain.push({ root: GEN, slot: 0, parent: null, src: -1 });
+      chain.reverse();
+
+      // Draw chain line connecting consecutive blocks
+      tc.strokeStyle = nodeCol;
+      tc.lineWidth = 2.8;
+      tc.beginPath();
+      chain.forEach((b, idx) => {
+        const bx = TX(b.slot);
+        if (idx === 0) tc.moveTo(bx, y);
+        else tc.lineTo(bx, y);
+      });
+      tc.stroke();
+
+      // Draw blocks
+      chain.forEach(b => {
+        const bx = TX(b.slot);
+        const isGenesis = b.root === GEN;
+        const isHead = b.root === hRoot;
+        const isConf = b.root === confRoot;
+        const isLock = lockRoots.has(b.root);
+        const isAnchor = b.root === anchorRoot;
+        const isAdversary = b.src < 0;
+        const isCanon = isGenesis || final.has(b.root);
+
+        const baseCol = isGenesis ? T.muted : (isAdversary ? T.held : (!sides ? T.a : (run.groupOf[b.src] === 0 ? T.a : T.b)));
+
+        // Badges & rings
+        if (isHead && isConf) {
+          tc.strokeStyle = nodeCol; tc.lineWidth = 2.2;
+          tc.beginPath(); tc.arc(bx, y, 13, 0, 7); tc.stroke();
+          tc.strokeStyle = T.heal; tc.lineWidth = 2.0;
+          tc.beginPath(); tc.arc(bx, y, 9.5, 0, 7); tc.stroke();
+          drawTreeBadge(tc, bx, y - 22, "Head & Conf", nodeCol, T.panel);
+        } else if (isHead) {
+          tc.strokeStyle = nodeCol; tc.lineWidth = 2.4;
+          tc.beginPath(); tc.arc(bx, y, 12, 0, 7); tc.stroke();
+          drawTreeBadge(tc, bx, y - 20, "Head", nodeCol, T.panel);
+        } else if (isConf) {
+          tc.strokeStyle = T.heal; tc.lineWidth = 2.2;
+          tc.beginPath(); tc.arc(bx, y, 10.5, 0, 7); tc.stroke();
+          drawTreeBadge(tc, bx, y - 19, "Conf", T.heal, T.panel);
+        } else if (isLock) {
+          tc.strokeStyle = T.g1; tc.lineWidth = 1.8;
+          tc.beginPath(); tc.arc(bx, y, 8.5, 0, 7); tc.stroke();
+        }
+
+        // Circle
+        if (isGenesis) {
+          tc.fillStyle = T.muted;
+          tc.fillRect(bx - 5.5, y - 5.5, 11, 11);
+          tc.strokeStyle = T.fg; tc.lineWidth = 1.5;
+          tc.strokeRect(bx - 5.5, y - 5.5, 11, 11);
+        } else if (!isCanon) {
+          // Orphaned in final outcome
+          tc.fillStyle = T.panel;
+          tc.beginPath(); tc.arc(bx, y, 5, 0, 7); tc.fill();
+          tc.strokeStyle = T.held; tc.lineWidth = 2.2; tc.stroke();
+          tc.fillStyle = baseCol;
+          tc.beginPath(); tc.arc(bx, y, 2.5, 0, 7); tc.fill();
+        } else {
+          tc.fillStyle = baseCol;
+          tc.beginPath(); tc.arc(bx, y, 5, 0, 7); tc.fill();
+        }
+
+        // Anchor
+        if (isAnchor && !isGenesis) {
+          tc.fillStyle = T.tsq;
+          tc.beginPath(); tc.arc(bx, y, 2.5, 0, 7); tc.fill();
+        }
+
+        // Slot number / lock tag below block
+        tc.fillStyle = isLock ? T.g1 : (isCanon ? T.muted : T.held);
+        tc.font = (isLock ? "600 " : "400 ") + "9.5px " + css("--mono");
+        tc.textAlign = "center";
+        tc.fillText(isLock ? `🔒#${b.slot}` : `#${b.slot}`, bx, y + 20);
+      });
+    });
+  }
+
+  // Center tree scroll on curSlot
+  const treeWrap = $("treeScroll");
+  if (treeWrap && !window._treeScrollUserInteracted) {
+    const targetX = TX(curSlot) - treeWrap.clientWidth / 2;
+    treeWrap.scrollLeft = Math.max(0, targetX);
+  }
+
+  let treeDragging = false, treeStartX = 0, treeStartScroll = 0, treeDidDrag = false;
+  if (treeWrap && !treeWrap._dragInit) {
+    treeWrap._dragInit = true;
+    treeWrap.addEventListener("mousedown", e => {
+      if (e.button !== 0) return;
+      treeDragging = true;
+      treeDidDrag = false;
+      window._treeScrollUserInteracted = true;
+      treeStartX = e.clientX;
+      treeStartScroll = treeWrap.scrollLeft;
+      treeWrap.style.cursor = "grabbing";
+    });
+    window.addEventListener("mousemove", e => {
+      if (!treeDragging) return;
+      const dx = e.clientX - treeStartX;
+      if (Math.abs(dx) > 4) treeDidDrag = true;
+      treeWrap.scrollLeft = treeStartScroll - dx;
+    });
+    window.addEventListener("mouseup", () => {
+      if (treeDragging) {
+        treeDragging = false;
+        treeWrap.style.cursor = "grab";
+      }
+    });
+  }
+
+  // Click on tree canvas to select slot
   $("tree").onclick = e => {
+    if (treeDidDrag) return;
     const rect = $("tree").getBoundingClientRect();
-    const clickX = (e.clientX - rect.left) * (W / rect.width);
-    const clickedSlot = Math.round(((clickX - TL) / (W - TL - TR)) * maxSlot);
+    const clickX = e.clientX - rect.left;
+    const clickedSlot = Math.round((clickX - TL) / stepW);
     if (clickedSlot >= 1 && clickedSlot <= maxSlot) {
       zoomSlot = clickedSlot;
       renderSingle();
@@ -1025,12 +1376,9 @@ function renderSingle() {
   // Title banner
   nc.fillStyle = T.fg; nc.font = "600 13.5px " + css("--sans"); nc.textAlign = "left";
   const statusStr = inCut
-    ? `PARTITION ACTIVE (cross-side messages blocked & held until slot ${cutB})`
-    : (isHealSlot ? `GST HEAL SLOT (held messages from slots ${cutA}–${cutB - 1} arrive)` : `Synchronous delivery (~0.2s latency)`);
-  nc.fillText(
-    `Slot ${s} Timeline (Round ${rIdx}, t = ${(t0 / 1000).toFixed(1)}s … ${(t1 / 1000).toFixed(1)}s) — ${statusStr}`,
-    6, 16
-  );
+    ? `partition: messages across the cut held until slot ${cutB}`
+    : (isHealSlot ? `heal: the messages held since slot ${cutA} arrive` : "");
+  nc.fillText(`Slot ${s} (round ${rIdx})` + (statusStr ? ` · ${statusStr}` : ""), 6, 16);
 
   // Shaded background & partition barrier line if in cut
   if (inCut) {
@@ -1043,11 +1391,11 @@ function renderSingle() {
 
   // Sub-slot deadlines: 0%, 25%, 50%, 75%, 100% with plain-English headers
   const dSpecs = [
-    [0, `0% (+0.0s)`, isRb ? "① Propose Block (round start)" : "① Propose Block", T.a, true],
-    [run.deadlines[0], `25% (+1.5s)`, "② Unlock + Goldfish Vote", T.g1, false],
-    [run.deadlines[1], `50% (+3.0s)`, isAct ? "③ Cutoff + Update + FG Attest" : "③ Support Cutoff + Update", T.g1, false],
-    [run.deadlines[2], `75% (+4.5s)`, "④ View Freeze", T.fg, false],
-    [run.slotMs, `100% (+6.0s)`, `Slot ${s + 1} starts`, T.muted, true],
+    [0, "+0 s", isRb ? "Proposal (round start)" : "Proposal", T.a, true],
+    [run.deadlines[0], "+1.5 s", "Unlock and vote", T.g1, false],
+    [run.deadlines[1], "+3 s", isAct ? "Update and FG attestations" : "Confirmation update", T.g1, false],
+    [run.deadlines[2], "+4.5 s", "View freeze", T.fg, false],
+    [run.slotMs, "+6 s", `Slot ${s + 1}`, T.muted, true],
   ];
   dSpecs.forEach(([off, lbl1, lbl2, col, strong]) => {
     const x = ZX(t0 + off);
@@ -1070,7 +1418,7 @@ function renderSingle() {
     nc.beginPath(); nc.moveTo(NL, y); nc.lineTo(NW - NR, y); nc.stroke();
     nc.fillStyle = col; nc.font = "600 11px " + css("--mono"); nc.textAlign = "left";
     const sideStr = !sides ? "Honest" : (grp === 0 ? "Side A" : "Side B");
-    nc.fillText(`Node ${n} · ${sideStr} (Val ${v0}–${v1})`, 6, y + 4);
+    nc.fillText(sides ? `Node ${n} · ${sideStr}` : `Node ${n}`, 6, y + 4);
   }
 
   // Helper to draw a pill label with background so text never clashes with lines
@@ -1093,7 +1441,7 @@ function renderSingle() {
     nc.strokeStyle = T.held; nc.lineWidth = 1; nc.setLineDash([3, 3]);
     nc.beginPath(); nc.moveTo(NL, y); nc.lineTo(NW - NR, y); nc.stroke(); nc.setLineDash([]);
     nc.fillStyle = T.held; nc.font = "600 11px " + css("--mono"); nc.textAlign = "left";
-    nc.fillText(`Adversary (${run.adv} faulty val.)`, 6, y + 4);
+    nc.fillText(`Adversary (${run.adv} validators)`, 6, y + 4);
     // every adversary delivery in this slot: a line from its row to the receiving node at the arrival time
     const kcol = [T.a, T.tsq, T.g1];
     run.msgs.forEach(([t, at, src, dst, k]) => {
@@ -1199,8 +1547,6 @@ function renderSingle() {
     }
   }
   // Label the two 25% broadcast waves and the 50% confirmation check in the dedicated footer strip below Node 7
-  drawPill(x25Start - 6, ny0 + nph + 22, "▲ @25%: unlock, then Goldfish votes sent", T.g1, T.g1, "left");
-  drawPill(ZX(t0 + run.deadlines[1]) - 6, ny0 + nph + 22, isAct ? "▲ @50%: confirmation update + FG attestations" : "▲ @50%: support cutoff + confirmation update", T.g1, T.g1, "left");
 
   // Draw per-node markers & plain-English state badges at 25%, 50%, 75%
   // Each column is 225px wide, so every pill is kept <= 205px wide to stay strictly inside its own column!
@@ -1231,12 +1577,12 @@ function renderSingle() {
     const confOrph = nst[3] && run.blocks[nst[3]] && !final.has(nst[3]);
     if (headChanged || safeDrop) {
       const reorgTxt = headChanged
-        ? `REORG: Head #${pnst[0]}→#${nst[0]} · Conf=#${nst[2]}`
-        : `Confirmed steps back #${pnst[2]}→#${nst[2]}`;
+        ? `reorg: head ${pnst[0]} → ${nst[0]} · confirmed ${nst[2]}`
+        : `confirmed steps back ${pnst[2]} → ${nst[2]}`;
       drawPill(x50 + 16, y - 6, reorgTxt, T.held, T.held, "left");
     } else {
       nc.fillStyle = confOrph ? T.held : T.fg; nc.font = (confOrph ? "600 " : "") + "10px " + css("--mono"); nc.textAlign = "left";
-      nc.fillText(`Head=#${nst[0]} · Conf=#${nst[2]}${confOrph ? " (later orphaned)" : ""}`, x50 + 16, y + 3);
+      nc.fillText(`head ${nst[0]} · confirmed ${nst[2]}${confOrph ? " (later orphaned)" : ""}`, x50 + 16, y + 3);
     }
 
     // 75% (+4.5s): Black square = Incoming vote cutoff (and on round end: Freeze Round Vote Snapshot inside [75%, 100%] column!)
@@ -1245,7 +1591,7 @@ function renderSingle() {
     nc.fillRect(x75 - sqSize / 2, y - sqSize / 2, sqSize, sqSize);
     if (isRepNode) {
       nc.fillStyle = T.muted; nc.font = "9.5px " + css("--mono"); nc.textAlign = "left";
-      nc.fillText(`Locks: ${(run.locks[s] && run.locks[s][n]) || "none"}`, x75 + 7, y + 3);
+      nc.fillText(`locks ${(run.locks[s] && run.locks[s][n]) || "none"}`, x75 + 7, y + 3);
     }
   }
 }
@@ -1438,13 +1784,16 @@ function applyMeta(run) {
   $("zoomTabs").innerHTML = m && m.zooms ? m.zooms.map(([l, v]) => btn("slot", v, l)).join("") : DEF_ZOOM;
 }
 
+function nodeRange(a, b) { return a === b ? `node ${a}` : `nodes ${a}–${b}`; }
 function sideVals(run, g) {
   return run.vals.reduce((a, v, i) => a + (run.groupOf[i] === g ? v : 0), 0);
 }
 function renderAbout(run) {
-  const a = $("about"), m = (run.meta || {}).about;
-  a.innerHTML = m ? "<b>About this experiment</b><br>" + m : "";
-  a.style.display = m ? "block" : "none";
+  const a = $("about"), m = run.meta || {};
+  const secs = [["Goal", m.goal], ["Setup", m.setup], ["How", m.how], ["Result", m.result]].filter(x => x[1]);
+  a.innerHTML = "<h2>About this experiment</h2>" +
+    secs.map(([l, t]) => `<div class="sec"><span class="lab">${l}</span><div>${t}</div></div>`).join("");
+  a.hidden = !secs.length;
 }
 function render() {
   if (cur === SWEEP_TAB) {
@@ -1602,7 +1951,12 @@ if (HP.get("win")) {
 }
 if (HP.get("from")) winStart = +HP.get("from");
 if (HP.get("slot")) zoomSlot = +HP.get("slot");
-if (HP.get("mode") || HP.get("win") || HP.get("from") || HP.get("slot")) renderSingle();
+if (HP.get("node")) {
+  const nv = HP.get("node");
+  treeView = (nv === "dag" || nv === "all") ? nv : +nv;
+}
+if (HP.get("phase")) treePhase = HP.get("phase");
+if (HP.get("mode") || HP.get("win") || HP.get("from") || HP.get("slot") || HP.get("node") || HP.get("phase")) renderSingle();
 </script>
 </body>
 </html>
