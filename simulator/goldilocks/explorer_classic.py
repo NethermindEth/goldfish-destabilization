@@ -166,7 +166,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <meta charset="utf-8">
 <title>Goldilocks — Partition, Healing &amp; Attack Explorer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
 :root {
   --bg: #f4f6f9; --panel: #ffffff; --fg: #0f172a; --muted: #475569; --subtle: #64748b;
@@ -175,8 +175,8 @@ TEMPLATE = r"""<!DOCTYPE html>
   --b: #d97706; --bSoft: rgba(217,119,6,0.14);
   --held: #dc2626; --tint: rgba(220,38,38,0.08);
   --heal: #0d9488; --tsq: #16a34a; --g1: #9333ea;
-  --sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: var(--sans);
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0b0f17; --panel: #131b26; --fg: #e2e8f0; --muted: #94a3b8; --subtle: #64748b;
@@ -188,7 +188,8 @@ TEMPLATE = r"""<!DOCTYPE html>
   color-scheme: dark;
 }}
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14.5px; line-height: 1.5; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14.5px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+code { font-family: inherit; }
 .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 20px 64px; display: grid; gap: 20px; }
 header { display: grid; gap: 6px; }
 h1 { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.015em; }
@@ -235,7 +236,7 @@ p { margin: 0; }
 .callout > b:first-child { display: block; margin-bottom: 4px; font-size: 12.5px; }
 canvas { display: block; width: 100%; height: auto; }
 .side-pill {
-  display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px;
+  display: inline-flex; align-items: center; gap: 0; padding: 3px 9px;
   border-radius: 5px; font-weight: 500;
 }
 .side-a { background: var(--aSoft); color: var(--a); border: 1px solid var(--a); }
@@ -256,6 +257,12 @@ table.summary { width: 100%; border-collapse: collapse; font-size: 13px; font-fa
 table.summary th, table.summary td { padding: 7px 10px; border-bottom: 1px solid var(--grid); text-align: left; }
 table.summary th { font-family: var(--sans); font-weight: 600; color: var(--muted); background: var(--bg); }
 #settlePanel[hidden] { display: none; }
+.about { background: var(--panel); border: 1px solid var(--grid); border-left: 3px solid var(--a); border-radius: 8px;
+  padding: 12px 16px; display: grid; gap: 8px; font-size: 14px; line-height: 1.55; max-width: 100ch; }
+.about[hidden] { display: none; }
+.about .sec { display: grid; grid-template-columns: 70px 1fr; gap: 12px; }
+.about .lab { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--subtle); padding-top: 2px; }
+.about p, .about ul { margin: 0; } .about ul { padding-left: 18px; } .about b { color: var(--fg); }
 .tip {
   position: fixed; pointer-events: none; background: var(--panel); border: 1px solid var(--gridStrong);
   border-radius: 6px; padding: 7px 10px; font: 12px/1.45 var(--mono); color: var(--fg);
@@ -267,7 +274,7 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
 <div class="wrap">
   <header>
     <h1>Goldilocks — Partition, Healing &amp; Attack Explorer</h1>
-    <p class="lead">Multi-node discrete-event runs of our executable model of the FGSA spec (22 Oct 2026): Goldilocks available chain (Goldfish with fast and slow locks) + finality gadget (heights, targets, finality pairs). 6 s slots (&Delta; = 1.5 s), 8-slot rounds, lock length k = 4, 64 equal-stake validators.</p>
+    <p class="lead">Seeded runs of our executable model of the Goldilocks spec (FGSA, 22 Oct 2026). Slots of 6 s (&Delta; = 1.5 s), rounds of 8 slots, locks of k = 4 slots, 64 validators of equal stake.</p>
   </header>
 
   <div class="topbar">
@@ -276,23 +283,23 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
 
   <div id="singleView" style="display:grid;gap:20px">
     <div class="facts" id="facts"></div>
-    <div class="facts" id="about" style="display:none;line-height:1.55;border-left:3px solid var(--a);padding-left:12px"></div>
+    <div class="about" id="about" hidden></div>
 
     <section class="panel">
       <div class="panel-head">
-        <h2>1. What each partition side believed, slot by slot</h2>
+        <h2>1. Each node's view, slot by slot</h2>
         <div class="controls">
-          <span>Window size:</span>
+          <span>Window:</span>
           <div class="subtabs" id="winSizeTabs">
-            <button type="button" data-wsize="999" aria-pressed="true">All slots</button>
-            <button type="button" data-wsize="16">16 slots (2r)</button>
-            <button type="button" data-wsize="8">8 slots (1r)</button>
+            <button type="button" data-wsize="999" aria-pressed="true">All</button>
+            <button type="button" data-wsize="16">16 slots</button>
+            <button type="button" data-wsize="8">8 slots</button>
             <button type="button" data-wsize="4">4 slots</button>
             <button type="button" data-wsize="1">1 slot</button>
           </div>
           <div class="subtabs" id="progMode">
             <button type="button" data-mode="slot" aria-pressed="true">Block slot</button>
-            <button type="button" data-mode="lag">Lag (slot − pointer)</button>
+            <button type="button" data-mode="lag">Slots behind</button>
           </div>
         </div>
       </div>
@@ -310,17 +317,13 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
         </div>
       </div>
 
-      <p class="note">Step-function trajectory (vertical jumps at slot <i>x</i>) for <b>Side A</b> (solid blue) vs. <b>Side B</b> (solid orange) across all four protocol layers. Choose a smaller <b>Window size</b> (e.g. <b>16 / 8 / 4 / 1 slot</b>) and drag the slider (or scroll on the plot): <b>each subplot's Y-axis automatically scales to only the values inside the current slot window</b> so you can read individual block indices clearly.</p>
       <div class="legend">
-        <span><i class="sw" style="background:var(--a);height:3.5px"></i>Side A (solid blue)</span>
-        <span><i class="sw" style="background:var(--b);height:3.5px"></i>Side B (solid orange)</span>
-        <span><i class="sw" style="background:#0891b2;border-top:2px dashed #0891b2;height:0"></i>Justified Side A (dashed cyan)</span>
-        <span><i class="sw" style="background:#9333ea;border-top:2px dashed #9333ea;height:0"></i>Justified Side B (dashed purple)</span>
-        <span><i class="dot" style="border:2px solid var(--held)"></i>Points at a block later orphaned</span>
-        <span><i class="dot" style="width:6px;height:6px;background:var(--a)"></i><i class="dot" style="width:6px;height:6px;background:var(--b)"></i> panel 3: every live lock (hollow = later orphaned)</span>
-        <span><i class="dot" style="background:var(--tsq)"></i>anchor = fast lock (&ge; n/2 early votes)</span>
-        <span><i class="sq"></i>no live lock (walk starts at the FG root)</span>
-        <span><i class="dia"></i>anchor = slow lock (k confirmations in a row)</span>
+        <span><i class="sw" style="background:var(--a);height:3.5px"></i>Side A</span>
+        <span><i class="sw" style="background:var(--b);height:3.5px"></i>Side B</span>
+        <span><i class="sw" style="border-top:2px dashed #0891b2;height:0"></i><i class="sw" style="border-top:2px dashed #9333ea;height:0"></i>Justified (A, B)</span>
+        <span><i class="dot" style="border:2px solid var(--held)"></i>Block later orphaned</span>
+        <span><i class="dot" style="width:6px;height:6px;background:var(--a)"></i>Live lock (hollow: later orphaned)</span>
+        <span>Anchor: <i class="dot" style="background:var(--tsq)"></i>fast lock <i class="dia"></i>slow lock <i class="sq"></i>none</span>
       </div>
       <canvas id="prog" style="cursor:grab"></canvas>
       <div class="callouts" id="callouts"></div>
@@ -328,9 +331,9 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
 
     <section class="panel">
       <div class="panel-head">
-        <h2>2. Block tree &amp; confirmation reversals</h2>
+        <h2>2. Block tree</h2>
       </div>
-      <p class="note">Every block of the run. The top row is the final chain every node ends on; lower rows are orphaned branches. Red rings mark blocks that some node showed as its <b>confirmed tip</b> before they were abandoned. Red blocks were proposed by the adversary.</p>
+      <p class="note">Top row: the chain every node ends on. Lower rows: orphaned branches.</p>
       <div class="legend">
         <span><i class="dot" style="background:var(--a)"></i>Proposed by Side A</span>
         <span><i class="dot" style="background:var(--b)"></i>Proposed by Side B</span>
@@ -342,20 +345,20 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
 
     <section class="panel">
       <div class="panel-head">
-        <h2>3. Single-slot sub-slot deadline &amp; message anatomy (1 slot at a time across all nodes)</h2>
+        <h2>3. One slot in detail</h2>
         <div class="controls">
-          <span>Message display:</span>
+          <span>Messages:</span>
           <div class="subtabs" id="msgModeTabs">
-            <button type="button" data-msgmode="waves" aria-pressed="true">Clean Broadcast Waves (recommended)</button>
-            <button type="button" data-msgmode="rays">All Peer-to-Peer Rays</button>
+            <button type="button" data-msgmode="waves" aria-pressed="true">Broadcasts</button>
+            <button type="button" data-msgmode="rays">Every message</button>
           </div>
         </div>
       </div>
 
       <div class="winbar" id="slotBar">
-        <button type="button" class="step-btn" id="sPrevBtn">◀ −1 Slot</button>
+        <button type="button" class="step-btn" id="sPrevBtn">◀ Prev</button>
         <input type="range" id="sSlider" min="1" max="64" value="40" aria-label="Select single slot">
-        <button type="button" class="step-btn" id="sNextBtn">+1 Slot ▶</button>
+        <button type="button" class="step-btn" id="sNextBtn">Next ▶</button>
         <span class="win-readout" id="sReadout">Slot 40 / 64</span>
         <div class="subtabs" id="zoomTabs">
           <button type="button" data-slot="23">s23 (Pre-cut · End r2)</button>
@@ -369,15 +372,15 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
         </div>
       </div>
 
-      <p class="note">Inspects a <b>single 6.0-second slot</b> across all nodes and its internal deadlines: <b>0% (+0.0s)</b> block proposal; <b>25% (+1.5s)</b> each node first moves its locks back against the previous slot's votes (unlocking), then casts its <b>Goldfish vote</b>; <b>50% (+3.0s)</b> support cutoff: only votes resolved before it count as support, and each node runs the <b>confirmation update of the previous slot</b> (confirmed tip, fast/slow lock); on the slot after a round start this is also the FG action: nodes send their <b>attestations</b>; <b>75% (+4.5s)</b> view freeze: the next slot's vote reads only votes received before it, plus the next proposal's vote list. <i>Tip: click any slot on Plot 1 or Plot 2 above, or use the slider / Left &amp; Right arrow keys.</i></p>
 
-      <div class="legend" style="background:var(--bg);padding:8px 12px;border-radius:6px;border:1px solid var(--grid)">
-        <span><i class="dot" style="background:var(--a)"></i><b>0% (+0.0s) dot &amp; rays:</b> the slot's proposer sends its block</span>
-        <span><i class="dot" style="background:var(--g1)"></i><b>25% (+1.5s) purple dots &amp; wave:</b> unlocking, then every node sends its <b>Goldfish vote</b></span>
-        <span><i class="dot" style="border:2px solid var(--g1);background:var(--panel)"></i><b>50% (+3.0s) purple ring:</b> support cutoff and confirmation update (Head / Confirmed shown) · <i class="dot" style="background:var(--tsq)"></i> green: FG attestations (action slot)</span>
-        <span><i class="sq" style="background:var(--fg);border-color:var(--fg)"></i><b>75% (+4.5s) black square:</b> view freeze for the next slot's vote</span>
-        <span><i class="sw" style="background:var(--held);border-top:2px dashed var(--held);height:0"></i><b>Red dashed:</b> held by the partition cut</span>
-        <span><i class="sw" style="background:var(--held);height:3.5px"></i><b>Top row, red:</b> adversary messages (blocks blue, votes purple, attestations green)</span>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--a)"></i>Proposal (+0 s)</span>
+        <span><i class="dot" style="background:var(--g1)"></i>Unlock and vote (+1.5 s)</span>
+        <span><i class="dot" style="border:2px solid var(--g1);background:var(--panel)"></i>Confirmation update (+3 s)</span>
+        <span><i class="dot" style="background:var(--tsq)"></i>FG attestations</span>
+        <span><i class="sq" style="background:var(--fg);border-color:var(--fg)"></i>View freeze (+4.5 s)</span>
+        <span><i class="sw" style="border-top:2px dashed var(--held);height:0"></i>Held by the cut</span>
+        <span><i class="sw" style="background:var(--held);height:3.5px"></i>Top row: adversary</span>
       </div>
 
       <canvas id="net"></canvas>
@@ -511,7 +514,7 @@ function clampZoomSlot(maxSlot, spr, slotMs) {
   const posInRound = (zoomSlot % spr) + 1;
   const t0s = (zoomSlot * slotMs / 1000).toFixed(1);
   const t1s = ((zoomSlot + 1) * slotMs / 1000).toFixed(1);
-  $("sReadout").textContent = `Slot ${zoomSlot} / ${maxSlot} · Round ${rIdx} (slot ${posInRound} of ${spr}) · t = ${t0s}s–${t1s}s`;
+  $("sReadout").textContent = `Slot ${zoomSlot} of ${maxSlot} · round ${rIdx}, slot ${posInRound} of ${spr}`;
   [...$("zoomTabs").querySelectorAll("button")].forEach(b => {
     b.setAttribute("aria-pressed", +b.dataset.slot === zoomSlot);
   });
@@ -548,19 +551,19 @@ function renderSlotDetails(run, s, T, shareA, final) {
   const fmtEv = es => es.length ? es.map(e => e[2]).join("<br>") : "—";
   const step1Body = (propNode !== null && propNode >= 0
     ? `<b>${propSide}</b> proposes <b>Block #${s}</b> on <b>#${propParentSlot}</b>${propOrphaned ? ' <span class="delta-down">(later orphaned)</span>' : ''}. ` +
-      (inCut ? `Delivered to its own side; <b>held across the cut</b> until slot ${cutB}.` : `Delivered to every node within +0.2s.`)
-    : (Object.values(run.blocks).some(b => b[0] === s && b[2] < 0) ? `<b>The adversary</b> proposes in slot ${s} (see the top row for who gets what, and when).` : `No block proposed in slot ${s}.`)) +
+      (inCut ? `Delivered to its own side; <b>held across the cut</b> until slot ${cutB}.` : ``)
+    : (Object.values(run.blocks).some(b => b[0] === s && b[2] < 0) ? `<b>The adversary</b> proposes in slot ${s}.` : `No block proposed in slot ${s}.`)) +
     (isHealSlot ? `<br><span style="color:var(--heal);font-weight:700">GST heal:</span> held blocks and votes of slots ${cutA}–${cutB - 1} arrive.` : "") +
-    ((run.advNotes[s] || []).length ? `<br><b style="color:var(--held)">Adversary deliveries (top row):</b><br>` + run.advNotes[s].map(([at, l]) => `• ${l}`).join("<br>") : "");
-  const step2Body = `First <b>unlocking</b> against the slot-${s - 1} votes: a lock moves back to the deepest ancestor with fewer than n/2 opponents. Then every node sends its <b>Goldfish vote</b> for the head of its frozen view (walk from its anchor).<br>` + fmtEv(evFor(["unlock"]));
-  const step3Body = `<b>Support cutoff</b> for slot-${s} votes. The <b>confirmation update of slot ${s - 1}</b> runs: voters = every slot-${s - 1} vote held; support = early non-equivocating votes; the walk takes strict majorities of the voters; the deepest block with &ge; n/2 support is <b>fast-locked</b>, or after k confirmations in a row <b>slow-locked</b>.<br>` + fmtEv(evFor(["confirm"])) +
-    (isAct ? `<br><b>FG action (round ${rIdx}):</b> each node gives the deepest fast-confirmed block (fg_confirmed) to the FG and attests.<br>` + fmtEv(evFor(["fg"])) : "");
-  const step4Body = `<b>View freeze</b>: the slot-${s + 1} vote will read only slot-${s} votes received before +4.5s, plus the vote list of the slot-${s + 1} proposal.`;
+    ((run.advNotes[s] || []).length ? `<br><b style="color:var(--held)">Adversary deliveries:</b><br>` + run.advNotes[s].map(([at, l]) => `• ${l}`).join("<br>") : "");
+  const step2Body = `Locks with n/2 or more opponents among the slot-${s - 1} votes move back; then each node votes.<br>` + fmtEv(evFor(["unlock"]));
+  const step3Body = `Update of slot ${s - 1}: the deepest block with a strict majority of the voters is confirmed, and fast-locked with n/2 support or more.<br>` + fmtEv(evFor(["confirm"])) +
+    (isAct ? `<br><b>FG action (round ${rIdx}):</b> each node attests to its deepest recent fast-locked block.<br>` + fmtEv(evFor(["fg"])) : "");
+  const step4Body = `The slot-${s + 1} vote reads only the slot-${s} votes received before this point, plus those in the slot-${s + 1} proposal.`;
   $("slotStepCards").innerHTML = `
-    <div class="callout" style="border-left-color:var(--a)"><b>① 0% (+0.0s) · Block Proposal${isRb ? " (round start)" : ""}</b>${step1Body}</div>
-    <div class="callout" style="border-left-color:var(--g1)"><b>② 25% (+1.5s) · Unlock + Goldfish Vote</b>${step2Body}</div>
-    <div class="callout" style="border-left-color:var(--tsq)"><b>③ 50% (+3.0s) · Cutoff + Confirmation Update${isAct ? " + FG" : ""}</b>${step3Body}</div>
-    <div class="callout" style="border-left-color:var(--fg)"><b>④ 75% (+4.5s) · View Freeze</b>${step4Body}</div>
+    <div class="callout" style="border-left-color:var(--a)"><b>Proposal · +0 s${isRb ? " · round start" : ""}</b>${step1Body}</div>
+    <div class="callout" style="border-left-color:var(--g1)"><b>Unlock and vote · +1.5 s</b>${step2Body}</div>
+    <div class="callout" style="border-left-color:var(--tsq)"><b>Confirmation update · +3 s${isAct ? " · FG action" : ""}</b>${step3Body}</div>
+    <div class="callout" style="border-left-color:var(--fg)"><b>View freeze · +4.5 s</b>${step4Body}</div>
   `;
 
   // Per-side state comparison table
@@ -590,19 +593,19 @@ function renderSlotDetails(run, s, T, shareA, final) {
       <td>${fmtDelta(n[2], p ? p[2] : null, safeOrph)}</td>
       <td>${fmtDelta(n[4], p ? p[4] : null, false)} · ${srcLabel}</td>
       <td>Justified <b>#${n[7]}</b> / Finalized <b>#${n[6]}</b> (height h=${n[8]})</td>
-      <td><code>${(run.locks[s] && run.locks[s][i]) || "none"}</code></td>
+      <td>${(run.locks[s] && run.locks[s][i]) || "none"}</td>
     </tr>`;
   }).join("");
 
   $("slotStateTable").innerHTML = `
     <table class="summary">
       <thead><tr>
-        <th>Side (Nodes &amp; Validators)</th>
-        <th>Head Block</th>
-        <th>Confirmed Tip</th>
-        <th>Anchor (deepest lock)</th>
-        <th>FG Checkpoints (Height)</th>
-        <th>Live Locks (block→deadline slot)</th>
+        <th>Node</th>
+        <th>Head</th>
+        <th>Confirmed tip</th>
+        <th>Anchor</th>
+        <th>Finality</th>
+        <th>Live locks (block → expiry)</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
@@ -634,17 +637,17 @@ function renderSingle() {
 
   // Top facts bar with explicit Side A / Side B node & validator membership
   const sideBadges = sides
-    ? `<span class="side-pill side-a"><b>Side A</b>: Nodes 0–${cfg.split - 1} (${sideVals(run, 0)} honest validators)</span>` +
-      `<span class="side-pill side-b"><b>Side B</b>: Nodes ${cfg.split}–${cfg.nodes - 1} (${sideVals(run, 1)} honest validators)</span>`
-    : `<span class="side-pill side-a"><b>All nodes</b>: Nodes 0–${cfg.nodes - 1} (${sideVals(run, 0)} honest validators)</span>`;
-  const advBadge = run.adv ? `<span class="side-pill" style="border-color:var(--held);color:var(--held)"><b>Adversary</b>: ${run.adv} faulty validators (${Math.round(100 * run.adv / cfg.validators)}%), its own row in panel 3</span>` : "";
+    ? `<span class="side-pill side-a"><b>Side A</b>: ${nodeRange(0, cfg.split - 1)} (${sideVals(run, 0)} honest validators)</span>` +
+      `<span class="side-pill side-b"><b>Side B</b>: ${nodeRange(cfg.split, cfg.nodes - 1)} (${sideVals(run, 1)} honest validators)</span>`
+    : `<span class="side-pill side-a"><b>All nodes</b>: ${nodeRange(0, cfg.nodes - 1)} (${sideVals(run, 0)} honest validators)</span>`;
+  const advBadge = run.adv ? `<span class="side-pill" style="border-color:var(--held);color:var(--held)"><b>Adversary</b>: ${run.adv} faulty validators (${Math.round(100 * run.adv / cfg.validators)}%)</span>` : "";
 
   const meta = run.meta || null;
   $("facts").innerHTML =
     (meta && meta.facts ? meta.facts : sideBadges + advBadge) +
     (meta && meta.facts ? "" : "") +
     (cut && !(meta && meta.facts) ? `<span>partition <b>slots ${cutA}–${cutB - 1} (D=${cfg.slots_down})</b> · GST heal at <b>slot ${cutB}</b></span>` : "") +
-    `<span>latency <b>${cfg.latency_ms}+U[0,${cfg.jitter_ms}] ms</b></span>` +
+    `<span>latency <b>${cfg.latency_ms}${cfg.jitter_ms ? `–${cfg.latency_ms + cfg.jitter_ms}` : ""} ms</b></span>` +
     `<span>seed <b>${cfg.seed}</b></span>`;
 
   renderCallouts(run, shareA);
@@ -652,18 +655,18 @@ function renderSingle() {
   // ---------- 1. Node Beliefs (Windowed X-axis + Auto-Scaling Y-axis) ----------
   const W = 1120;
   const panels = [
-    ["1. Head slot (ac_head)", 0, 1, "head"],
-    ["2. Confirmed tip (ac_confirmed: the confirmation update + locks)", 2, 3, "safe"],
-    ["3. Locks: every live lock (dots) and the anchor, the deepest one (line: fast ● / slow ◆ / no lock □)", 4, 5, "stable"],
-    ["4. Finality gadget: Finalized (solid blue/orange) & Justified (dashed cyan/purple) + FG height h", 6, null, "fin"],
+    ["Head", "the head block", 0, 1, "head"],
+    ["Confirmed tip", "the confirmed block", 2, 3, "safe"],
+    ["Locks", "each locked block (dots) and the anchor, the deepest lock (line)", 4, 5, "stable"],
+    ["Finality", "the finalized (solid) and justified (dashed) checkpoint; h = FG height", 6, null, "fin"],
   ];
   const ph = 138, gap = 36, PH = panels.length * (ph + gap) + 20;
   const pc = setup($("prog"), W, PH);
-  const L = 58, R = 48;
+  const L = 66, R = 48;
   const PX = s => L + ((s - xMinSlot) / Math.max(0.5, xMaxSlot - xMinSlot)) * (W - L - R);
   const idxA = 0, idxB = cfg.nodes - 1;
 
-  panels.forEach(([label, si, ri, kind], k) => {
+  panels.forEach(([label, what, si, ri, kind], k) => {
     const y0 = 18 + k * (ph + gap);
     const isLag = progMode === "lag";
     const valOf = (s, nstate, idx) => {
@@ -707,15 +710,18 @@ function renderSingle() {
     const PY = v => y0 + 22 + (1 - (v - yMin) / Math.max(1, yMax - yMin)) * (ph - 30);
 
     pc.fillStyle = T.fg; pc.font = "600 13px " + css("--sans"); pc.textAlign = "left";
-    pc.fillText(
-      label + (isLag ? " — lag (slots behind current)" : "") + (winSize < maxSlot ? `  [Y-axis: ${yMin}..${yMax}]` : ""),
-      L, y0 + 10
-    );
+    pc.fillText(label, L, y0 + 10);
+    const lw = pc.measureText(label).width;
+    pc.fillStyle = T.muted; pc.font = "12px " + css("--sans");
+    pc.fillText((isLag ? "  ·  how many slots behind the current slot: " : "  ·  slot of ") + what, L + lw, y0 + 10);
+    pc.save(); pc.translate(16, y0 + 22 + (ph - 30) / 2); pc.rotate(-Math.PI / 2);
+    pc.textAlign = "center"; pc.fillStyle = T.subtle; pc.font = "11px " + css("--sans");
+    pc.fillText(isLag ? "slots behind" : "slot", 0, 0); pc.restore();
     pc.font = "11px " + css("--mono");
 
     // Determine clean integer tick step for [yMin, yMax]
     const ySpan = yMax - yMin;
-    const yStep = ySpan <= 8 ? 1 : (ySpan <= 18 ? 2 : (ySpan <= 36 ? 4 : (ySpan <= 48 ? 8 : 16)));
+    const yStep = [1, 2, 4, 5, 8, 10, 16, 20, 32, 50].find(st => ySpan / st <= 5) || 64;
     const firstTick = Math.ceil(yMin / yStep) * yStep;
     for (let v = firstTick; v <= yMax; v += yStep) {
       const yy = PY(v);
@@ -810,8 +816,8 @@ function renderSingle() {
           const st = ns[ni], slots = st[11] || [], roots = st[12] || [];
           slots.forEach((ls, j) => {
             const x = PX(s) + (sides ? dx : 0), y = PY(isLag ? s - ls : ls), orph = roots[j] && !final.has(roots[j]);
-            pc.globalAlpha = 0.8;
-            pc.beginPath(); pc.arc(x, y, 2.7, 0, 7);
+            pc.globalAlpha = 0.55;
+            pc.beginPath(); pc.arc(x, y, 2.2, 0, 7);
             if (orph) { pc.fillStyle = T.panel; pc.fill(); pc.strokeStyle = col; pc.lineWidth = 1.3; pc.stroke(); }
             else { pc.fillStyle = col; pc.fill(); }
             pc.globalAlpha = 1;
@@ -881,7 +887,6 @@ function renderSingle() {
           if (stSrc === "G1") {
             pc.fillStyle = T.g1;
             pc.beginPath(); pc.moveTo(x, y - 6); pc.lineTo(x + 6, y); pc.lineTo(x, y + 6); pc.lineTo(x - 6, y); pc.closePath(); pc.fill();
-            pc.fillStyle = T.g1; pc.textAlign = "left"; pc.fillText(`${stSlot} (slow)`, x + 8, y + 12);
           } else if (stSrc === "FLOOR") {
             pc.fillStyle = T.panel; pc.strokeStyle = T.held; pc.lineWidth = 2;
             pc.fillRect(x - 4.5, y - 4.5, 9, 9); pc.strokeRect(x - 4.5, y - 4.5, 9, 9);
@@ -889,7 +894,6 @@ function renderSingle() {
           } else if (stSrc === "TSQ") {
             pc.fillStyle = T.tsq;
             pc.beginPath(); pc.arc(x, y, 4, 0, 7); pc.fill();
-            pc.textAlign = "left"; pc.fillText(`${stSlot}`, x + 5, y - 6);
           }
         });
       }
@@ -1025,12 +1029,9 @@ function renderSingle() {
   // Title banner
   nc.fillStyle = T.fg; nc.font = "600 13.5px " + css("--sans"); nc.textAlign = "left";
   const statusStr = inCut
-    ? `PARTITION ACTIVE (cross-side messages blocked & held until slot ${cutB})`
-    : (isHealSlot ? `GST HEAL SLOT (held messages from slots ${cutA}–${cutB - 1} arrive)` : `Synchronous delivery (~0.2s latency)`);
-  nc.fillText(
-    `Slot ${s} Timeline (Round ${rIdx}, t = ${(t0 / 1000).toFixed(1)}s … ${(t1 / 1000).toFixed(1)}s) — ${statusStr}`,
-    6, 16
-  );
+    ? `partition: messages across the cut held until slot ${cutB}`
+    : (isHealSlot ? `heal: the messages held since slot ${cutA} arrive` : "");
+  nc.fillText(`Slot ${s} (round ${rIdx})` + (statusStr ? ` · ${statusStr}` : ""), 6, 16);
 
   // Shaded background & partition barrier line if in cut
   if (inCut) {
@@ -1043,11 +1044,11 @@ function renderSingle() {
 
   // Sub-slot deadlines: 0%, 25%, 50%, 75%, 100% with plain-English headers
   const dSpecs = [
-    [0, `0% (+0.0s)`, isRb ? "① Propose Block (round start)" : "① Propose Block", T.a, true],
-    [run.deadlines[0], `25% (+1.5s)`, "② Unlock + Goldfish Vote", T.g1, false],
-    [run.deadlines[1], `50% (+3.0s)`, isAct ? "③ Cutoff + Update + FG Attest" : "③ Support Cutoff + Update", T.g1, false],
-    [run.deadlines[2], `75% (+4.5s)`, "④ View Freeze", T.fg, false],
-    [run.slotMs, `100% (+6.0s)`, `Slot ${s + 1} starts`, T.muted, true],
+    [0, "+0 s", isRb ? "Proposal (round start)" : "Proposal", T.a, true],
+    [run.deadlines[0], "+1.5 s", "Unlock and vote", T.g1, false],
+    [run.deadlines[1], "+3 s", isAct ? "Update and FG attestations" : "Confirmation update", T.g1, false],
+    [run.deadlines[2], "+4.5 s", "View freeze", T.fg, false],
+    [run.slotMs, "+6 s", `Slot ${s + 1}`, T.muted, true],
   ];
   dSpecs.forEach(([off, lbl1, lbl2, col, strong]) => {
     const x = ZX(t0 + off);
@@ -1070,7 +1071,7 @@ function renderSingle() {
     nc.beginPath(); nc.moveTo(NL, y); nc.lineTo(NW - NR, y); nc.stroke();
     nc.fillStyle = col; nc.font = "600 11px " + css("--mono"); nc.textAlign = "left";
     const sideStr = !sides ? "Honest" : (grp === 0 ? "Side A" : "Side B");
-    nc.fillText(`Node ${n} · ${sideStr} (Val ${v0}–${v1})`, 6, y + 4);
+    nc.fillText(sides ? `Node ${n} · ${sideStr}` : `Node ${n}`, 6, y + 4);
   }
 
   // Helper to draw a pill label with background so text never clashes with lines
@@ -1093,7 +1094,7 @@ function renderSingle() {
     nc.strokeStyle = T.held; nc.lineWidth = 1; nc.setLineDash([3, 3]);
     nc.beginPath(); nc.moveTo(NL, y); nc.lineTo(NW - NR, y); nc.stroke(); nc.setLineDash([]);
     nc.fillStyle = T.held; nc.font = "600 11px " + css("--mono"); nc.textAlign = "left";
-    nc.fillText(`Adversary (${run.adv} faulty val.)`, 6, y + 4);
+    nc.fillText(`Adversary (${run.adv} validators)`, 6, y + 4);
     // every adversary delivery in this slot: a line from its row to the receiving node at the arrival time
     const kcol = [T.a, T.tsq, T.g1];
     run.msgs.forEach(([t, at, src, dst, k]) => {
@@ -1199,8 +1200,6 @@ function renderSingle() {
     }
   }
   // Label the two 25% broadcast waves and the 50% confirmation check in the dedicated footer strip below Node 7
-  drawPill(x25Start - 6, ny0 + nph + 22, "▲ @25%: unlock, then Goldfish votes sent", T.g1, T.g1, "left");
-  drawPill(ZX(t0 + run.deadlines[1]) - 6, ny0 + nph + 22, isAct ? "▲ @50%: confirmation update + FG attestations" : "▲ @50%: support cutoff + confirmation update", T.g1, T.g1, "left");
 
   // Draw per-node markers & plain-English state badges at 25%, 50%, 75%
   // Each column is 225px wide, so every pill is kept <= 205px wide to stay strictly inside its own column!
@@ -1231,12 +1230,12 @@ function renderSingle() {
     const confOrph = nst[3] && run.blocks[nst[3]] && !final.has(nst[3]);
     if (headChanged || safeDrop) {
       const reorgTxt = headChanged
-        ? `REORG: Head #${pnst[0]}→#${nst[0]} · Conf=#${nst[2]}`
-        : `Confirmed steps back #${pnst[2]}→#${nst[2]}`;
+        ? `reorg: head ${pnst[0]} → ${nst[0]} · confirmed ${nst[2]}`
+        : `confirmed steps back ${pnst[2]} → ${nst[2]}`;
       drawPill(x50 + 16, y - 6, reorgTxt, T.held, T.held, "left");
     } else {
       nc.fillStyle = confOrph ? T.held : T.fg; nc.font = (confOrph ? "600 " : "") + "10px " + css("--mono"); nc.textAlign = "left";
-      nc.fillText(`Head=#${nst[0]} · Conf=#${nst[2]}${confOrph ? " (later orphaned)" : ""}`, x50 + 16, y + 3);
+      nc.fillText(`head ${nst[0]} · confirmed ${nst[2]}${confOrph ? " (later orphaned)" : ""}`, x50 + 16, y + 3);
     }
 
     // 75% (+4.5s): Black square = Incoming vote cutoff (and on round end: Freeze Round Vote Snapshot inside [75%, 100%] column!)
@@ -1245,7 +1244,7 @@ function renderSingle() {
     nc.fillRect(x75 - sqSize / 2, y - sqSize / 2, sqSize, sqSize);
     if (isRepNode) {
       nc.fillStyle = T.muted; nc.font = "9.5px " + css("--mono"); nc.textAlign = "left";
-      nc.fillText(`Locks: ${(run.locks[s] && run.locks[s][n]) || "none"}`, x75 + 7, y + 3);
+      nc.fillText(`locks ${(run.locks[s] && run.locks[s][n]) || "none"}`, x75 + 7, y + 3);
     }
   }
 }
@@ -1438,13 +1437,15 @@ function applyMeta(run) {
   $("zoomTabs").innerHTML = m && m.zooms ? m.zooms.map(([l, v]) => btn("slot", v, l)).join("") : DEF_ZOOM;
 }
 
+function nodeRange(a, b) { return a === b ? `node ${a}` : `nodes ${a}–${b}`; }
 function sideVals(run, g) {
   return run.vals.reduce((a, v, i) => a + (run.groupOf[i] === g ? v : 0), 0);
 }
 function renderAbout(run) {
-  const a = $("about"), m = (run.meta || {}).about;
-  a.innerHTML = m ? "<b>About this experiment</b><br>" + m : "";
-  a.style.display = m ? "block" : "none";
+  const a = $("about"), m = run.meta || {};
+  const secs = [["Goal", m.goal], ["Setup", m.setup], ["How", m.how], ["Result", m.result]].filter(x => x[1]);
+  a.innerHTML = secs.map(([l, t]) => `<div class="sec"><span class="lab">${l}</span><div>${t}</div></div>`).join("");
+  a.hidden = !secs.length;
 }
 function render() {
   if (cur === SWEEP_TAB) {

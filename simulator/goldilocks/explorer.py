@@ -111,7 +111,7 @@ def compact(path, name):
 
 def main(argv):
     meta = {}
-    if "--meta" in argv:  # {run name: {"about": html, "slot": focus slot}}
+    if "--meta" in argv:  # {run name: {"goal", "setup", "how", "result": html, "slot": focus slot}}
         i = argv.index("--meta")
         with open(argv[i + 1]) as fh:
             meta = json.load(fh)
@@ -157,7 +157,7 @@ border-radius:999px;padding:3px 10px;cursor:pointer}.runs button.on{background:v
 svg{display:block;width:100%;height:auto;overflow:visible}svg text{fill:var(--ink2);font-size:10px}
 .scroll{overflow-x:auto}table{border-collapse:collapse;font-variant-numeric:tabular-nums;width:100%}th,td{padding:3px 8px;border-bottom:1px solid var(--grid);text-align:left;white-space:nowrap}
 th{color:var(--ink2);font-weight:600}.tip{position:fixed;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;
-box-shadow:0 4px 14px rgba(0,0,0,.15);font-size:12px;display:none;z-index:9;max-width:340px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+box-shadow:0 4px 14px rgba(0,0,0,.15);font-size:12px;display:none;z-index:9;max-width:340px}.mono{font-variant-numeric:tabular-nums;font-size:12px}
 .row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}@media(max-width:900px){.row2{grid-template-columns:1fr}}
 .nav{display:flex;gap:6px;align-items:center}.nav button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:1px 8px;cursor:pointer}
 .about{display:none;margin-top:10px;background:var(--surface);border:1px solid var(--grid);border-left:3px solid var(--s1);border-radius:8px;padding:10px 12px;line-height:1.55;max-width:1100px}
@@ -359,7 +359,7 @@ function renderMsgs(){
     hit.addEventListener("mousemove",ev=>{let w=["block "+bname(m[6]),"votes: "+(m[6]||[]).map(([h,c])=>c+"×"+bname(h)).join(", "),`attestations ×${m[6][5]}: (h ${m[6][0]}, ${bname(m[6][1])}${m[6][2]?", timeout":""})${m[6][3]!=null?` fin (${m[6][3]}, ${bname(m[6][4])})`:""}`][m[4]];
       showTip(ev,`<b>${w}</b><br>${m[2]<0?"adversary":"node "+m[2]} → node ${m[3]}<br>sent ${m[0]} ms · arrives ${m[1]} ms${m[5]?" · <b>held by the cut</b>":""}`)});hit.addEventListener("mouseleave",hideTip)});
 }
-function about(){const a=$("about"),m=(R.meta||{}).about;a.innerHTML=m?"<b>About this experiment</b>"+m:"";a.style.display=m?"block":"none"}
+function about(){const a=$("about"),m=R.meta||{},secs=[["Goal",m.goal],["Setup",m.setup],["How",m.how],["Result",m.result]].filter(x=>x[1]);a.innerHTML=secs.map(([l,t])=>`<p><b>${l}.</b> ${t}</p>`).join("");a.style.display=secs.length?"block":"none"}
 function pick(i){prepare(RUNS[i]);about();document.querySelectorAll(".runs button").forEach((b,j)=>b.classList.toggle("on",i===j));chips();renderSel();try{localStorage.setItem("gl-run",i)}catch(e){}}
 const _renderSel=renderSel;renderSel=function(){_renderSel();try{history.replaceState(null,"",`#run=${R.name}&slot=${SEL}`)}catch(e){}};
 RUNS.forEach((r,i)=>{const b=document.createElement("button");b.textContent=r.name;b.onclick=()=>{SEL=0;pick(i)};$("runs").appendChild(b)});
