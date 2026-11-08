@@ -1260,15 +1260,15 @@ function renderSingle() {
           tc.beginPath(); tc.arc(bx, y, 13, 0, 7); tc.stroke();
           tc.strokeStyle = T.heal; tc.lineWidth = 2.0;
           tc.beginPath(); tc.arc(bx, y, 9.5, 0, 7); tc.stroke();
-          drawTreeBadge(tc, bx, y - 22, `Head & Conf #${b.slot}`, nodeCol, T.panel);
+          drawTreeBadge(tc, bx, y - 22, "Head & Conf", nodeCol, T.panel);
         } else if (isHead) {
           tc.strokeStyle = nodeCol; tc.lineWidth = 2.4;
           tc.beginPath(); tc.arc(bx, y, 12, 0, 7); tc.stroke();
-          drawTreeBadge(tc, bx, y - 20, `Head #${b.slot}`, nodeCol, T.panel);
+          drawTreeBadge(tc, bx, y - 20, "Head", nodeCol, T.panel);
         } else if (isConf) {
           tc.strokeStyle = T.heal; tc.lineWidth = 2.2;
           tc.beginPath(); tc.arc(bx, y, 10.5, 0, 7); tc.stroke();
-          drawTreeBadge(tc, bx, y - 19, `Conf #${b.slot}`, T.heal, T.panel);
+          drawTreeBadge(tc, bx, y - 19, "Conf", T.heal, T.panel);
         } else if (isLock) {
           tc.strokeStyle = T.g1; tc.lineWidth = 1.8;
           tc.beginPath(); tc.arc(bx, y, 8.5, 0, 7); tc.stroke();
