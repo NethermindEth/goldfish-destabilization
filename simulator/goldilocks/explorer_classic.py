@@ -301,8 +301,8 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
           </div>
           <span>Y axis:</span>
           <div class="subtabs" id="progMode">
-            <button type="button" data-mode="slot" aria-pressed="true">Block number</button>
-            <button type="button" data-mode="lag">Lag (blocks behind)</button>
+            <button type="button" data-mode="slot" aria-pressed="true">Block (by slot)</button>
+            <button type="button" data-mode="lag">Lag (slots behind)</button>
           </div>
         </div>
       </div>
@@ -692,12 +692,12 @@ function renderSingle() {
 
   // Populate Section 2 treeViewTabs & treePhaseTabs
   const tvContainer = $("treeViewTabs");
-  let tvHtml = `<button type="button" data-tview="all"${treeView === "all" ? ' aria-pressed="true"' : ""}>All nodes (swimlanes)</button>`;
+  let tvHtml = `<button type="button" data-tview="all"${treeView === "all" ? ' aria-pressed="true"' : ""}>All nodes</button>`;
   for (let i = 0; i < cfg.nodes; i++) {
     const grp = sides ? (i < cfg.split ? " (A)" : " (B)") : "";
     tvHtml += `<button type="button" data-tview="${i}"${treeView === i ? ' aria-pressed="true"' : ""}>Node ${i}${grp}</button>`;
   }
-  tvHtml += `<button type="button" data-tview="dag"${treeView === "dag" ? ' aria-pressed="true"' : ""}>Global tree (DAG)</button>`;
+  tvHtml += `<button type="button" data-tview="dag"${treeView === "dag" ? ' aria-pressed="true"' : ""}>Final chain</button>`;
   tvContainer.innerHTML = tvHtml;
   [...tvContainer.querySelectorAll("button")].forEach(b => {
     b.onclick = () => {
@@ -801,10 +801,10 @@ function renderSingle() {
     pc.fillText(label, L, y0 + 10);
     const lw = pc.measureText(label).width;
     pc.fillStyle = T.muted; pc.font = "12px " + css("--sans");
-    pc.fillText((isLag ? "  ·  blocks behind current slot: " : "  ·  ") + what, L + lw, y0 + 10);
+    pc.fillText((isLag ? "  ·  slots behind the current slot: " : "  ·  ") + what, L + lw, y0 + 10);
     pc.save(); pc.translate(16, y0 + 22 + (ph - 30) / 2); pc.rotate(-Math.PI / 2);
     pc.textAlign = "center"; pc.fillStyle = T.subtle; pc.font = "11px " + css("--sans");
-    pc.fillText(isLag ? "blocks behind" : "block", 0, 0); pc.restore();
+    pc.fillText(isLag ? "slots behind" : "block (by slot)", 0, 0); pc.restore();
     pc.font = "11px " + css("--mono");
 
     // Determine clean integer tick step for [yMin, yMax]
@@ -1040,7 +1040,7 @@ function renderSingle() {
   // Update note text
   const noteEl = $("treeNote");
   if (treeView === "dag") {
-    noteEl.innerHTML = `Global tree (DAG): top row is the final canonical chain; lower rows are orphaned branches. Blue stripe highlights slot <b>${curSlot}</b>. Scroll left to right to inspect blocks.`;
+    noteEl.innerHTML = `Final chain: top row is the final chain; lower rows are orphaned branches. Blue stripe highlights slot <b>${curSlot}</b>. Scroll left to right to inspect blocks.`;
   } else if (treeView === "all") {
     noteEl.innerHTML = `All nodes at slot <b>${curSlot}</b> (${treePhase === "25" ? "@25% vote" : "slot end"}): each row shows that node's active canonical chain. Rings mark live locks and confirmed tips. Scroll left to right.`;
   } else {
