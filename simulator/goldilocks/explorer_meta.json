@@ -1,7 +1,6 @@
 {
- "01 honest": {
+ "01 Honest Run": {
   "slot": 24,
-  "about": "<p>All 64 validators honest, on 4 nodes, 200 ms latency. This is the reference run: the confirmed tip runs one slot behind the head, each node holds k = 4 live locks (yellow dots), and the finalized tip draws a sawtooth 16–24 slots behind: one FG height per 8-slot round, finalized two rounds after its target.</p>",
   "jumps": [
    [
     "Slots 8–16",
@@ -25,11 +24,13 @@
     "s24",
     24
    ]
-  ]
+  ],
+  "goal": "Establish the reference behaviour with no faults: how far the confirmed and finalized checkpoints run behind the head.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency.",
+  "result": "The confirmed tip runs one slot behind the head. Each node holds up to k = 4 live locks. The finalized checkpoint runs 16–24 slots behind: one finality height per 8-slot round, finalized two rounds after its target."
  },
- "02 partition 50-50": {
+ "02 Partition 50/50": {
   "slot": 56,
-  "about": "<p>Two halves of 32 validators each (nodes 0,1 | 2,3), cut for slots 48–63, no adversary. Each half confirms its own branch and passes the fast test (32 ≥ n/2), so <b>both halves fast-lock conflicting branches</b>. Neither reaches q = 43, so finality stalls.</p><p>At the heal each lock has exactly 32 opponents and moves back to the last common block: every block of the cut is discarded on both sides (hollow). Heads agree at once, and finality resumes within two rounds.</p>",
   "jumps": [
    [
     "Cut start (s48)",
@@ -65,11 +66,13 @@
     "s65",
     65
    ]
-  ]
+  ],
+  "goal": "See what an even network split does to confirmations, locks and finality, and how the network heals.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency. Nodes 0–1 and 2–3 are cut apart for slots 48–63.",
+  "result": "Each half confirms and fast-locks its own branch (32 votes, exactly n/2). Neither reaches the quorum of 43, so finality stalls. At the heal every lock has exactly 32 opponents and moves back: <b>every block of the cut is discarded on both sides</b> (hollow dots). Heads agree at once and finality resumes within two rounds."
  },
- "03 partition 75-25": {
+ "03 Partition 75/25": {
   "slot": 60,
-  "about": "<p>Cut 48–63 with 48 validators on one side and 16 on the other. The majority does not notice the cut: it keeps confirming, fast-locking and finalizing. The minority confirms its own blocks and slow-locks them after k = 4 confirmations. At the heal the majority's votes unlock the minority, which reorgs onto the majority chain (depth 3).</p>",
   "jumps": [
    [
     "Cut start (s48)",
@@ -105,11 +108,13 @@
     "s65",
     65
    ]
-  ]
+  ],
+  "goal": "See whether the majority side of an uneven split notices it, and how the minority recovers.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency. Nodes 0–2 (48 validators) and node 3 (16) are cut apart for slots 48–63.",
+  "result": "The majority keeps confirming, fast-locking and finalizing as if nothing happened. The minority confirms its own blocks and slow-locks them after k = 4 confirmations. At the heal the majority's votes unlock the minority, which reorgs onto the majority chain (depth 3)."
  },
- "04 partition 52-48": {
+ "04 Partition 52/48": {
   "slot": 60,
-  "about": "<p>Cut 48–63 with 33 validators against 31. Only the 33-side passes the fast test (66 ≥ 64). At the heal its locks have 31 opponents (fewer than n/2) and survive, while the 31-side's locks have 33 and move back. The larger side's branch wins and the other side reorgs (depth 7).</p>",
   "jumps": [
    [
     "Cut start (s48)",
@@ -145,11 +150,13 @@
     "s65",
     65
    ]
-  ]
+  ],
+  "goal": "See which side wins when a split leaves one side just above n/2 and the other just below.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency. 33 validators are cut from the other 31 for slots 48–63.",
+  "result": "Only the 33-side passes the fast test (66 ≥ 64). At the heal its locks have 31 opponents, fewer than n/2, and survive; the 31-side's locks have 33 and move back. The larger side's branch wins and the other side reorgs (depth 7)."
  },
- "05 long cut 50-50": {
+ "05 Long Partition 50/50": {
   "slot": 112,
-  "about": "<p>As tab 02, but the cut lasts 64 slots (48–111). Each node discards 28–35 confirmed blocks, and finality stalls for 8 rounds and then resumes. Healing is still immediate: no lock survives the heal.</p>",
   "jumps": [
    [
     "Cut start (s48)",
@@ -185,11 +192,13 @@
     "s113",
     113
    ]
-  ]
+  ],
+  "goal": "Check whether a long even split heals as fast as the short one of tab 02.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency. Nodes 0–1 and 2–3 are cut apart for 64 slots (48–111).",
+  "result": "Each node discards 28–35 confirmed blocks and finality stalls for 8 rounds. Healing is still immediate: no lock survives the heal, and finality resumes after it."
  },
- "06 messy heal": {
+ "06 Messy Heal": {
   "slot": 64,
-  "about": "<p>A 50/50 cut for slots 48–63 whose held messages are released at random times up to 12 s (2 slots) after the heal, instead of all at once. Healing is measured against the moment the last message lands (effective GST). Across 320 seeded runs, heads and confirmed tips always agreed within about three slots, far inside the spec's 2L + G bound.</p>",
   "jumps": [
    [
     "Cut start (s48)",
@@ -225,11 +234,13 @@
     "s65",
     65
    ]
-  ]
+  ],
+  "goal": "Check healing when the messages held back by a split arrive at random times instead of all at once (tab 02).",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency. A 50/50 cut for slots 48–63; the held messages are released at random times up to 12 s (2 slots) after the heal.",
+  "result": "Heads and confirmed tips agree within about three slots of the last delivery. The same holds across 320 seeded runs of this kind, far inside the spec's healing bound."
  },
- "07 one-slot glitch at a round start": {
+ "07 One-Slot Glitch at a Round Start": {
   "slot": 49,
-  "about": "<p>A one-slot 50/50 cut at slot 48, the first slot of round 6. The confirmation update of slot 48 gets only 32 votes before the support cutoff on every node. The FG reads its source only from that update, so nobody attests in round 6 and the round is lost for finality: the step expected at slot 50 comes at 58. The same cut at slot 49 costs one slot.</p>",
   "jumps": [
    [
     "The glitch (s48)",
@@ -257,11 +268,13 @@
     "s57 (next round)",
     57
    ]
-  ]
+  ],
+  "goal": "Check whether a single bad slot at the start of a round can cost a whole round of finality.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency. A one-slot 50/50 cut at slot 48, the first slot of round 6.",
+  "result": "The confirmation update of slot 48 sees only 32 votes on every node, so no node has a block to give the finality gadget and nobody attests in round 6. <b>The round is lost for finality</b>: the step due at slot 50 comes at slot 58. The same cut at slot 49 costs one slot."
  },
- "08 half asleep": {
+ "08 Half the Network Asleep": {
   "slot": 56,
-  "about": "<p>Nodes 2 and 3 (32 validators) are asleep for slots 48–63 (purple band). The awake half keeps confirming and slow-locks, but 32 is less than q = 43, so finality stalls. On waking, the sleepers restart, keep their locks (expired by then) and rejoin within a slot. Finality resumes a round later.</p>",
   "jumps": [
    [
     "Sleep (s48)",
@@ -289,11 +302,13 @@
     "s65 (joined)",
     65
    ]
-  ]
+  ],
+  "goal": "Check liveness and recovery when half of the validators go offline.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency. Nodes 2 and 3 (32 validators) are asleep for slots 48–63.",
+  "result": "The awake half keeps confirming and slow-locks, but 32 is below the quorum of 43, so finality stalls. The sleepers restart, rejoin within a slot, and finality resumes a round later."
  },
- "09 adversary: silent": {
+ "09 Silent Adversary": {
   "slot": 40,
-  "about": "<p>From this tab on, 21 of 64 validators (32.8%) are faulty and run by one adversary. The 43 honest validators sit on 4 nodes (11/11/10/11). Here the adversary is silent: it never votes, proposes or attests, so its proposer slots stay empty.</p><p>The 43 honest validators are <b>exactly</b> the quorum q = 43, so finality needs every one of them, and gets it.</p>",
   "jumps": [
    [
     "Slots 32–40",
@@ -309,11 +324,13 @@
     "s41 (FG action)",
     41
    ]
-  ]
+  ],
+  "goal": "Set the baseline for the adversary tabs: a faulty third of the validators that does nothing.",
+  "setup": "4 nodes; 43 honest validators (11/11/10/11) and 21 faulty ones (33%) run by one adversary; 200 ms latency. The adversary never votes, proposes or attests.",
+  "result": "Its proposer slots stay empty. The 43 honest validators are exactly the quorum, so finality needs every one of them, and gets it."
  },
- "10 adversary: equivocation": {
+ "10 Equivocating Adversary": {
   "slot": 40,
-  "about": "<p>Every slot, every faulty validator votes two conflicting heads, one to each half of the network. At its proposer slots the adversary proposes two blocks, one per half (X in the tree).</p><p>Honest nodes relay everything, including the second vote, so both copies reach everyone within Δ. The equivocators are detected and excluded from confirmations and unlocking, and nothing breaks.</p>",
   "jumps": [
    [
     "Slots 32–40",
@@ -329,11 +346,13 @@
     "s41",
     41
    ]
-  ]
+  ],
+  "goal": "Check whether double votes and double blocks from a faulty third break confirmation or finality.",
+  "setup": "4 nodes; 43 honest validators (11/11/10/11) and 21 faulty ones (33%) run by one adversary; 200 ms latency. Every slot each faulty validator votes for two conflicting heads, one to each half of the network; at its proposer slots the adversary proposes two blocks.",
+  "result": "Honest nodes relay both copies, so every node sees the equivocations within Δ and excludes the equivocators from confirmation and unlocking. Nothing breaks."
  },
- "11 adversary: two-faced across a cut": {
+ "11 Two-Faced Adversary Across a Cut": {
   "slot": 60,
-  "about": "<p>A 50/50 cut for slots 48–63 (nodes 0,1 | 2,3). During the cut the adversary acts honestly on both sides at once: votes, blocks and attestations to each side. Side A plus the adversary reaches q and finalizes on its own (allowed before GST). After the heal it releases blocks it kept back during the cut.</p><p>Finality resumes 10 slots after the heal. Across 2,304 seeded runs of this kind, nothing broke after GST.</p>",
   "jumps": [
    [
     "Cut start (s48)",
@@ -369,11 +388,13 @@
     "s65",
     65
    ]
-  ]
+  ],
+  "goal": "Check whether an adversary can use a partition to break safety after it heals.",
+  "setup": "4 nodes; 43 honest validators (11/11/10/11) and 21 faulty ones (33%) run by one adversary; 200 ms latency. Nodes 0–1 and 2–3 are cut apart for slots 48–63; the adversary acts honestly on both sides at once, and releases the blocks it kept back after the heal.",
+  "result": "Side A plus the adversary reaches the quorum and finalizes on its own during the cut (allowed before GST). Finality resumes 10 slots after the heal and nothing breaks. The same holds across 2,304 seeded runs of this kind."
  },
- "12 ATTACK fin_hide": {
+ "12 Finalization Hiding": {
   "slot": 34,
-  "about": "<p><b>The attack.</b> Synchrony throughout: every honest message and every relay arrives within 200 ms, there is one clock, and everything is relayed. The adversary (21/64) proposes slots 33 and 34; slot 34 is the first slot after the round's action time.</p><p><b>Slot 33.</b> Its block B (X) reaches nodes 0 and 3 just before their vote (22 honest votes; nodes 1 and 2 vote W). 10 faulty votes for B arrive early everywhere, which makes exactly 32 = n/2 early votes. 11 faulty validators keep their slot-33 votes back.</p><p><b>Slot 34.</b> Three adversary blocks:</p><ul><li><b>FB</b> extends B and carries the round's finality pairs. Only nodes 0–2 get it, 100 ms before their vote.</li><li><b>Q</b> forks off at slot 17, below the checkpoint that FB finalizes, and carries the 11 held-back votes.</li><li><b>Z</b> is a sibling of B.</li></ul><p>Node 3 gets Q and Z 1 ms before its vote. Nodes 0–2 get Q by relay only after FB, so they <b>refuse</b> it: it does not extend their new finalized block, and its votes never reach their available chain.</p><p>Node 3 counts 64 voters, so B (32) is not a majority and node 3 votes Z, as does the adversary. Nodes 0–2 count 53 voters: B is confirmed and fast-locked, and is <b>their confirmed tip in slot 34</b>. In slot 35, Z's 32 votes are n/2 opponents, the locks move back, and B is orphaned (hollow).</p>",
   "jumps": [
    [
     "The attack (s30–37)",
@@ -382,7 +403,7 @@
   ],
   "zooms": [
    [
-    "s33: B shown to nodes 0, 1",
+    "s33: B shown to nodes 0, 3",
     33
    ],
    [
@@ -393,11 +414,14 @@
     "s35: locks move back, B orphaned",
     35
    ]
-  ]
+  ],
+  "goal": "Break a confirmed, fast-locked block under synchrony with a faulty minority: make some honest nodes confirm a block that is then orphaned. This version needs proposer equivocation; tab 15 removes it.",
+  "setup": "Synchrony throughout: every message and every relay arrives within 200 ms, one clock, everything relayed. 21 of 64 validators faulty, run by one adversary; it targets nodes 0–2. The adversary proposes slots 33 and 34, right after the round's attestations.",
+  "how": "<ul><li><b>Slot 33:</b> block B reaches nodes 0 and 3 just before their vote; with 10 early faulty votes it has exactly 32 = n/2 early votes. 11 faulty votes are kept back.</li><li><b>Slot 34</b>, three adversary blocks: FB extends B and carries the round's attestations (to nodes 0–2 only); Q forks below the block FB finalizes and carries the 11 hidden votes; Z is a sibling of B (to node 3).</li><li>Nodes 0–2 finalize through FB, so they refuse Q and never count its votes: they see 53 voters, where node 3 sees 64.</li></ul>",
+  "result": "<b>Nodes 0–2 confirm and fast-lock B at slot 34</b> (32 of 53 voters). Node 3 does not (32 of 64) and votes Z. In slot 35 Z's 32 votes move the locks back and <b>B is orphaned</b>, after being shown as confirmed for 4.5 s. Needs proposer equivocation (three blocks in slot 34)."
  },
- "13 ATTACK fin_hide, > n/2": {
+ "13 Finalization Hiding, Strict Fast Test": {
   "slot": 34,
-  "about": "<p>The same attack with the strict fast test (&gt; n/2, not the spec). Nodes 0–2 write no lock on B, but 32 of 53 voters is still a strict majority, so they <b>confirm B</b>. The adversary sends its Z votes only to the slot-35 proposer, just before it proposes. Nodes 0–2 keep B as their confirmed tip for 3–4.5 s, then their head moves and B is orphaned.</p><p>So &gt; n/2 protects fast locks but not the confirmed tip: 74 of 74 attacked seeds when the Z votes land just before the freeze (shown for 1.5 s), 48 of 74 with this proposer-only variant (shown for 3–4.5 s).</p>",
   "jumps": [
    [
     "The attack (s30–37)",
@@ -417,11 +441,13 @@
     "s35: B orphaned",
     35
    ]
-  ]
+  ],
+  "goal": "Check whether a strict fast test (more than n/2 support instead of n/2 or more, not the spec) stops the finalization-hiding attack of tab 12.",
+  "setup": "Synchrony throughout: every message and every relay arrives within 200 ms, one clock, everything relayed. 21 of 64 validators faulty, run by one adversary; it targets nodes 0–2. As tab 12, with the strict test; the adversary sends its Z votes only to the slot-35 proposer.",
+  "result": "Nodes 0–2 write no lock, but 32 of 53 voters is still a strict majority, so <b>they still confirm B</b>, for 3–4.5 s, before it is orphaned. Over 74 attacked schedules: 74 succeed when the Z votes arrive just before the view freeze (B shown for 1.5 s), 48 with this proposer-only variant. The strict test protects locks, not the confirmed tip."
  },
- "14 ATTACK fin_hide + fix": {
+ "14 Finalization Hiding, Refused-Votes Fix": {
   "slot": 34,
-  "about": "<p>The same attack with the proposed fix (not the spec): the available chain takes the votes of a block even when the FG refuses it. Nodes 0–2 then count the 11 held-back votes too, so B has 32 of 64 voters everywhere and nobody confirms it. Nothing is orphaned. The fix closes every variant, with either threshold (0 of 74 attacked seeds), and 200 random runs stay clean.</p>",
   "jumps": [
    [
     "The attack (s30–37)",
@@ -441,6 +467,209 @@
     "s35",
     35
    ]
-  ]
+  ],
+  "goal": "Check a fix for the finalization-hiding attack of tab 12: count the votes a block carries even when the block itself is refused.",
+  "setup": "Synchrony throughout: every message and every relay arrives within 200 ms, one clock, everything relayed. 21 of 64 validators faulty, run by one adversary; it targets nodes 0–2. As tab 12, with the fix (not the spec).",
+  "result": "Nodes 0–2 count Q's 11 hidden votes too, so B has 32 of 64 voters everywhere and <b>nobody confirms it</b>. Nothing is orphaned. The fix closes every variant with either threshold (0 of 74 attacked schedules). Tab 17 shows the other fix, forwarding the carried votes, which the live spec adopted."
+ },
+ "15 Finalization Hiding Without Equivocation": {
+  "slot": 44,
+  "jumps": [
+   [
+    "The attack (s40–49)",
+    40
+   ]
+  ],
+  "zooms": [
+   [
+    "s43: B to nodes 0–2",
+    43
+   ],
+   [
+    "s44: FB and Q; B confirmed",
+    44
+   ],
+   [
+    "s45: honest blocks on B",
+    45
+   ],
+   [
+    "s48: the lock expires, B orphaned",
+    48
+   ]
+  ],
+  "goal": "Break a confirmed, fast-locked block under synchrony with a faulty minority, as in tab 12, but without proposer equivocation: one block per slot and one vote per validator, nothing slashable.",
+  "setup": "Synchrony throughout: every message and every relay arrives within 200 ms, one clock, everything relayed. 21 of 64 validators faulty, run by one adversary; it targets nodes 0–2. The adversary proposes slots 42, 43 and 44.",
+  "how": "<ul><li><b>Slot 42:</b> FB, on the honest head W, carries the round's attestations; kept back.</li><li><b>Slot 43:</b> B, on W, reaches nodes 0–2 just before their vote: 32 honest votes, exactly n/2. The 21 faulty votes (for W) are kept back.</li><li><b>Slot 44:</b> Q forks below the block FB finalizes and carries the 21 hidden votes. Q reaches node 3 just before its vote; FB reaches nodes 0–2 just before theirs, so they refuse Q.</li><li>From slot 45 the faulty validators vote W: 32 (nodes 0–2, locked on B) against 11 + 21 = 32, so B never regains a majority.</li></ul>",
+  "result": "<b>Nodes 0–2 confirm and fast-lock B at slot 44</b> (32 of 43 voters) and <b>show it as confirmed for 22.5 s</b>, until the lock expires in slot 48 and B is orphaned. Nodes 0–2 build the honest blocks of slots 45, 46 and 47 on B, and they are orphaned with it. Works in 138 of 138 attacked schedules."
+ },
+ "16 Without Equivocation, First-Seen Gossip": {
+  "slot": 44,
+  "jumps": [
+   [
+    "The attack (s40–49)",
+    40
+   ]
+  ],
+  "zooms": [
+   [
+    "s43",
+    43
+   ],
+   [
+    "s44: B confirmed",
+    44
+   ],
+   [
+    "s48: the lock expires",
+    48
+   ]
+  ],
+  "goal": "Check whether Ethereum's gossip rule, which ignores a proposer's second block for a slot, stops the finalization-hiding attack without equivocation of tab 15. (It stops the version with equivocation, tab 12.)",
+  "setup": "Synchrony throughout: every message and every relay arrives within 200 ms, one clock, everything relayed. 21 of 64 validators faulty, run by one adversary; it targets nodes 0–2. As tab 15, under Ethereum's rule: a node ignores a proposer's second block for a slot and relays only the first copy of each vote.",
+  "result": "Nothing changes: the attack has one block per slot and one vote per validator. Nodes 0–2 show B as confirmed for 22.5 s, as in tab 15. The attack with equivocation (tab 12) fails under this rule."
+ },
+ "17 Without Equivocation, Vote Forwarding": {
+  "slot": 44,
+  "jumps": [
+   [
+    "The attack (s40–49)",
+    40
+   ]
+  ],
+  "zooms": [
+   [
+    "s43",
+    43
+   ],
+   [
+    "s44: nobody confirms B",
+    44
+   ],
+   [
+    "s45",
+    45
+   ]
+  ],
+  "goal": "Check whether the live spec's new rule, forwarding the votes carried by every accepted block, closes the finalization-hiding attack without equivocation of tab 15.",
+  "setup": "Synchrony throughout: every message and every relay arrives within 200 ms, one clock, everything relayed. 21 of 64 validators faulty, run by one adversary; it targets nodes 0–2. As tab 15, with the rule of the live Goldilocks spec (<code>ethlabs-org/eth-consensus-lean</code>, Nov 2026): an honest node forwards the votes it admits from an accepted block, whether or not other nodes accept that block.",
+  "result": "Node 3 accepts Q and forwards its 21 hidden votes, which reach nodes 0–2 before their confirmation update. Every node counts 64 voters, so <b>nobody confirms B</b> and no honest block is orphaned. It holds by design: an honest node votes by +Δ, the update runs at +2Δ, and forwarding takes less than Δ."
+ },
+ "18 Finalization Hiding, Slow Attestations": {
+  "slot": 45,
+  "jumps": [
+   [
+    "The attack (s40–50)",
+    40
+   ]
+  ],
+  "zooms": [
+   [
+    "s42: FB (built late)",
+    42
+   ],
+   [
+    "s44: B",
+    44
+   ],
+   [
+    "s45: Q; B confirmed",
+    45
+   ],
+   [
+    "s49: the lock expires",
+    49
+   ]
+  ],
+  "goal": "Measure how much cheaper the finalization-hiding attack without equivocation (tab 15) gets when attestations are slower than blocks, as they are in practice because attestations are most of the traffic.",
+  "setup": "Synchrony throughout: every message and every relay arrives within 200 ms, one clock, everything relayed. 21 of 64 validators faulty, run by one adversary; it targets nodes 0–2. Attestations take up to Δ<sub>F</sub> = 8Δ = 12 s (the spec only asks Δ<sub>F</sub> ≥ Δ). The adversary delays every honest attestation of the round as far as that allows.",
+  "how": "No honest proposer can finalize before the delayed attestations land, so FB can be the adversary's block from any earlier slot of the round: here slot 42, built late. Slot 43 is honest; B is slot 44 and Q slot 45.",
+  "result": "<b>Nodes 0–2 confirm and lock B and show it for 22.5 s</b> before it is orphaned. The attack needs B and Q consecutive plus one earlier adversary slot: about 11% of rounds qualify at 8Δ, against 4% at Δ."
+ },
+ "19 Late Justification Contest": {
+  "slot": 68,
+  "jumps": [
+   [
+    "The cut (s46–60)",
+    46
+   ],
+   [
+    "The contest (s64–76)",
+    64
+   ]
+  ],
+  "zooms": [
+   [
+    "s50: the cut",
+    50
+   ],
+   [
+    "s62: X_A kept",
+    62
+   ],
+   [
+    "s68: X_A revealed",
+    68
+   ],
+   [
+    "s74: contest over",
+    74
+   ]
+  ],
+  "goal": "Check whether an adversary can trigger a finality contest (a justification on a branch that newer blocks do not extend), and whether the contest hurts.",
+  "setup": "4 nodes; 43 honest validators (11/11/10/11) and 21 faulty ones (33%) run by one adversary; 200 ms latency. Nodes 0–1 and 2–3 are cut apart for slots 50–57, over a finality action. The faulty validators side with each half, and justify side A's checkpoint inside a block they keep (slot 62).",
+  "result": "After the heal everyone follows side B. At slot 68 the adversary reveals the kept block: every node holds a justification on a branch its newer blocks do not extend, <b>a contest, for 6 slots</b> (68–73). It is harmless: the spec's rule and the Lean model's give the same outcome, and the round of finality lost comes from the split itself (the same run without the reveal loses it too)."
+ },
+ "20 Outage of 3 Slots": {
+  "slot": 47,
+  "jumps": [
+   [
+    "The outage (s42–54)",
+    42
+   ]
+  ],
+  "zooms": [
+   [
+    "s45: B confirmed",
+    45
+   ],
+   [
+    "s47: the outage starts",
+    47
+   ],
+   [
+    "s50: the heal",
+    50
+   ]
+  ],
+  "goal": "Measure how long a period of asynchrony a fast confirmation survives: here an outage of 3 slots, the longest the Lean proof covers for this timing. Tab 21 goes just beyond it.",
+  "setup": "4 nodes; 43 honest validators (11/11/10/11) and 21 faulty ones (33%) run by one adversary; 200 ms latency. The honest block B of slot 44 is confirmed and fast-locked everywhere at slot 45. Then every node is cut off from every other for 3 slots (from slot 47), while the adversary votes for a sibling of B.",
+  "result": "<b>Every node keeps B</b> after the heal. 3 slots is exactly the Lean proof's bound for this timing."
+ },
+ "21 Outage of 3.75 Slots": {
+  "slot": 51,
+  "jumps": [
+   [
+    "The outage (s42–56)",
+    42
+   ]
+  ],
+  "zooms": [
+   [
+    "s47: the outage starts",
+    47
+   ],
+   [
+    "s51: the heal",
+    51
+   ],
+   [
+    "s52: B reverted",
+    52
+   ]
+  ],
+  "goal": "Measure how long a period of asynchrony a fast confirmation survives: here an outage of 3.75 slots, just beyond the Lean proof's bound. Tab 20 stays within it.",
+  "setup": "4 nodes; 43 honest validators (11/11/10/11) and 21 faulty ones (33%) run by one adversary; 200 ms latency. The honest block B of slot 44 is confirmed and fast-locked everywhere at slot 45. Then every node is cut off from every other for 3.75 slots (from slot 47), while the adversary votes for a sibling of B.",
+  "result": "After the heal the sibling wins: <b>every node drops B</b>, after showing it as confirmed for 36 s. The Lean bound is tight: the real tolerance is between 3 and 3.75 slots, depending on where the outage starts in the slot."
  }
 }

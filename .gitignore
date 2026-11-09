@@ -5,3 +5,4 @@ __pycache__/
 # Local outputs of the simulators (large; the committed data is under simulator/goldilocks/data/)
 simulator/*/results/
 local/
+simulator/goldilocks/explorer/goldilocks-explorer-new.html

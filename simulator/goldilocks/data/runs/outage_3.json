@@ -1,0 +1,72 @@
+{
+ "tsq_violations": [],
+ "n_tsq": 0,
+ "dropped_fast": [],
+ "n_dropped": 0,
+ "lock_conflict_slots": [],
+ "conf_reversals": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "orphaned_confirmed": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "n_orphaned": 0,
+ "orphaned_confirmed_any_tick": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "n_orphaned_any_tick": 0,
+ "orphaned_shown_ms": {
+  "0": [],
+  "1": [],
+  "2": [],
+  "3": []
+ },
+ "finality_timeline": [
+  [
+   0,
+   0
+  ],
+  [
+   26,
+   12
+  ],
+  [
+   34,
+   19
+  ],
+  [
+   42,
+   26
+  ],
+  [
+   58,
+   34
+  ]
+ ],
+ "final_F_slots": [
+  34,
+  34,
+  34,
+  34
+ ],
+ "finalized_conflict": false,
+ "heads_agree_end": true,
+ "invariant_violations": [],
+ "heal": 0,
+ "max_finality_gap": 16,
+ "notes": [
+  "B = slot 44 (honest), C = slot 45 on its parent; confirmation at T = t_45+2\u0394; outage [+9.00\u0394, +3.0 slots) groups 0/1/2/3"
+ ],
+ "adv_votes": 420,
+ "adv_blocks": 1,
+ "dropped_first_seen": 0
+}
