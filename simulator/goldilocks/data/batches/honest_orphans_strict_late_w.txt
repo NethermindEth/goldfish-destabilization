@@ -1,0 +1,1 @@
+runs 150; attacked 80; attacked with honest blocks orphaned 0; honest orphans per attack min/median/max []; runs without an attack but with honest orphans 0; heads disagree at end 0

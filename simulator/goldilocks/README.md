@@ -22,7 +22,8 @@ in the URL opens a tab at a slot. `bash build_explorer.sh` rebuilds it from the 
 one run's per-slot state, events and messages.
 
 **Data.** `data/runs/` holds the runs of the explorer tabs (`*.events.json`, and the summary of each
-run in `*.json`).
+run in `*.json`). `data/batches/` holds the batches behind every number of the report, made by
+`bash reproduce.sh`; `data/README.md` maps each number to its file.
 
 ```sh
 python partition_run.py --groups 2,2 --start 48 --slots-down 16      # one run, per-slot table
@@ -32,6 +33,7 @@ python sweep.py --seeds 10                # shapes x release spread x seeds vs t
 python adversary.py --strategy fin_hide_seq --seed 115 --group-a 0,1,2 --relay-ms 200 --slots 64   # one attack
 python fin_hide_trace.py --seed 13 --relay-ms 200 --group-a 0,1,2   # the attack with equivocation, step by step
 bash build_explorer.sh                    # data/runs/ and explorer/goldilocks-explorer.html
+bash reproduce.sh                         # every number of the report -> data/batches/ (~20 min)
 bash attack_suite.sh                      # the targeted attacks of the adversary study and their controls
 ```
 
@@ -44,6 +46,8 @@ bash attack_suite.sh                      # the targeted attacks of the adversar
 | `sweep.py` | Seeded sweep, measured against effective GST |
 | `adversary.py` | A one-third Byzantine adversary under synchrony: per-node delivery inside Δ, relay of every object (also a second vote), equivocation, timing attacks, random fuzzing; checks the synchrony claims. `--relay first-seen` and `--skew` leave the spec's model on purpose |
 | `fuzz_batch.py` | Many seeded adversary runs in parallel; lists every run that breaks a claim |
+| `summarize.py` | For `fuzz_batch.py` files of the finalization-hiding attacks: schedules, attacks, successes, how long the orphaned block was shown |
+| `reproduce.sh` | Every number of the report and its follow-ups, into `data/batches/` |
 | `honest_orphans.py` | Many seeded adversary runs; counts the honest proposals orphaned under synchrony |
 | `contest_compare.py`, `contest_adv.py`, `contest_detail.py` | Frontier contests: the spec's finality rule against the Lean model's (`--lean-finality`), on partitions and adversary runs |
 | `height_events.py` | Which heights on the final chain were justified and which were skipped by timeouts |
@@ -53,7 +57,7 @@ bash attack_suite.sh                      # the targeted attacks of the adversar
 | `explorer.py` | The newer explorer UI, opt-in (`build_explorer.sh --new`): per-slot state, events and messages of one run |
 | `build_explorer.sh`, `explorer_meta.json` | Every experiment on one explorer page, one tab each, with an About card |
 | `explorer/` | The built explorer page |
-| `data/` | The runs of the explorer tabs (`data/README.md`) |
+| `data/` | The runs of the explorer tabs and the batches of the report (`data/README.md`) |
 | `fin_hide_trace.py` | Step-by-step trace of the finalization-hiding attack (`adversary.py --strategy fin_hide`) |
 
 **Model.** `n` validators of weight 1 on `N` nodes; Δ = Δ_F = 1500 ms (slot 6 s); R = 8,
