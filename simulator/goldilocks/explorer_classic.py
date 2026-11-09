@@ -1216,9 +1216,11 @@ function renderSingle() {
         const match = blocks.find(b => b.slot === vSlot);
         if (match) hRoot = match.root;
       }
-      const confRoot = nst[3];
-      const anchorRoot = nst[5];
-      const lockRoots = new Set(nst[12] || []);
+      // the snapshot is taken at +4.5 s; at the vote, confirmation and locks are still those of the previous slot
+      const before = treePhase === "25" ? (curSlot > 1 ? run.states[curSlot - 2][1][nodeIdx] : []) : nst;
+      const confRoot = before[3];
+      const anchorRoot = before[5];
+      const lockRoots = new Set(before[12] || []);
 
       // Trace canonical chain
       const chain = [];
@@ -1448,7 +1450,10 @@ function renderSingle() {
       if (src >= 0 || at < t0 || at >= t1) return;
       const x = ZX(at);
       nc.strokeStyle = kcol[k]; nc.globalAlpha = 0.7; nc.lineWidth = k === 0 ? 2.2 : 1.2;
-      nc.beginPath(); nc.moveTo(x, y); nc.lineTo(x, NY(dst)); nc.stroke(); nc.globalAlpha = 1;
+      // the line breaks at the rows it passes, so it does not read as a delivery to them
+      nc.beginPath(); nc.moveTo(x, y);
+      for (let r = 0; r < dst; r++) { nc.lineTo(x, NY(r) - 6); nc.moveTo(x, NY(r) + 6); }
+      nc.lineTo(x, NY(dst)); nc.stroke(); nc.globalAlpha = 1;
       nc.fillStyle = kcol[k]; nc.beginPath(); nc.arc(x, NY(dst), k === 0 ? 4 : 2.5, 0, 7); nc.fill();
     });
   }
@@ -1472,8 +1477,8 @@ function renderSingle() {
     const propCol = !sides ? T.a : (gSrc === 0 ? T.a : T.b);
     const xProp = ZX(t0), yProp = NY(src);
 
-    // Draw rays from proposer node to every other node
-    for (let dst = 0; dst < cfg.nodes; dst++) {
+    // Broadcasts: a schematic fan from the proposer to every other node (every message draws the real sends below)
+    for (let dst = 0; dst < cfg.nodes && msgMode !== "rays"; dst++) {
       if (dst === src) continue;
       const gDst = run.groupOf[dst];
       const blocked = inCut && gSrc !== gDst;
@@ -1500,19 +1505,20 @@ function renderSingle() {
   const x25Mid = ZX(t0 + run.deadlines[0] + 135);
   const x25End = ZX(t0 + run.deadlines[0] + 270);
   if (msgMode === "rays") {
-    [1, 2].forEach(kKind => {
-      const col = kKind === 1 ? T.tsq : T.g1;
+    [1, 2, 0].forEach(kKind => {
       run.msgs.forEach(([t, at, src, dst, k, held]) => {
-        if (k !== kKind) return;
+        if (k !== kKind || src < 0) return;
         const sentHere = t >= t0 && t < t1;
         if (!sentHere) return;
+        // blocks, proposals and relays alike, in the sender's side colour
+        const col = kKind === 1 ? T.tsq : kKind === 2 ? T.g1 : (!sides || run.groupOf[src] === 0 ? T.a : T.b);
         const x1 = ZX(t);
         const x2 = ZX(Math.min(t1, held && inCut ? t + 420 : at));
         const y1 = NY(src);
         const y2 = held && inCut ? yMidCut : NY(dst);
         nc.strokeStyle = held && inCut ? T.held : col;
-        nc.globalAlpha = 0.28;
-        nc.lineWidth = 1.1;
+        nc.globalAlpha = kKind === 0 ? 0.6 : 0.28;
+        nc.lineWidth = kKind === 0 ? 1.7 : 1.1;
         nc.setLineDash(held && inCut ? [3, 3] : []);
         nc.beginPath(); nc.moveTo(x1, y1); nc.lineTo(x2, y2); nc.stroke();
         nc.setLineDash([]); nc.globalAlpha = 1;
