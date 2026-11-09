@@ -370,8 +370,10 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
         <div class="controls">
           <span>Messages:</span>
           <div class="subtabs" id="msgModeTabs">
-            <button type="button" data-msgmode="waves" aria-pressed="true">Broadcasts</button>
-            <button type="button" data-msgmode="rays">Every message</button>
+            <button type="button" data-msgmode="blocks" aria-pressed="true">Blocks</button>
+            <button type="button" data-msgmode="votes">Votes</button>
+            <button type="button" data-msgmode="atts">FG attestations</button>
+            <button type="button" data-msgmode="all">All</button>
           </div>
         </div>
       </div>
@@ -474,7 +476,7 @@ let progMode = "slot";
 let winSize = 999;
 let winStart = 1;
 let zoomSlot = 40;
-let msgMode = "waves";
+let msgMode = "blocks";
 let treeView = "final";
 let treePhase = "end";
 const $ = id => document.getElementById(id);
@@ -1439,6 +1441,8 @@ function renderSingle() {
     nc.fillStyle = fgCol; nc.textAlign = "left";
     nc.fillText(text, px + 5, y + 1);
   };
+  // the message filter: block, FG attestation and vote messages are kinds 0, 1 and 2
+  const shows = k => msgMode === "all" || msgMode === ["blocks", "atts", "votes"][k];
   if (run.adv) {
     const y = NY(-1);
     nc.strokeStyle = T.held; nc.lineWidth = 1; nc.setLineDash([3, 3]);
@@ -1451,7 +1455,7 @@ function renderSingle() {
     const kcol = [T.a, T.tsq, T.g1];
     const sends = {};  // block root -> first send time, for the proposer dot and label
     run.msgs.forEach(([t, at, src, dst, k, , , , root]) => {
-      if (src >= 0 || at < t0 || at >= t1) return;
+      if (src >= 0 || at < t0 || at >= t1 || !shows(k)) return;
       const ts = Math.max(t0, at - lat);
       nc.strokeStyle = kcol[k]; nc.globalAlpha = k === 0 ? 0.75 : 0.3; nc.lineWidth = k === 0 ? 1.7 : 1.1;
       nc.beginPath(); nc.moveTo(ZX(ts), y); nc.lineTo(ZX(at), NY(dst)); nc.stroke(); nc.globalAlpha = 1;
@@ -1475,28 +1479,13 @@ function renderSingle() {
     drawPill(xFlushEnd + 5, yMidCut, `← +0.2s GST Flush: held s${cutA}–s${cutB - 1} msgs arrive`, T.heal, T.heal, "left");
   }
 
-  // Draw Block Proposal rays at 0% (+0.0s -> +0.2s)
+  // Honest proposer: a dot and its label (its sends are drawn with the other block messages)
   Object.entries(run.blocks).forEach(([root, [bslot, parent, src]]) => {
     if (bslot !== s || src < 0) return;
     const pSlot = run.blocks[parent] ? run.blocks[parent][0] : 0;
     const gSrc = run.groupOf[src];
     const propCol = !sides ? T.a : (gSrc === 0 ? T.a : T.b);
     const xProp = ZX(t0), yProp = NY(src);
-
-    // Broadcasts: a schematic fan from the proposer to every other node (every message draws the real sends below)
-    for (let dst = 0; dst < cfg.nodes && msgMode !== "rays"; dst++) {
-      if (dst === src) continue;
-      const gDst = run.groupOf[dst];
-      const blocked = inCut && gSrc !== gDst;
-      const xArr = ZX(t0 + (blocked ? 380 : 220));
-      const yArr = blocked ? yMidCut : NY(dst);
-      nc.strokeStyle = blocked ? T.held : propCol;
-      nc.globalAlpha = blocked ? 0.75 : 0.55;
-      nc.lineWidth = 1.7;
-      nc.setLineDash(blocked ? [4, 3] : []);
-      nc.beginPath(); nc.moveTo(xProp, yProp); nc.lineTo(xArr, yArr); nc.stroke();
-      nc.setLineDash([]); nc.globalAlpha = 1;
-    }
 
     // Proposer dot and clear plain-English badge (fits cleanly inside [0%, 25%] column!)
     nc.fillStyle = propCol;
@@ -1507,58 +1496,25 @@ function renderSingle() {
 
   // At 25% (+1.5s) the Goldfish votes (purple, k=2) go out; FG attestations (green, k=1) at 50% of the action slot.
   // They arrive at peers around +1.7s..+1.8s (well before the 50% confirmation cutoff at +3.0s).
-  const x25Start = ZX(t0 + run.deadlines[0]);
-  const x25Mid = ZX(t0 + run.deadlines[0] + 135);
-  const x25End = ZX(t0 + run.deadlines[0] + 270);
-  if (msgMode === "rays") {
-    [1, 2, 0].forEach(kKind => {
-      run.msgs.forEach(([t, at, src, dst, k, held]) => {
-        if (k !== kKind || src < 0) return;
-        const sentHere = t >= t0 && t < t1;
-        if (!sentHere) return;
-        // blocks, proposals and relays alike, in the sender's side colour
-        const col = kKind === 1 ? T.tsq : kKind === 2 ? T.g1 : (!sides || run.groupOf[src] === 0 ? T.a : T.b);
-        const x1 = ZX(t);
-        const x2 = ZX(Math.min(t1, held && inCut ? t + 420 : at));
-        const y1 = NY(src);
-        const y2 = held && inCut ? yMidCut : NY(dst);
-        nc.strokeStyle = held && inCut ? T.held : col;
-        nc.globalAlpha = kKind === 0 ? 0.6 : 0.28;
-        nc.lineWidth = kKind === 0 ? 1.7 : 1.1;
-        nc.setLineDash(held && inCut ? [3, 3] : []);
-        nc.beginPath(); nc.moveTo(x1, y1); nc.lineTo(x2, y2); nc.stroke();
-        nc.setLineDash([]); nc.globalAlpha = 1;
-      });
+  [1, 2, 0].filter(shows).forEach(kKind => {
+    run.msgs.forEach(([t, at, src, dst, k, held]) => {
+      if (k !== kKind || src < 0) return;
+      const sentHere = t >= t0 && t < t1;
+      if (!sentHere) return;
+      // blocks, proposals and relays alike, in the sender's side colour
+      const col = kKind === 1 ? T.tsq : kKind === 2 ? T.g1 : (!sides || run.groupOf[src] === 0 ? T.a : T.b);
+      const x1 = ZX(t);
+      const x2 = ZX(Math.min(t1, held && inCut ? t + 420 : at));
+      const y1 = NY(src);
+      const y2 = held && inCut ? yMidCut : NY(dst);
+      nc.strokeStyle = held && inCut ? T.held : col;
+      nc.globalAlpha = kKind === 0 ? 0.6 : msgMode === "all" ? 0.28 : 0.5;
+      nc.lineWidth = kKind === 0 ? 1.7 : 1.1;
+      nc.setLineDash(held && inCut ? [3, 3] : []);
+      nc.beginPath(); nc.moveTo(x1, y1); nc.lineTo(x2, y2); nc.stroke();
+      nc.setLineDash([]); nc.globalAlpha = 1;
     });
-  } else {
-    // Broadcast wave bands: purple at 25% (Goldfish votes), green at 50% on the action slot (FG attestations)
-    const drawBand = (xa, xb, col) => {
-      if (inCut) {
-        const yA0 = NY(0) - 6, yA1 = NY(cfg.split - 1) + 6;
-        const yB0 = NY(cfg.split) - 6, yB1 = NY(cfg.nodes - 1) + 6;
-        nc.fillStyle = col; nc.globalAlpha = 0.14;
-        nc.fillRect(xa, yA0, xb - xa, yA1 - yA0);
-        nc.fillRect(xa, yB0, xb - xa, yB1 - yB0);
-        nc.globalAlpha = 1;
-      } else {
-        const y0Band = NY(0) - 6, y1Band = NY(cfg.nodes - 1) + 6;
-        nc.fillStyle = col; nc.globalAlpha = 0.14;
-        nc.fillRect(xa, y0Band, xb - xa, y1Band - y0Band);
-        nc.globalAlpha = 1;
-      }
-    };
-    drawBand(x25Start, x25End, T.g1);
-    if (isAct) drawBand(ZX(t0 + run.deadlines[1]), ZX(t0 + run.deadlines[1] + 270), T.tsq);
-    if (inCut) {
-      const yA1 = NY(cfg.split - 1) + 2, yB0 = NY(cfg.split) - 2;
-      nc.strokeStyle = T.held; nc.lineWidth = 1.4; nc.setLineDash([3, 3]);
-      nc.beginPath();
-      nc.moveTo(x25Start, yA1); nc.lineTo(x25End, yMidCut - 2);
-      nc.moveTo(x25Start, yB0); nc.lineTo(x25End, yMidCut + 2);
-      nc.stroke(); nc.setLineDash([]);
-    }
-  }
-  // Label the two 25% broadcast waves and the 50% confirmation check in the dedicated footer strip below Node 7
+  });
 
   // Draw per-node markers & plain-English state badges at 25%, 50%, 75%
   // Each column is 225px wide, so every pill is kept <= 205px wide to stay strictly inside its own column!
