@@ -87,7 +87,7 @@ def compact(path, meta=None):
             locks.setdefault(s, {})[i] = ", ".join(f"{name(b)}→{dl}" for b, _, dl in x["locks"]) or "none"
         states.append([s, nrow])
 
-    votes, msgs, vote_head, adv_groups = [], [], {}, {}
+    votes, msgs, vote_head, vote_root, adv_groups = [], [], {}, {}, {}
     for m in d["messages"]:
         k = KINDS[m["kind"]]
         s = m.get("slot")
@@ -102,6 +102,7 @@ def compact(path, meta=None):
             vi = votes.index(desc)
         if k == 2 and m["src"] >= 0 and m["heads"]:
             vote_head.setdefault(s, {})[m["src"]] = sl(m["heads"][0][0])
+            vote_root.setdefault(s, {})[m["src"]] = m["heads"][0][0]
         msgs.append([m["t"], m["at"], m["src"], m["dst"], k, int(m["held"]), s, vi])
         if m["src"] < 0:  # adversary deliveries, grouped for the labels of panel 3
             ts = int(m["at"] // slot_ms)
@@ -137,6 +138,7 @@ def compact(path, meta=None):
         "adv": n_all - sum(vals),
         "advNotes": adv_notes,
         "voteHead": vote_head,
+        "voteRoot": vote_root,
         "locks": locks,
         "events": events,
     }
@@ -1211,11 +1213,9 @@ function renderSingle() {
 
       // Head root
       let hRoot = nst[1];
-      if (treePhase === "25" && run.voteHead && run.voteHead[curSlot] && run.voteHead[curSlot][nodeIdx] !== undefined) {
-        const vSlot = run.voteHead[curSlot][nodeIdx];
-        const match = blocks.find(b => b.slot === vSlot);
-        if (match) hRoot = match.root;
-      }
+      // at the vote the head is the block the node voted for (a slot can hold several blocks, so by root)
+      const vRoot = treePhase === "25" && run.voteRoot && run.voteRoot[curSlot] && run.voteRoot[curSlot][nodeIdx];
+      if (vRoot && (byRoot[vRoot] || vRoot === GEN)) hRoot = vRoot;
       // the snapshot is taken at +4.5 s; at the vote, confirmation and locks are still those of the previous slot
       const before = treePhase === "25" ? (curSlot > 1 ? run.states[curSlot - 2][1][nodeIdx] : []) : nst;
       const confRoot = before[3];
@@ -1446,15 +1446,20 @@ function renderSingle() {
     nc.fillText(`Adversary (${run.adv} validators)`, 6, y + 4);
     // every adversary delivery in this slot: a line from its row to the receiving node at the arrival time
     const kcol = [T.a, T.tsq, T.g1];
+    const advGets = new Set(run.msgs.filter(m => m[2] < 0).map(m => `${m[4]}@${m[1]}@${m[3]}`));
     run.msgs.forEach(([t, at, src, dst, k]) => {
       if (src >= 0 || at < t0 || at >= t1) return;
       const x = ZX(at);
       nc.strokeStyle = kcol[k]; nc.globalAlpha = 0.7; nc.lineWidth = k === 0 ? 2.2 : 1.2;
       // the line breaks at the rows it passes, so it does not read as a delivery to them
       nc.beginPath(); nc.moveTo(x, y);
-      for (let r = 0; r < dst; r++) { nc.lineTo(x, NY(r) - 6); nc.moveTo(x, NY(r) + 6); }
+      for (let r = 0; r < dst; r++) {
+        if (!advGets.has(`${k}@${at}@${r}`)) { nc.lineTo(x, NY(r) - 12); nc.moveTo(x, NY(r) + 12); }
+      }
       nc.lineTo(x, NY(dst)); nc.stroke(); nc.globalAlpha = 1;
       nc.fillStyle = kcol[k]; nc.beginPath(); nc.arc(x, NY(dst), k === 0 ? 4 : 2.5, 0, 7); nc.fill();
+      // a ring marks the nodes that get an adversary block, outside the vote dots drawn at the same time
+      if (k === 0) { nc.strokeStyle = kcol[k]; nc.lineWidth = 2; nc.beginPath(); nc.arc(x, NY(dst), 8, 0, 7); nc.stroke(); }
     });
   }
 
