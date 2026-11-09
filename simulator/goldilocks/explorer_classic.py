@@ -104,7 +104,7 @@ def compact(path, meta=None):
             vote_head.setdefault(s, {})[m["src"]] = sl(m["heads"][0][0])
             vote_root.setdefault(s, {})[m["src"]] = m["heads"][0][0]
         msgs.append([m["t"], m["at"], m["src"], m["dst"], k, int(m["held"]), s, vi]
-                    + ([m["root"]] if k == 0 else [m["heads"][0][0]] if k == 2 and m["src"] < 0 and m["heads"] else []))
+                    + ([m["root"]] if k == 0 else []))
         if m["src"] < 0:  # adversary deliveries, grouped for the labels of panel 3
             ts = int(m["at"] // slot_ms)
             what = (f"block {name(m['root'])} on {name(blocks.get(m['root'], [0, GEN])[1])}" if k == 0 else
@@ -409,7 +409,7 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
         <span><i class="sw" style="border-top:2px dashed var(--held);height:0"></i>Held by the cut</span>
         <span><i class="sw" style="background:var(--held);height:3.5px"></i>Top row: adversary</span>
         <span><i class="sw" style="background:linear-gradient(90deg, var(--a) 33%, var(--b) 33% 66%, var(--held) 66%);height:2px"></i>Block from its proposer (side A, side B, adversary)</span>
-        <span><i class="sw" style="background:var(--a);opacity:0.35;height:1px"></i>Relayed block</span>
+        <span><i class="sw" style="background:var(--a);opacity:0.35;height:1px"></i>Relayed block (relaying node's colour)</span>
       </div>
 
       <canvas id="net"></canvas>
@@ -483,6 +483,7 @@ let winStart = 1;
 let zoomSlot = 40;
 let msgMode = "blocks";
 let showRelays = true;
+let netHot = [];  // hover targets of the slot panel: {x, y, html}
 let treeView = "final";
 let treePhase = "end";
 const $ = id => document.getElementById(id);
@@ -1449,36 +1450,42 @@ function renderSingle() {
   };
   // the message filter: block, FG attestation and vote messages are kinds 0, 1 and 2
   const shows = k => msgMode === "all" || msgMode === ["blocks", "atts", "votes"][k];
+  netHot = []; netHot.w = NW;
+  const nm = r => run.blocks[r] ? `#${run.blocks[r][0]}${final.has(r) ? "" : "′"}` : "#0";
+  const propTip = (root, gets) => {  // gets: [node, arrival time] for each receiver
+    const byAt = {};
+    gets.sort((a, b) => a[0] - b[0]).forEach(([d, at]) => (byAt[at] = byAt[at] || []).push(d));
+    const to = Object.entries(byAt).map(([at, ds]) =>
+      `${ds.map(d => `Node ${d}`).join(", ")} at +${((at - t0) / 1000).toFixed(3)} s`);
+    return `Proposed ${nm(root)} (Parent ${nm(run.blocks[root] && run.blocks[root][1])})<br>To ${to.join("; ")}`;
+  };
   if (run.adv) {
     const y = NY(-1);
     nc.strokeStyle = T.held; nc.lineWidth = 1; nc.setLineDash([3, 3]);
     nc.beginPath(); nc.moveTo(NL, y); nc.lineTo(NW - NR, y); nc.stroke(); nc.setLineDash([]);
     nc.fillStyle = T.held; nc.font = "600 11px " + css("--mono"); nc.textAlign = "left";
     nc.fillText(`Adversary (${run.adv} validators)`, 6, y + 4);
-    // Adversary deliveries arrive exactly when it chooses; each is drawn as a send over one link latency, like an
-    // honest proposal, so the rays fan out to the nodes that get it.
+    // The adversary's messages have no latency (sent when they arrive). Votes and attestations are drawn at those real
+    // times, like any other; a block is drawn as a proposal over one link latency, so it does not read as vertical.
     const lat = cfg.latency_ms || 200;
     const kcol = [T.held, T.tsq, T.g1];
-    // one line per receiver: the adversary's validators each send their own copy of a vote
-    const lines = {}, sends = {};  // sends: (kind, block) -> first send time and copies per receiver, for the labels
+    const lines = {}, blockSends = {};  // one line per receiver: each faulty validator sends its own copy of a vote
     run.msgs.forEach(([t, at, src, dst, k, , , , root]) => {
       if (src >= 0 || at < t0 || at >= t1 || !shows(k)) return;
-      const ts = Math.max(t0, at - lat), key = `${k}|${root || ""}`;
-      lines[`${key}|${at}|${dst}`] = [ts, at, dst, k];
-      const g = sends[key] || (sends[key] = {ts, k, root, per: {}});
-      g.ts = Math.min(g.ts, ts); g.per[dst] = (g.per[dst] || 0) + 1;
+      const ts = k === 0 ? Math.max(t0, at - lat) : t;
+      lines[`${k}|${root || ""}|${at}|${dst}`] = [ts, at, dst, k];
+      if (k === 0) {
+        const g = blockSends[root] || (blockSends[root] = {ts, gets: []});
+        g.ts = Math.min(g.ts, ts); g.gets.push([dst, at]);
+      }
     });
     Object.values(lines).forEach(([ts, at, dst, k]) => {
       nc.strokeStyle = kcol[k]; nc.globalAlpha = k === 0 ? 0.75 : 0.5; nc.lineWidth = k === 0 ? 1.7 : 1.1;
       nc.beginPath(); nc.moveTo(ZX(ts), y); nc.lineTo(ZX(at), NY(dst)); nc.stroke(); nc.globalAlpha = 1;
     });
-    const nm = r => run.blocks[r] ? `#${run.blocks[r][0]}${final.has(r) ? "" : "′"}` : "#0";
-    Object.values(sends).sort((a, b) => a.ts - b.ts).forEach(({ts, k, root, per}, i) => {
-      const n = Math.max(...Object.values(per));
-      const what = k === 0 ? `Sends ${nm(root)} (parent ${nm(run.blocks[root] && run.blocks[root][1])})`
-        : k === 2 ? `${n} vote${n > 1 ? "s" : ""} for ${nm(root)}` : `${n} FG attestation${n > 1 ? "s" : ""}`;
-      nc.fillStyle = kcol[k]; nc.beginPath(); nc.arc(ZX(ts), y, 5, 0, 7); nc.fill();
-      drawPill(ZX(ts) - 6, y + 16 + 17 * i, what, kcol[k], kcol[k], "right");
+    Object.entries(blockSends).forEach(([root, {ts, gets}]) => {
+      nc.fillStyle = T.held; nc.beginPath(); nc.arc(ZX(ts), y, 5, 0, 7); nc.fill();
+      netHot.push({x: ZX(ts), y, html: propTip(root, gets)});
     });
   }
 
@@ -1496,16 +1503,15 @@ function renderSingle() {
   // Honest proposer: a dot and its label (its sends are drawn with the other block messages)
   Object.entries(run.blocks).forEach(([root, [bslot, parent, src]]) => {
     if (bslot !== s || src < 0) return;
-    const pSlot = run.blocks[parent] ? run.blocks[parent][0] : 0;
     const gSrc = run.groupOf[src];
     const propCol = !sides ? T.a : (gSrc === 0 ? T.a : T.b);
     const xProp = ZX(t0), yProp = NY(src);
 
-    // Proposer dot and clear plain-English badge (fits cleanly inside [0%, 25%] column!)
+    // Proposer dot; what it proposes is in its tooltip
     nc.fillStyle = propCol;
     nc.beginPath(); nc.arc(xProp, yProp, 6, 0, 7); nc.fill();
-    const orphTag = !final.has(root) ? " · orphaned" : "";
-    drawPill(xProp + 8, yProp - 9, `Proposes #${s} (parent #${pSlot}${orphTag})`, propCol, propCol, "left");
+    const gets = run.msgs.filter(m => m[4] === 0 && m[2] === src && m[8] === root).map(m => [m[3], m[1]]);
+    netHot.push({x: xProp, y: yProp, html: propTip(root, gets)});
   });
 
   // At 25% (+1.5s) the Goldfish votes (purple, k=2) go out; FG attestations (green, k=1) at 50% of the action slot.
@@ -1519,7 +1525,8 @@ function renderSingle() {
       const by = kKind === 0 && run.blocks[root] ? run.blocks[root][2] : src;
       const relay = kKind === 0 && by !== src;
       if (relay && !showRelays) return;
-      const col = kKind === 1 ? T.tsq : kKind === 2 ? T.g1 : by < 0 ? T.held : (!sides || run.groupOf[by] === 0 ? T.a : T.b);
+      const from = relay ? src : by;  // a proposal in its proposer's colour, a relay in the relaying node's
+      const col = kKind === 1 ? T.tsq : kKind === 2 ? T.g1 : from < 0 ? T.held : (!sides || run.groupOf[from] === 0 ? T.a : T.b);
       const x1 = ZX(t);
       const x2 = ZX(Math.min(t1, held && inCut ? t + 420 : at));
       const y1 = NY(src);
@@ -1894,6 +1901,15 @@ $("prog").addEventListener("wheel", e => {
   };
 });
 
+$("net").addEventListener("mousemove", e => {
+  const r = $("net").getBoundingClientRect(), k = netHot.w / r.width;
+  const x = (e.clientX - r.left) * k, y = (e.clientY - r.top) * k;
+  const h = netHot.find(h => Math.hypot(h.x - x, h.y - y) < 9);
+  const tip = $("tip");
+  tip.hidden = !h;
+  if (h) { tip.innerHTML = h.html; tip.style.left = e.clientX + 14 + "px"; tip.style.top = e.clientY + 14 + "px"; }
+});
+$("net").addEventListener("mouseleave", () => { $("tip").hidden = true; });
 $("relayToggle").onclick = () => {
   showRelays = !showRelays;
   $("relayToggle").setAttribute("aria-pressed", showRelays);
