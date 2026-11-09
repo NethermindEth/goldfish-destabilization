@@ -402,6 +402,8 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
         <span><i class="sq" style="background:var(--fg);border-color:var(--fg)"></i>View freeze (+4.5 s)</span>
         <span><i class="sw" style="border-top:2px dashed var(--held);height:0"></i>Held by the cut</span>
         <span><i class="sw" style="background:var(--held);height:3.5px"></i>Top row: adversary</span>
+        <span><i class="dot" style="border:2px solid var(--a);background:var(--panel)"></i>Gets a block from the adversary</span>
+        <span><i class="sw" style="background:linear-gradient(90deg, var(--a) 50%, var(--b) 50%);height:2px"></i>Block sent or relayed (sender's side colour)</span>
       </div>
 
       <canvas id="net"></canvas>
