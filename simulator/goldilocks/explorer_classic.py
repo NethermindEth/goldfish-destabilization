@@ -103,7 +103,8 @@ def compact(path, meta=None):
         if k == 2 and m["src"] >= 0 and m["heads"]:
             vote_head.setdefault(s, {})[m["src"]] = sl(m["heads"][0][0])
             vote_root.setdefault(s, {})[m["src"]] = m["heads"][0][0]
-        msgs.append([m["t"], m["at"], m["src"], m["dst"], k, int(m["held"]), s, vi] + ([m["root"]] if k == 0 else []))
+        msgs.append([m["t"], m["at"], m["src"], m["dst"], k, int(m["held"]), s, vi]
+                    + ([m["root"]] if k == 0 else [m["heads"][0][0]] if k == 2 and m["src"] < 0 and m["heads"] else []))
         if m["src"] < 0:  # adversary deliveries, grouped for the labels of panel 3
             ts = int(m["at"] // slot_ms)
             what = (f"block {name(m['root'])} on {name(blocks.get(m['root'], [0, GEN])[1])}" if k == 0 else
@@ -375,6 +376,9 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
             <button type="button" data-msgmode="atts">FG attestations</button>
             <button type="button" data-msgmode="all">All</button>
           </div>
+          <div class="subtabs">
+            <button type="button" id="relayToggle" aria-pressed="true">Relays</button>
+          </div>
         </div>
       </div>
 
@@ -404,7 +408,8 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
         <span><i class="sq" style="background:var(--fg);border-color:var(--fg)"></i>View freeze (+4.5 s)</span>
         <span><i class="sw" style="border-top:2px dashed var(--held);height:0"></i>Held by the cut</span>
         <span><i class="sw" style="background:var(--held);height:3.5px"></i>Top row: adversary</span>
-        <span><i class="sw" style="background:linear-gradient(90deg, var(--a) 50%, var(--b) 50%);height:2px"></i>Block sent or relayed (sender's side colour)</span>
+        <span><i class="sw" style="background:linear-gradient(90deg, var(--a) 33%, var(--b) 33% 66%, var(--held) 66%);height:2px"></i>Block from its proposer (side A, side B, adversary)</span>
+        <span><i class="sw" style="background:var(--a);opacity:0.35;height:1px"></i>Relayed block</span>
       </div>
 
       <canvas id="net"></canvas>
@@ -477,6 +482,7 @@ let winSize = 999;
 let winStart = 1;
 let zoomSlot = 40;
 let msgMode = "blocks";
+let showRelays = true;
 let treeView = "final";
 let treePhase = "end";
 const $ = id => document.getElementById(id);
@@ -1452,19 +1458,27 @@ function renderSingle() {
     // Adversary deliveries arrive exactly when it chooses; each is drawn as a send over one link latency, like an
     // honest proposal, so the rays fan out to the nodes that get it.
     const lat = cfg.latency_ms || 200;
-    const kcol = [T.a, T.tsq, T.g1];
-    const sends = {};  // block root -> first send time, for the proposer dot and label
+    const kcol = [T.held, T.tsq, T.g1];
+    // one line per receiver: the adversary's validators each send their own copy of a vote
+    const lines = {}, sends = {};  // sends: (kind, block) -> first send time and copies per receiver, for the labels
     run.msgs.forEach(([t, at, src, dst, k, , , , root]) => {
       if (src >= 0 || at < t0 || at >= t1 || !shows(k)) return;
-      const ts = Math.max(t0, at - lat);
-      nc.strokeStyle = kcol[k]; nc.globalAlpha = k === 0 ? 0.75 : 0.3; nc.lineWidth = k === 0 ? 1.7 : 1.1;
-      nc.beginPath(); nc.moveTo(ZX(ts), y); nc.lineTo(ZX(at), NY(dst)); nc.stroke(); nc.globalAlpha = 1;
-      if (k === 0 && !(root in sends && sends[root] <= ts)) sends[root] = ts;
+      const ts = Math.max(t0, at - lat), key = `${k}|${root || ""}`;
+      lines[`${key}|${at}|${dst}`] = [ts, at, dst, k];
+      const g = sends[key] || (sends[key] = {ts, k, root, per: {}});
+      g.ts = Math.min(g.ts, ts); g.per[dst] = (g.per[dst] || 0) + 1;
     });
-    Object.entries(sends).sort((a, b) => a[1] - b[1]).forEach(([root, ts], i) => {
-      const nm = r => run.blocks[r] ? `#${run.blocks[r][0]}${final.has(r) ? "" : "′"}` : "#0";
-      nc.fillStyle = T.held; nc.beginPath(); nc.arc(ZX(ts), y, 5, 0, 7); nc.fill();
-      drawPill(ZX(ts) - 6, y + 16 + 17 * i, `Sends ${nm(root)} (parent ${nm(run.blocks[root] && run.blocks[root][1])})`, T.held, T.held, "right");
+    Object.values(lines).forEach(([ts, at, dst, k]) => {
+      nc.strokeStyle = kcol[k]; nc.globalAlpha = k === 0 ? 0.75 : 0.5; nc.lineWidth = k === 0 ? 1.7 : 1.1;
+      nc.beginPath(); nc.moveTo(ZX(ts), y); nc.lineTo(ZX(at), NY(dst)); nc.stroke(); nc.globalAlpha = 1;
+    });
+    const nm = r => run.blocks[r] ? `#${run.blocks[r][0]}${final.has(r) ? "" : "′"}` : "#0";
+    Object.values(sends).sort((a, b) => a.ts - b.ts).forEach(({ts, k, root, per}, i) => {
+      const n = Math.max(...Object.values(per));
+      const what = k === 0 ? `Sends ${nm(root)} (parent ${nm(run.blocks[root] && run.blocks[root][1])})`
+        : k === 2 ? `${n} vote${n > 1 ? "s" : ""} for ${nm(root)}` : `${n} FG attestation${n > 1 ? "s" : ""}`;
+      nc.fillStyle = kcol[k]; nc.beginPath(); nc.arc(ZX(ts), y, 5, 0, 7); nc.fill();
+      drawPill(ZX(ts) - 6, y + 16 + 17 * i, what, kcol[k], kcol[k], "right");
     });
   }
 
@@ -1497,19 +1511,22 @@ function renderSingle() {
   // At 25% (+1.5s) the Goldfish votes (purple, k=2) go out; FG attestations (green, k=1) at 50% of the action slot.
   // They arrive at peers around +1.7s..+1.8s (well before the 50% confirmation cutoff at +3.0s).
   [1, 2, 0].filter(shows).forEach(kKind => {
-    run.msgs.forEach(([t, at, src, dst, k, held]) => {
+    run.msgs.forEach(([t, at, src, dst, k, held, , , root]) => {
       if (k !== kKind || src < 0) return;
       const sentHere = t >= t0 && t < t1;
       if (!sentHere) return;
-      // blocks, proposals and relays alike, in the sender's side colour
-      const col = kKind === 1 ? T.tsq : kKind === 2 ? T.g1 : (!sides || run.groupOf[src] === 0 ? T.a : T.b);
+      // a block is drawn in its proposer's colour; sent on by anyone else it is a relay, drawn fainter
+      const by = kKind === 0 && run.blocks[root] ? run.blocks[root][2] : src;
+      const relay = kKind === 0 && by !== src;
+      if (relay && !showRelays) return;
+      const col = kKind === 1 ? T.tsq : kKind === 2 ? T.g1 : by < 0 ? T.held : (!sides || run.groupOf[by] === 0 ? T.a : T.b);
       const x1 = ZX(t);
       const x2 = ZX(Math.min(t1, held && inCut ? t + 420 : at));
       const y1 = NY(src);
       const y2 = held && inCut ? yMidCut : NY(dst);
       nc.strokeStyle = held && inCut ? T.held : col;
-      nc.globalAlpha = kKind === 0 ? 0.6 : msgMode === "all" ? 0.28 : 0.5;
-      nc.lineWidth = kKind === 0 ? 1.7 : 1.1;
+      nc.globalAlpha = relay ? 0.3 : kKind === 0 ? 0.75 : msgMode === "all" ? 0.28 : 0.5;
+      nc.lineWidth = relay ? 1.1 : kKind === 0 ? 1.7 : 1.1;
       nc.setLineDash(held && inCut ? [3, 3] : []);
       nc.beginPath(); nc.moveTo(x1, y1); nc.lineTo(x2, y2); nc.stroke();
       nc.setLineDash([]); nc.globalAlpha = 1;
@@ -1877,6 +1894,11 @@ $("prog").addEventListener("wheel", e => {
   };
 });
 
+$("relayToggle").onclick = () => {
+  showRelays = !showRelays;
+  $("relayToggle").setAttribute("aria-pressed", showRelays);
+  renderSingle();
+};
 [...$("msgModeTabs").querySelectorAll("button")].forEach(b => {
   b.onclick = () => {
     msgMode = b.dataset.msgmode;
