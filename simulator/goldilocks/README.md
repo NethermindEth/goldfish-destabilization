@@ -29,7 +29,7 @@ python partition_run.py --groups 2,2 --start 48 --slots-down 16      # one run, 
 python partition_run.py --groups 3,1 --start 48 --slots-down 16 --events out.events.json --json out.json
 python scenarios.py                       # the first partition study -> results/first/
 python sweep.py --seeds 10                # shapes x release spread x seeds vs the 2L healing claim
-python adversary.py --strategy fin_hide_seq --seed 7 --group-a 0,1,2 --relay-ms 200 --slots 64   # one attack
+python adversary.py --strategy fin_hide_seq --seed 115 --group-a 0,1,2 --relay-ms 200 --slots 64   # one attack
 python fin_hide_trace.py --seed 13 --relay-ms 200 --group-a 0,1,2   # the attack with equivocation, step by step
 bash build_explorer.sh                    # data/runs/ and explorer/goldilocks-explorer.html
 bash attack_suite.sh                      # the targeted attacks of the adversary study and their controls

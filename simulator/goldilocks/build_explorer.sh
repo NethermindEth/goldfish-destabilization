@@ -19,7 +19,7 @@ a() {
   shift
   python3 adversary.py --quiet "$@" --events "$R/$name.events.json" --json "$R/$name.json" > /dev/null
 }
-SEQ="--strategy fin_hide_seq --seed 7 --group-a 0,1,2 --relay-ms 200 --slots 64"
+SEQ="--strategy fin_hide_seq --seed 115 --group-a 0,1,2 --relay-ms 200 --slots 64"
 a adv_silent --strategy passive --seed 7 --slots 64
 a adv_equiv --strategy equiv --seed 7 --slots 64
 a adv_twoface --strategy twoface --seed 7 --cut 48:16 --group-a 0,1 --post reveal --slots 80

@@ -490,18 +490,18 @@
     44
    ],
    [
-    "s47: an honest block orphaned",
-    47
+    "s45: honest blocks on B",
+    45
    ],
    [
-    "s48: the lock expires",
+    "s48: the lock expires, B orphaned",
     48
    ]
   ],
   "goal": "Break a confirmed, fast-locked block under synchrony with a faulty minority, as in tab 12, but without proposer equivocation: one block per slot and one vote per validator, nothing slashable.",
   "setup": "Synchrony throughout: every message and every relay arrives within 200 ms, one clock, everything relayed. 21 of 64 validators faulty, run by one adversary; it targets nodes 0–2. The adversary proposes slots 42, 43 and 44.",
   "how": "<ul><li><b>Slot 42:</b> FB, on the honest head W, carries the round's attestations; kept back.</li><li><b>Slot 43:</b> B, on W, reaches nodes 0–2 just before their vote: 32 honest votes, exactly n/2. The 21 faulty votes (for W) are kept back.</li><li><b>Slot 44:</b> Q forks below the block FB finalizes and carries the 21 hidden votes. Q reaches node 3 just before its vote; FB reaches nodes 0–2 just before theirs, so they refuse Q.</li><li>From slot 45 the faulty validators vote W: 32 (nodes 0–2, locked on B) against 11 + 21 = 32, so B never regains a majority.</li></ul>",
-  "result": "<b>Nodes 0–2 confirm and fast-lock B at slot 44</b> (32 of 43 voters) and <b>show it as confirmed for 22.5 s</b>, until the lock expires in slot 48 and B is orphaned. The tie also orphans the honest blocks of slots 47 and 48. Works in 138 of 138 attacked schedules."
+  "result": "<b>Nodes 0–2 confirm and fast-lock B at slot 44</b> (32 of 43 voters) and <b>show it as confirmed for 22.5 s</b>, until the lock expires in slot 48 and B is orphaned. Nodes 0–2 build the honest blocks of slots 45, 46 and 47 on B, and they are orphaned with it. Works in 138 of 138 attacked schedules."
  },
  "16 Without Equivocation, First-Seen Gossip": {
   "slot": 44,

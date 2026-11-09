@@ -644,6 +644,13 @@ class AC:
                             if x.s == s - 1 and x.H in phi.tree and BLOCKS[x.H].slot <= s - 1 and x not in support]
         tree = self.viable_tree(phi, self.voter_block_tree(phi, s))
         H = self.get_head_in_tree(phi, t, tree, votes, support, s - 1)
+        eq = equivocators_of(votes)  # the view behind the vote, for the explorer: supporting votes per block voted
+        tally = {}
+        for x in support:
+            if x.s == s - 1 and x.v not in eq:
+                tally.setdefault(x.H, set()).add(x.v)
+        self.log("vote", slot=s, head=H, voters=len({x.v for x in votes}), equivocators=len(eq),
+                 tally=sorted(((B, len(vs)) for B, vs in tally.items()), key=lambda p: -p[1]))
         out = [Vote(v, s, H) for v in self.local]
         for x in out:
             self.on_goldfish_vote(t, x)

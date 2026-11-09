@@ -52,9 +52,12 @@ def compact(path, meta=None):
     # lock kinds per node, from the confirmation updates (a lock moved back keeps its kind)
     how = [dict() for _ in range(nodes)]
     events = {}
+    vote_view = {}  # slot -> node -> [voted block, voters, equivocators, [[block, supporting votes], ...]]
     for e in d["log"]:
         k, n = e["kind"], e.get("node")
         s = int(e["t"] // slot_ms)
+        if k == "vote":
+            vote_view.setdefault(e["slot"], {})[n] = [e["head"], e["voters"], e["equivocators"], e["tally"]]
         if k == "confirm":
             if e.get("lock"):
                 how[n][e["lock"]] = e.get("how")
@@ -139,6 +142,7 @@ def compact(path, meta=None):
         "adv": n_all - sum(vals),
         "advNotes": adv_notes,
         "voteHead": vote_head,
+        "voteView": vote_view,
         "voteRoot": vote_root,
         "locks": locks,
         "events": events,
@@ -1555,6 +1559,12 @@ function renderSingle() {
     // 25% (+1.5s): purple dot = Goldfish vote (after unlocking); the pill names the vote's head
     nc.fillStyle = T.g1;
     nc.beginPath(); nc.arc(x25, y, 3.8, 0, 7); nc.fill();
+    const vv = run.voteView && run.voteView[s] && run.voteView[s][n];
+    if (vv) {
+      const [vH, voters, eqs, tally] = vv;
+      netHot.push({x: x25, y, html: `Votes for ${nm(vH)}<br>` + tally.map(([b, c]) => `${nm(b)}: ${c} votes`).join(", ")
+        + ` · ${voters} voters` + (eqs ? ` · ${eqs} equivocators` : "")});
+    }
     if (isRepNode) {
       const vh = run.voteHead[s] && run.voteHead[s][n];
       if (vh !== undefined && vh !== null) drawPill(x25 + 8, y - 6, `votes #${vh}` + (nst[4] !== null ? ` · anchor #${nst[4]}` : ""), T.g1, null, "left");

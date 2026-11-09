@@ -36,7 +36,7 @@
    0
   ],
   [
-   26,
+   27,
    10
   ],
   [
@@ -45,30 +45,30 @@
   ],
   [
    44,
-   26
+   27
   ],
   [
-   53,
+   50,
    34
   ],
   [
    58,
-   47
+   45
   ]
  ],
  "final_F_slots": [
-  47,
-  47,
-  47,
-  47
+  45,
+  45,
+  45,
+  45
  ],
  "finalized_conflict": false,
  "heads_agree_end": true,
  "invariant_violations": [],
  "heal": 0,
- "max_finality_gap": 9,
+ "max_finality_gap": 8,
  "notes": [
-  "slot 42: FB withheld, finalizes slot 26 (was 18); slot 43: B (f1=0, held back w=21); slot 44: Q; setup ok"
+  "slot 42: FB withheld, finalizes slot 27 (was 18); slot 43: B (f1=0, held back w=21); slot 44: Q; setup ok"
  ],
  "adv_votes": 441,
  "adv_blocks": 3,
