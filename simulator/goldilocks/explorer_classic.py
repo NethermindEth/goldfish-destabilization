@@ -49,6 +49,149 @@ def compact(path, meta=None):
             return "⊥"
         return f"#{sl(r)}" + ("" if r == GEN or r in final else "′")
 
+    def val_node(v):
+        cum = 0
+        for i, count in enumerate(vals):
+            if cum <= v < cum + count:
+                return i
+            cum += count
+        return -1
+
+    children = {r: [] for r in blocks}
+    children[GEN] = []
+    for r, b in blocks.items():
+        p = b[1]
+        if p in children:
+            children[p].append(r)
+        elif p == GEN:
+            children[GEN].append(r)
+
+    for r in children:
+        children[r].sort(key=lambda c: (blocks[c][0] if c in blocks else 0, c))
+
+    raw_details = d.get("block_details", {})
+    block_details_processed = {}
+    for r, b in blocks.items():
+        det = raw_details.get(r, {})
+        raw_votes = det.get("votes", [])
+        vote_groups_map = {}
+        for v in raw_votes:
+            val_idx, vs, vH = v[0], v[1], v[2]
+            vn = val_node(val_idx)
+            key = (vs, vH)
+            if key not in vote_groups_map:
+                vote_groups_map[key] = {
+                    "target_slot": vs,
+                    "target_root": vH,
+                    "target_name": name(vH),
+                    "count": 0,
+                    "by_node": {},
+                    "vals": []
+                }
+            g = vote_groups_map[key]
+            g["count"] += 1
+            g["by_node"][str(vn)] = g["by_node"].get(str(vn), 0) + 1
+            g["vals"].append(val_idx)
+        vote_groups = sorted(vote_groups_map.values(), key=lambda g: (-g["count"], -g["target_slot"]))
+
+        raw_atts = det.get("atts", [])
+        att_groups_map = {}
+        for a in raw_atts:
+            val_idx, h, T, tau, hf, Tf = a[0], a[1], a[2], bool(a[3]), a[4], a[5]
+            vn = val_node(val_idx)
+            key = (h, T, tau, hf, Tf)
+            if key not in att_groups_map:
+                att_groups_map[key] = {
+                    "h": h,
+                    "T": T,
+                    "T_slot": sl(T),
+                    "T_name": name(T),
+                    "tau": tau,
+                    "hf": hf,
+                    "Tf": Tf,
+                    "Tf_slot": sl(Tf) if Tf else None,
+                    "Tf_name": name(Tf) if Tf else None,
+                    "is_finality": (hf is not None),
+                    "count": 0,
+                    "by_node": {},
+                    "vals": []
+                }
+            ag = att_groups_map[key]
+            ag["count"] += 1
+            ag["by_node"][str(vn)] = ag["by_node"].get(str(vn), 0) + 1
+            ag["vals"].append(val_idx)
+        att_groups = sorted(att_groups_map.values(), key=lambda g: (-g["count"], -g["h"]))
+
+        raw_supp = det.get("support", [])
+        supp_groups_map = {}
+        for sv in raw_supp:
+            val_idx, vs, vH = sv[0], sv[1], sv[2]
+            vn = val_node(val_idx)
+            key = (vs, vH)
+            if key not in supp_groups_map:
+                supp_groups_map[key] = {
+                    "target_slot": vs,
+                    "target_root": vH,
+                    "target_name": name(vH),
+                    "count": 0,
+                    "by_node": {}
+                }
+            sg = supp_groups_map[key]
+            sg["count"] += 1
+            sg["by_node"][str(vn)] = sg["by_node"].get(str(vn), 0) + 1
+        supp_groups = sorted(supp_groups_map.values(), key=lambda g: (-g["count"], -g["target_slot"]))
+
+        raw_rcv = det.get("receipts", {})
+        b_slot = b[0]
+        slot_start_ms = b_slot * slot_ms
+        rcv_processed = {}
+        for nid in range(nodes):
+            t = raw_rcv.get(str(nid))
+            if t is not None:
+                rcv_processed[str(nid)] = [round(t, 1), round(t - slot_start_ms, 1)]
+            else:
+                rcv_processed[str(nid)] = None
+        if "-1" in raw_rcv or (cfg.get("f", 0) > 0 or (P["n"] - sum(vals) > 0)):
+            t_adv = raw_rcv.get("-1")
+            if t_adv is not None:
+                rcv_processed["-1"] = [round(t_adv, 1), round(t_adv - slot_start_ms, 1)]
+            else:
+                rcv_processed["-1"] = None
+
+        block_details_processed[r] = {
+            "slot": b_slot,
+            "parent": b[1],
+            "parent_slot": sl(b[1]),
+            "parent_name": name(b[1]),
+            "pnode": b[2],
+            "pval": b[3],
+            "natt": b[4],
+            "nvotes": d["blocks"][r][5] if len(d["blocks"][r]) > 5 else sum(g["count"] for g in vote_groups),
+            "is_canon": (r in final),
+            "votes": vote_groups,
+            "atts": att_groups,
+            "support": supp_groups,
+            "receipts": rcv_processed,
+            "children": children.get(r, []),
+        }
+
+    block_details_processed[GEN] = {
+        "slot": 0,
+        "parent": None,
+        "parent_slot": None,
+        "parent_name": None,
+        "pnode": -1,
+        "pval": -1,
+        "natt": 0,
+        "nvotes": 0,
+        "is_canon": True,
+        "votes": [],
+        "atts": [],
+        "support": [],
+        "receipts": {},
+        "children": children.get(GEN, []),
+    }
+
     # lock kinds per node, from the confirmation updates (a lock moved back keeps its kind)
     how = [dict() for _ in range(nodes)]
     events = {}
@@ -135,6 +278,7 @@ def compact(path, meta=None):
         "votes": votes,
         "msgs": msgs,
         "blocks": blocks,
+        "blockDetails": block_details_processed,
         "states": states,
         "settlements": None,
         "meta": meta,
@@ -277,6 +421,85 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
   border-radius: 6px; padding: 7px 10px; font: 12px/1.45 var(--mono); color: var(--fg);
   box-shadow: 0 6px 18px rgba(0,0,0,.16); max-width: 340px; z-index: 50;
 }
+/* Section 4: Block Explorer styles */
+.block-peek-track {
+  display: flex; align-items: center; justify-content: flex-start; gap: 8px;
+  background: var(--bg); border: 1px solid var(--grid); border-radius: 8px;
+  padding: 12px 14px; overflow-x: auto; min-height: 84px;
+}
+.peek-card {
+  flex-shrink: 0; min-width: 140px; max-width: 220px;
+  background: var(--panel); border: 1px solid var(--gridStrong); border-radius: 6px;
+  padding: 8px 10px; cursor: pointer; text-align: left; transition: all 0.15s ease;
+  display: grid; gap: 3px; font-size: 12px;
+}
+.peek-card.peek-opaque {
+  opacity: 0.62;
+}
+.peek-card.peek-opaque:hover {
+  opacity: 1; transform: translateY(-2px); border-color: var(--a);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.peek-card.peek-active {
+  opacity: 1; border: 2px solid var(--a); box-shadow: 0 0 0 1px var(--a), 0 4px 14px var(--aSoft);
+  background: var(--panel);
+}
+.peek-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--subtle);
+}
+.peek-title {
+  font-size: 13.5px; font-weight: 700; color: var(--fg); font-family: var(--mono);
+}
+.peek-arrow {
+  flex-shrink: 0; font-size: 14px; font-weight: 700; color: var(--subtle); user-select: none; padding: 0 2px;
+}
+.block-hero {
+  background: var(--panel); border: 1px solid var(--grid); border-radius: 8px;
+  padding: 14px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;
+}
+.hero-left { display: grid; gap: 6px; min-width: 260px; }
+.hero-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.hero-title { font-size: 19px; font-weight: 700; margin: 0; }
+.hero-hash { font-size: 12px; font-family: var(--mono); color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.copy-btn {
+  font: 500 11px var(--sans); padding: 2px 7px; border-radius: 4px;
+  border: 1px solid var(--gridStrong); background: var(--bg); color: var(--fg); cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--a); color: var(--a); }
+.hero-stats { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+.stat-pill {
+  background: var(--bg); border: 1px solid var(--grid); border-radius: 6px;
+  padding: 6px 12px; min-width: 95px; display: grid; gap: 2px;
+}
+.stat-pill-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--subtle); }
+.stat-pill-val { font-size: 14px; font-weight: 700; color: var(--fg); font-family: var(--mono); }
+.block-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 14px; }
+.block-card {
+  background: var(--panel); border: 1px solid var(--grid); border-radius: 8px;
+  padding: 14px 16px; display: grid; gap: 10px;
+}
+.block-card h3 {
+  font-size: 14.5px; font-weight: 600; margin: 0; padding-bottom: 6px; border-bottom: 1px solid var(--grid);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.block-select {
+  font: 500 12.5px var(--sans); padding: 4px 8px; border-radius: 5px;
+  border: 1px solid var(--gridStrong); background: var(--panel); color: var(--fg); cursor: pointer;
+  max-width: 260px;
+}
+.prog-bar-wrap {
+  background: var(--bg); border: 1px solid var(--grid); border-radius: 4px; height: 8px;
+  overflow: hidden; display: flex; width: 100%;
+}
+.prog-bar-seg { height: 100%; }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px;
+  font-size: 11px; font-weight: 600;
+}
+.badge-canon { background: rgba(22, 163, 74, 0.12); color: #16a34a; border: 1px solid rgba(22, 163, 74, 0.3); }
+.badge-orph { background: rgba(220, 38, 38, 0.12); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.3); }
+.badge-adv { background: rgba(147, 51, 234, 0.12); color: #9333ea; border: 1px solid rgba(147, 51, 234, 0.3); }
+.badge-fin { background: rgba(13, 148, 136, 0.12); color: #0d9488; border: 1px solid rgba(13, 148, 136, 0.3); }
 </style>
 </head>
 <body>
@@ -420,6 +643,26 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
       <div class="callouts" id="slotStepCards"></div>
       <div id="slotStateTable"></div>
     </section>
+
+    <section class="panel" id="blockPanel">
+      <div class="panel-head">
+        <h2>4. Block explorer</h2>
+        <div class="controls">
+          <span>Block:</span>
+          <select id="blockSelect" class="block-select" aria-label="Select block"></select>
+          <button type="button" class="step-btn" id="blockPrevBtn">◀ Prev block</button>
+          <button type="button" class="step-btn" id="blockNextBtn">Next block ▶</button>
+        </div>
+      </div>
+      <p class="note">Inspect inside any block: votes bundled for previous heads, checkpoint &amp; finality attestations, and arrival times at each validator node. Click any ancestor or descendant below to walk the chain.</p>
+      <div id="blockPeekTrack" class="block-peek-track"></div>
+      <div id="blockHeroCard" class="block-hero"></div>
+      <div class="block-grid">
+        <div class="block-card" id="blockVotesCard"></div>
+        <div class="block-card" id="blockAttsCard"></div>
+      </div>
+      <div class="block-card" id="blockReceiptsCard"></div>
+    </section>
     <section class="panel" id="settlePanel" hidden>
       <h2>Height settlements at each round boundary (majority chain)</h2>
       <p class="note">Every round boundary settles one height outcome from the votes <b>already on chain</b>. Bars: target (justify) votes and finality-piggyback votes counted by the spec state at that moment; dashed line: the 2/3 quorum. A red marker under the axis means the round's first slot had no block on the majority chain, so the last slot's votes could not be included before the settlement. Finality piggybacks accumulate across rounds (extended window); target votes do not.</p>
@@ -488,6 +731,8 @@ let zoomSlot = 40;
 let msgMode = "blocks";
 let showRelays = true;
 let netHot = [];  // hover targets of the slot panel: {x, y, html}
+let treeHot = [];  // click targets for blocks in the tree panel: {x, y, root, slot}
+let curBlockRoot = null;
 let treeView = "final";
 let treePhase = "end";
 const $ = id => document.getElementById(id);
@@ -610,12 +855,13 @@ function renderSlotDetails(run, s, T, shareA, final) {
   const nA = curRow[idxA], nB = curRow[idxB];
 
   // Find block proposed in slot s
-  let propNode = null, propParentSlot = 0, propOrphaned = false;
+  let propNode = null, propParentSlot = 0, propOrphaned = false, propRoot = null;
   Object.entries(run.blocks).forEach(([root, [bslot, parent, src]]) => {
     if (bslot === s && (propNode === null || src >= 0)) {
       propNode = src;
       propParentSlot = run.blocks[parent] ? run.blocks[parent][0] : 0;
       propOrphaned = !final.has(root);
+      propRoot = root;
     }
   });
   const sides = cut || !!cfg.sides;
@@ -624,10 +870,14 @@ function renderSlotDetails(run, s, T, shareA, final) {
   const ev = (run.events[s] || []);
   const evFor = (kinds) => ev.filter(e => kinds.includes(e[1]));
   const fmtEv = es => es.length ? es.map(e => e[2]).join("<br>") : "—";
+  const inspectLink = propRoot
+    ? `<br><a href="javascript:void(0)" onclick="selectBlock('${propRoot}');$('blockPanel').scrollIntoView({behavior:'smooth'})" style="color:var(--a);font-weight:600;text-decoration:none">🔎 Inspect Block #${s} in Block Explorer ↓</a>`
+    : "";
   const step1Body = (propNode !== null && propNode >= 0
     ? `<b>${propSide}</b> proposes <b>Block #${s}</b> on <b>#${propParentSlot}</b>${propOrphaned ? ' <span class="delta-down">(later orphaned)</span>' : ''}. ` +
       (inCut ? `Delivered to its own side; <b>held across the cut</b> until slot ${cutB}.` : ``)
     : (Object.values(run.blocks).some(b => b[0] === s && b[2] < 0) ? `<b>The adversary</b> proposes in slot ${s}.` : `No block proposed in slot ${s}.`)) +
+    inspectLink +
     (isHealSlot ? `<br><span style="color:var(--heal);font-weight:700">GST heal:</span> held blocks and votes of slots ${cutA}–${cutB - 1} arrive.` : "") +
     ((run.advNotes[s] || []).length ? `<br><b style="color:var(--held)">Adversary deliveries:</b><br>` + run.advNotes[s].map(([at, l]) => `• ${l}`).join("<br>") : "");
   const step2Body = `Locks with n/2 or more opponents among the slot-${s - 1} votes move back; then each node votes.<br>` + fmtEv(evFor(["unlock"]));
@@ -1078,6 +1328,7 @@ function renderSingle() {
 
   const lc = setup($("treeLeft"), LW, TH, "fixed");
   const tc = setup($("tree"), TW, TH, "scroll");
+  treeHot = [];
 
   // --- Draw treeLeft (pinned left column) ---
   lc.fillStyle = T.panel;
@@ -1184,11 +1435,13 @@ function renderSingle() {
     // Genesis
     tc.fillStyle = T.muted; tc.beginPath(); tc.arc(TX(0), TY(0), 4.5, 0, 7); tc.fill();
     tc.strokeStyle = T.fg; tc.lineWidth = 1.8; tc.strokeRect(TX(0) - 6.5, TY(0) - 6.5, 13, 13);
+    treeHot.push({ x: TX(0), y: TY(0), root: GEN, slot: 0 });
 
     const finSlots = new Set([0]); run.states.forEach(r => finSlots.add(r[1][0][6]));
 
     blocks.forEach(b => {
       const x = TX(b.slot), y = TY(rowOf[b.root]);
+      treeHot.push({ x, y, root: b.root, slot: b.slot });
       const isAdversary = b.src < 0;
       const baseCol = isAdversary ? T.held : (!sides ? T.a : (run.groupOf[b.src] === 0 ? T.a : T.b));
       tc.fillStyle = baseCol;
@@ -1319,6 +1572,7 @@ function renderSingle() {
         tc.font = (isLock ? "600 " : "400 ") + "9.5px " + css("--mono");
         tc.textAlign = "center";
         tc.fillText(isLock ? `🔒#${b.slot}` : `#${b.slot}`, bx, y + 20);
+        treeHot.push({ x: bx, y, root: b.root, slot: b.slot });
       });
     });
   }
@@ -1356,11 +1610,18 @@ function renderSingle() {
     });
   }
 
-  // Click on tree canvas to select slot
+  // Click on tree canvas to select block or slot
   $("tree").onclick = e => {
     if (treeDidDrag) return;
     const rect = $("tree").getBoundingClientRect();
     const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    const hit = treeHot.find(h => Math.hypot(h.x - clickX, h.y - clickY) < 14);
+    if (hit) {
+      selectBlock(hit.root);
+      $("blockPanel").scrollIntoView({ behavior: "smooth" });
+      return;
+    }
     const clickedSlot = Math.round((clickX - TL) / stepW);
     if (clickedSlot >= 1 && clickedSlot <= maxSlot) {
       zoomSlot = clickedSlot;
@@ -1596,6 +1857,421 @@ function renderSingle() {
       nc.fillText(`locks ${(run.locks[s] && run.locks[s][n]) || "none"}`, x75 + 7, y + 3);
     }
   }
+
+  const proposedAtZoom = Object.entries(run.blocks).find(([r, b]) => b[0] === zoomSlot);
+  if (proposedAtZoom) {
+    curBlockRoot = proposedAtZoom[0];
+  }
+  renderBlockExplorer();
+}
+
+function selectBlock(root) {
+  curBlockRoot = root;
+  renderBlockExplorer();
+}
+
+function fmtValRanges(vals) {
+  if (!vals || vals.length === 0) return "none";
+  const sorted = [...new Set(vals)].sort((a, b) => a - b);
+  const ranges = [];
+  let start = sorted[0], end = sorted[0];
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === end + 1) {
+      end = sorted[i];
+    } else {
+      ranges.push(start === end ? `${start}` : `${start}–${end}`);
+      start = end = sorted[i];
+    }
+  }
+  ranges.push(start === end ? `${start}` : `${start}–${end}`);
+  return ranges.join(", ");
+}
+
+function renderBlockExplorer() {
+  const run = RUNS[cur];
+  if (!run || !run.blockDetails) return;
+  const cfg = run.cfg;
+  const bd = run.blockDetails;
+  const blocks = run.blocks;
+  const final = finalChain(run);
+  const T = {
+    a: css("--a"), b: css("--b"), aSoft: css("--aSoft"), bSoft: css("--bSoft"),
+    held: css("--held"), heal: css("--heal"), tsq: css("--tsq"), g1: css("--g1"),
+    fg: css("--fg"), muted: css("--muted"), subtle: css("--subtle"),
+    grid: css("--grid"), panel: css("--panel"), bg: css("--bg")
+  };
+
+  // Ensure curBlockRoot is valid
+  if (!curBlockRoot || !bd[curBlockRoot]) {
+    // Try to find block proposed at zoomSlot
+    const match = Object.entries(blocks).find(([r, blk]) => blk[0] === zoomSlot);
+    if (match) curBlockRoot = match[0];
+    else {
+      // Find latest block <= zoomSlot
+      const sorted = Object.entries(blocks).sort((x, y) => x[1][0] - y[1][0] || x[0].localeCompare(y[0]));
+      const prev = sorted.filter(([r, blk]) => blk[0] <= zoomSlot).pop();
+      curBlockRoot = prev ? prev[0] : (sorted[0] ? sorted[0][0] : "G");
+    }
+  }
+
+  const b = bd[curBlockRoot];
+  if (!b) return;
+
+  // 1. Populate block selector dropdown
+  const sel = $("blockSelect");
+  if (sel) {
+    const allRoots = Object.keys(blocks).sort((x, y) => blocks[x][0] - blocks[y][0] || x.localeCompare(y));
+    let optHtml = `<option value="G"${curBlockRoot === "G" ? " selected" : ""}>Block #0 (Genesis · G)</option>`;
+    for (const r of allRoots) {
+      const blk = blocks[r];
+      const isCanon = final.has(r);
+      const mark = isCanon ? "" : "′ (orphaned)";
+      const selAttr = (r === curBlockRoot) ? " selected" : "";
+      const pLab = blk[2] < 0 ? "Adversary" : `Node ${blk[2]}`;
+      optHtml += `<option value="${r}"${selAttr}>Block #${blk[0]}${mark} — ${pLab} (${r.slice(0, 8)})</option>`;
+    }
+    sel.innerHTML = optHtml;
+    sel.onchange = e => {
+      selectBlock(e.target.value);
+    };
+  }
+
+  // Prev / Next buttons
+  const allSortedRoots = ["G", ...Object.keys(blocks).sort((x, y) => blocks[x][0] - blocks[y][0] || x.localeCompare(y))];
+  const curIdx = allSortedRoots.indexOf(curBlockRoot);
+  $("blockPrevBtn").disabled = (curIdx <= 0);
+  $("blockNextBtn").disabled = (curIdx >= allSortedRoots.length - 1);
+  $("blockPrevBtn").onclick = () => {
+    if (curIdx > 0) selectBlock(allSortedRoots[curIdx - 1]);
+  };
+  $("blockNextBtn").onclick = () => {
+    if (curIdx < allSortedRoots.length - 1) selectBlock(allSortedRoots[curIdx + 1]);
+  };
+
+  // 2. Chain Peek Ribbon
+  const ancestors = [];
+  let curr = b.parent;
+  while (curr && bd[curr] && ancestors.length < 3) {
+    ancestors.unshift(curr);
+    curr = bd[curr].parent;
+  }
+
+  const children = b.children || [];
+  const descendants = [];
+  for (const c of children) {
+    descendants.push({ root: c, isChild: true, fork: children.length > 1 });
+  }
+  if (children.length === 1 && bd[children[0]] && bd[children[0]].children && bd[children[0]].children.length > 0) {
+    const gc = bd[children[0]].children[0];
+    descendants.push({ root: gc, isChild: false, fork: false });
+  }
+
+  function renderCard(root, roleLabel, isOpaque) {
+    const info = bd[root];
+    if (!info) return "";
+    const isCanon = (root === "G" || final.has(root));
+    const pCol = info.pnode < 0 ? T.held : (info.pnode < cfg.split ? T.a : T.b);
+    const pLab = info.pnode < 0 ? "Adversary" : `Node ${info.pnode}`;
+    const canonBadge = isCanon
+      ? `<span style="color:${T.tsq};font-weight:600">● canonical</span>`
+      : `<span style="color:${T.held};font-weight:600">▲ orphaned</span>`;
+    const voteBadge = root !== "G" ? `<span>🗳️ ${info.nvotes || 0}</span>` : "";
+    const attBadge = (info.natt > 0) ? `<span>📜 ${info.natt}</span>` : "";
+
+    return `
+      <div class="peek-card ${isOpaque ? "peek-opaque" : "peek-active"}" onclick="selectBlock('${root}')" title="Click to inspect Block #${info.slot}">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="peek-label">${roleLabel}</span>
+          ${canonBadge}
+        </div>
+        <div class="peek-title">#${info.slot} · ${root.slice(0, 8)}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)">
+          <span style="display:inline-flex;align-items:center;gap:4px">
+            <i class="dot" style="background:${pCol};width:7px;height:7px"></i>${pLab}
+          </span>
+          <div style="display:inline-flex;gap:6px">${voteBadge} ${attBadge}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  let peekHtml = "";
+  for (let i = 0; i < ancestors.length; i++) {
+    const aRoot = ancestors[i];
+    const dist = ancestors.length - i;
+    const label = dist === 1 ? "Parent (-1)" : (dist === 2 ? "Grandparent (-2)" : `Ancestor (-${dist})`);
+    peekHtml += renderCard(aRoot, label, true);
+    peekHtml += `<span class="peek-arrow">→</span>`;
+  }
+
+  peekHtml += renderCard(curBlockRoot, "Active Block", false);
+
+  if (descendants.length > 0) {
+    for (let i = 0; i < descendants.length; i++) {
+      peekHtml += `<span class="peek-arrow">→</span>`;
+      const d = descendants[i];
+      const dLabel = d.isChild ? (d.fork ? "Fork Branch (+1)" : "Child (+1)") : "Grandchild (+2)";
+      peekHtml += renderCard(d.root, dLabel, true);
+    }
+  } else {
+    peekHtml += `<span class="peek-arrow">→</span><div class="peek-card peek-opaque" style="cursor:default;opacity:0.4;border-style:dashed"><span class="peek-label">Tip</span><div class="peek-title" style="font-size:12px;font-weight:400">No descendants yet</div></div>`;
+  }
+  $("blockPeekTrack").innerHTML = peekHtml;
+
+  // 3. Block Hero Card
+  const isCanon = (curBlockRoot === "G" || final.has(curBlockRoot));
+  const pCol = b.pnode < 0 ? T.held : (b.pnode < cfg.split ? T.a : T.b);
+  const pLab = b.pnode < 0 ? "Adversary" : `Node ${b.pnode}`;
+  const pGroup = b.pnode < 0 ? "Adversary" : (b.pnode < cfg.split ? "Side A" : "Side B");
+  const parentSlot = b.parent ? (bd[b.parent] ? bd[b.parent].slot : 0) : null;
+  const parentLink = b.parent
+    ? `<a href="javascript:void(0)" onclick="selectBlock('${b.parent}')" style="color:var(--a);text-decoration:none;font-weight:600">#${parentSlot} (${b.parent.slice(0, 8)})</a>`
+    : `<span style="color:var(--subtle)">None (Genesis)</span>`;
+
+  let fastestDelay = Infinity, slowestDelay = -Infinity;
+  let receivedCount = 0;
+  if (b.receipts) {
+    for (const [nid, rinfo] of Object.entries(b.receipts)) {
+      if (rinfo) {
+        receivedCount++;
+        const delay = rinfo[1];
+        if (delay < fastestDelay) fastestDelay = delay;
+        if (delay > slowestDelay) slowestDelay = delay;
+      }
+    }
+  }
+  const propSummary = (receivedCount > 0)
+    ? `+${fastestDelay}ms / +${slowestDelay}ms`
+    : "—";
+
+  $("blockHeroCard").innerHTML = `
+    <div class="hero-left">
+      <div class="hero-title-row">
+        <h3 class="hero-title">Block #${b.slot}</h3>
+        <span class="badge ${isCanon ? "badge-canon" : "badge-orph"}">
+          ${isCanon ? "● Canonical on Node 0" : "▲ Orphaned branch"}
+        </span>
+        ${b.pnode < 0 ? '<span class="badge badge-adv">⚔️ Adversary proposal</span>' : ""}
+        ${(b.atts && b.atts.some(a => a.is_finality)) ? '<span class="badge badge-fin">🔒 Finality Checkpoint</span>' : ""}
+      </div>
+      <div class="hero-hash">
+        <span>Root: <b>${curBlockRoot}</b></span>
+        <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText('${curBlockRoot}');this.innerText='Copied!';setTimeout(()=>this.innerText='Copy',1500)">Copy</button>
+      </div>
+      <div style="font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+        <span><b>Proposer:</b> <i class="dot" style="background:${pCol};width:8px;height:8px"></i> ${pLab} (${pGroup}${b.pval >= 0 ? ` · val #${b.pval}` : ""})</span>
+        <span><b>Parent:</b> ${parentLink}</span>
+        <span><b>Round:</b> ${Math.floor(b.slot / run.spr)} (slot ${b.slot % run.spr} / ${run.spr})</span>
+        <button type="button" class="copy-btn" onclick="zoomSlot=${b.slot};renderSingle();$('net').scrollIntoView({behavior:'smooth'})" style="font-size:11px">🔍 Zoom Slot #${b.slot} in Section 3</button>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-pill">
+        <span class="stat-pill-label">Votes Included</span>
+        <span class="stat-pill-val">${b.nvotes || 0}</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-pill-label">Attestations</span>
+        <span class="stat-pill-val">${b.natt || 0}</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-pill-label">Declared Support</span>
+        <span class="stat-pill-val">${(b.support && b.support.length) ? b.support.reduce((s, g) => s + g.count, 0) : 0}</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-pill-label">Propagation Delay</span>
+        <span class="stat-pill-val" style="font-size:12.5px">${propSummary}</span>
+      </div>
+    </div>
+  `;
+
+  // 4. Votes Card
+  const votes = b.votes || [];
+  let votesHtml = `<h3><span>🗳️ Votes Inside Block (${b.nvotes || 0})</span></h3>`;
+  if (votes.length === 0) {
+    votesHtml += `<p class="note" style="padding:10px 0">No Goldfish votes included in this block (e.g. proposed in slot 1 or without received votes from slot ${Math.max(0, b.slot - 1)}).</p>`;
+  } else {
+    for (const g of votes) {
+      const isTargetCanon = (g.target_root === "G" || final.has(g.target_root));
+      const targetLink = `<a href="javascript:void(0)" onclick="selectBlock('${g.target_root}')" style="color:var(--a);text-decoration:none;font-weight:700">Block #${g.target_slot} (${g.target_root.slice(0, 8)})</a>`;
+      const pct = Math.round(100 * g.count / cfg.validators);
+
+      let nodeBreakdownHtml = "";
+      let barSegsHtml = "";
+      const sortedNids = Object.keys(g.by_node).sort((x, y) => (+x) - (+y));
+      for (const nid of sortedNids) {
+        const cnt = g.by_node[nid];
+        const nInt = +nid;
+        const nCol = nInt < 0 ? T.held : (nInt < cfg.split ? T.a : T.b);
+        const nName = nInt < 0 ? "Adversary" : `Node ${nInt} (${nInt < cfg.split ? "Side A" : "Side B"})`;
+        const segWidth = (cnt / cfg.validators) * 100;
+        barSegsHtml += `<div class="prog-bar-seg" style="width:${segWidth}%;background:${nCol}" title="${nName}: ${cnt} votes"></div>`;
+        nodeBreakdownHtml += `
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:3px 0">
+            <span><i class="dot" style="background:${nCol};width:8px;height:8px"></i> <b>${nName}</b></span>
+            <span><b>${cnt} votes</b> (${Math.round(100 * cnt / g.count)}% of this bundle)</span>
+          </div>
+        `;
+      }
+
+      const valTags = (g.vals && g.vals.length > 0)
+        ? `<div style="font-size:11.5px;color:var(--muted);margin-top:6px">Validators: ${fmtValRanges(g.vals)}</div>`
+        : "";
+
+      votesHtml += `
+        <div style="background:var(--bg);border:1px solid var(--grid);border-radius:6px;padding:10px 12px;display:grid;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+            <div>Voted for: ${targetLink} ${isTargetCanon ? '<span class="badge badge-canon" style="font-size:10px">Canonical</span>' : '<span class="badge badge-orph" style="font-size:10px">Orphaned</span>'}</div>
+            <div style="font-family:var(--mono);font-weight:700;font-size:13px">${g.count} votes (${pct}% committee)</div>
+          </div>
+          <div class="prog-bar-wrap">${barSegsHtml}</div>
+          <div style="display:grid;gap:2px;margin-top:4px">${nodeBreakdownHtml}</div>
+          ${valTags}
+        </div>
+      `;
+    }
+  }
+  $("blockVotesCard").innerHTML = votesHtml;
+
+  // 5. Attestations & Finality Card
+  const atts = b.atts || [];
+  let attsHtml = `<h3><span>📜 Finality &amp; Checkpoint Attestations (${b.natt || 0})</span></h3>`;
+  if (atts.length === 0) {
+    attsHtml += `<p class="note" style="padding:10px 0">No attestations carried by this block. Honest nodes attest at round action times (slots 8, 16, 24, 32, 40, 48, 56, 64...), and proposals include them on chain.</p>`;
+  } else {
+    for (const ag of atts) {
+      const q = cfg.q || Math.floor((2 * cfg.validators) / 3) + 1;
+      const reachedQ = ag.count >= q;
+      const pct = Math.round(100 * ag.count / cfg.validators);
+
+      const targetLink = `<a href="javascript:void(0)" onclick="selectBlock('${ag.T}')" style="color:var(--a);text-decoration:none;font-weight:700">Block #${ag.T_slot} (${ag.T.slice(0, 8)})</a>`;
+      const finLink = ag.is_finality
+        ? `<a href="javascript:void(0)" onclick="selectBlock('${ag.Tf}')" style="color:var(--heal);text-decoration:none;font-weight:700">Block #${ag.Tf_slot} (${ag.Tf.slice(0, 8)})</a>`
+        : "";
+
+      let nodeBreakdownHtml = "";
+      let barSegsHtml = "";
+      const sortedNids = Object.keys(ag.by_node).sort((x, y) => (+x) - (+y));
+      for (const nid of sortedNids) {
+        const cnt = ag.by_node[nid];
+        const nInt = +nid;
+        const nCol = nInt < 0 ? T.held : (nInt < cfg.split ? T.a : T.b);
+        const nName = nInt < 0 ? "Adversary" : `Node ${nInt} (${nInt < cfg.split ? "Side A" : "Side B"})`;
+        const segWidth = (cnt / cfg.validators) * 100;
+        barSegsHtml += `<div class="prog-bar-seg" style="width:${segWidth}%;background:${nCol}" title="${nName}: ${cnt} atts"></div>`;
+        nodeBreakdownHtml += `
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:3px 0">
+            <span><i class="dot" style="background:${nCol};width:8px;height:8px"></i> <b>${nName}</b></span>
+            <span><b>${cnt} attestations</b></span>
+          </div>
+        `;
+      }
+
+      const valTags = (ag.vals && ag.vals.length > 0)
+        ? `<div style="font-size:11.5px;color:var(--muted);margin-top:6px">Signers: ${fmtValRanges(ag.vals)}</div>`
+        : "";
+
+      attsHtml += `
+        <div style="background:var(--bg);border:1px solid var(--grid);border-radius:6px;padding:10px 12px;display:grid;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:gap:6px">
+            <div>
+              ${ag.is_finality ? `<span class="badge badge-fin" style="margin-right:6px">🔒 Finality</span>` : `<span class="badge" style="background:var(--aSoft);color:var(--a);margin-right:6px">🎯 Target</span>`}
+              <b>Height h=${ag.h}</b>: ${targetLink}
+              ${ag.is_finality ? `<br><span style="font-size:12px;color:var(--muted)">Finalizes height h_f=${ag.hf} checkpoint: ${finLink}</span>` : ""}
+            </div>
+            <div style="text-align:right">
+              <span class="badge ${reachedQ ? "badge-canon" : "badge-orph"}">
+                ${reachedQ ? `✓ 2/3 Quorum reached (${ag.count}/${cfg.validators})` : `Below 2/3 quorum (${ag.count}/${cfg.validators})`}
+              </span>
+              ${ag.tau ? '<span class="badge badge-orph" style="margin-left:4px">⚠️ Timed out</span>' : ""}
+            </div>
+          </div>
+          <div class="prog-bar-wrap" style="position:relative">
+            ${barSegsHtml}
+            <div style="position:absolute;left:${(q / cfg.validators) * 100}%;top:0;bottom:0;width:2px;background:var(--fg);opacity:0.6" title="2/3 Quorum (${q})"></div>
+          </div>
+          <div style="display:grid;gap:2px;margin-top:4px">${nodeBreakdownHtml}</div>
+          ${valTags}
+        </div>
+      `;
+    }
+  }
+  $("blockAttsCard").innerHTML = attsHtml;
+
+  // 6. Validator Reception Times Card
+  let receiptsHtml = `
+    <h3><span>⏱️ Validator &amp; Node Reception Times</span></h3>
+    <p class="note">Shows when each validator node accepted Block #${b.slot} into its local Store. Messages delayed across a partition cut wait for GST heal; sleeping nodes process queued blocks on restart.</p>
+  `;
+
+  let tableRows = "";
+  const rcv = b.receipts || {};
+  const allNids = [];
+  for (let i = 0; i < cfg.nodes; i++) allNids.push(i);
+  if (rcv["-1"] !== undefined || run.adv > 0) allNids.push(-1);
+
+  for (const nid of allNids) {
+    const isAdv = (nid === -1);
+    const nName = isAdv ? "Adversary" : `Node ${nid}`;
+    const nGroup = isAdv ? "Adversary" : (nid < cfg.split ? "Side A" : "Side B");
+    const nCol = isAdv ? T.held : (nid < cfg.split ? T.a : T.b);
+    const valCount = isAdv ? (run.adv || 0) : (run.vals[nid] || 0);
+    const valRangeStr = isAdv
+      ? `${valCount} validators`
+      : `${valCount} validators (${valRange(run, nid)})`;
+
+    const rinfo = rcv[nid];
+    let timeStr = "—", delayStr = "—", statusBadge = "";
+
+    if (rinfo) {
+      const atMs = rinfo[0];
+      const delayMs = rinfo[1];
+      timeStr = `${(atMs / 1000).toFixed(3)} s (${atMs.toLocaleString()} ms)`;
+      delayStr = `+${delayMs.toLocaleString()} ms`;
+
+      if (nid === b.pnode) {
+        statusBadge = `<span class="badge badge-canon">Proposer (+0 ms)</span>`;
+      } else if (delayMs <= run.deadlines[0]) {
+        statusBadge = `<span class="badge badge-canon">On-time (synchrony)</span>`;
+      } else if (cfg.slots_down > 0 && b.slot >= cfg.start && b.slot < cfg.start + cfg.slots_down) {
+        statusBadge = `<span class="badge badge-orph">Held by partition cut</span>`;
+      } else {
+        statusBadge = `<span class="badge badge-fin">Delivered (+${delayMs}ms)</span>`;
+      }
+    } else {
+      timeStr = "<span style='color:var(--held)'>Never received</span>";
+      delayStr = "—";
+      statusBadge = `<span class="badge badge-orph">Withheld / dropped</span>`;
+    }
+
+    tableRows += `
+      <tr>
+        <td><i class="dot" style="background:${nCol};width:8px;height:8px;margin-right:6px"></i><b>${nName}</b></td>
+        <td><span class="side-pill ${isAdv ? "" : (nid < cfg.split ? "side-a" : "side-b")}" style="${isAdv ? 'border-color:var(--held);color:var(--held)' : ''}">${nGroup}</span></td>
+        <td>${valRangeStr}</td>
+        <td style="font-family:var(--mono)">${timeStr}</td>
+        <td style="font-family:var(--mono);font-weight:600">${delayStr}</td>
+        <td>${statusBadge}</td>
+      </tr>
+    `;
+  }
+
+  receiptsHtml += `
+    <table class="summary" style="margin-top:6px">
+      <thead>
+        <tr>
+          <th>Node</th>
+          <th>Partition Group</th>
+          <th>Validators Assigned</th>
+          <th>Store Arrival Time</th>
+          <th>Delay (from Proposal)</th>
+          <th>Propagation Status</th>
+        </tr>
+      </thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+  `;
+  $("blockReceiptsCard").innerHTML = receiptsHtml;
 }
 
 function renderSweep() {
@@ -1790,6 +2466,13 @@ function nodeRange(a, b) { return a === b ? `node ${a}` : `nodes ${a}–${b}`; }
 function sideVals(run, g) {
   return run.vals.reduce((a, v, i) => a + (run.groupOf[i] === g ? v : 0), 0);
 }
+function valRange(run, nid) {
+  if (nid < 0 || !run.vals || nid >= run.vals.length) return "adversary";
+  let start = 0;
+  for (let i = 0; i < nid; i++) start += run.vals[i];
+  let end = start + run.vals[nid] - 1;
+  return start === end ? `val #${start}` : `val #${start}–#${end}`;
+}
 function renderAbout(run) {
   const a = $("about"), m = run.meta || {};
   const secs = [["Goal", m.goal], ["Setup", m.setup], ["How", m.how], ["Result", m.result]].filter(x => x[1]);
@@ -1814,6 +2497,7 @@ function render() {
 
 function pick(name) {
   cur = name;
+  curBlockRoot = null;
   const m = (RUNS[name] || {}).meta || {};
   if (m.slot) { zoomSlot = m.slot; }
   [...$("tabs").children].forEach(b => b.setAttribute("aria-pressed", b.textContent === name));
