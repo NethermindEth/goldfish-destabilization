@@ -264,14 +264,25 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
 .vote-target-num {
   font-weight: 600;
 }
-.target-tag-orph {
-  font-size: 9px;
-  font-weight: 700;
-  padding: 0 4px;
-  border-radius: 2px;
-  background: rgba(220, 38, 38, 0.15);
-  color: #dc2626;
-  border: 1px solid rgba(220, 38, 38, 0.3);
+.label-btn {
+  font-size: 11px;
+  font-family: var(--sans);
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--grid);
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.12s ease;
+}
+.label-btn:hover {
+  background: var(--panel);
+  border-color: var(--a);
+  color: var(--a);
 }
 .badge-equiv {
   font-size: 10px;
@@ -692,6 +703,63 @@ let treePhase = "end";
 const $ = id => document.getElementById(id);
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
+let customLabels = {};
+try {
+  customLabels = JSON.parse(localStorage.getItem("goldilocks_labels") || "{}");
+} catch(e) {
+  customLabels = {};
+}
+
+function saveCustomLabels() {
+  try {
+    localStorage.setItem("goldilocks_labels", JSON.stringify(customLabels));
+  } catch(e) {}
+}
+
+function getBlockLabel(root, opts = {}) {
+  if (!root) return "—";
+  if (root === GEN || root === "GEN") return "Genesis";
+  if (customLabels && customLabels[root]) {
+    if (opts.full && opts.slot !== undefined) {
+      return `${customLabels[root]} (Block #${opts.slot})`;
+    }
+    return customLabels[root];
+  }
+  if (opts.slot !== undefined) {
+    return opts.full ? `Block #${opts.slot}` : `#${opts.slot}`;
+  }
+  const run = RUNS[cur];
+  if (run && run.blocks && run.blocks[root]) {
+    const s = run.blocks[root][0];
+    return opts.full ? `Block #${s}` : `#${s}`;
+  }
+  return root.length > 8 ? root.slice(0, 8) : root;
+}
+
+function setBlockLabel(root, label) {
+  if (!root) return;
+  label = (label || "").trim();
+  if (label) {
+    customLabels[root] = label;
+  } else {
+    delete customLabels[root];
+  }
+  saveCustomLabels();
+  renderSingle();
+}
+
+function promptRelabel(root) {
+  if (!root) return;
+  const current = (customLabels && customLabels[root]) || "";
+  const run = RUNS[cur];
+  const blk = run && run.blocks ? run.blocks[root] : null;
+  const defName = blk ? `Block #${blk[0]}` : (root === "G" ? "Genesis" : root.slice(0, 8));
+  const val = prompt(`Enter custom label for ${defName} (leave blank to reset):`, current);
+  if (val !== null) {
+    setBlockLabel(root, val);
+  }
+}
+
 function setup(cv, w, h, mode = "full") {
   const r = window.devicePixelRatio || 1;
   cv.width = w * r; cv.height = h * r;
@@ -809,11 +877,12 @@ function renderSlotDetails(run, s, T, shareA, final) {
   const nA = curRow[idxA], nB = curRow[idxB];
 
   // Find block proposed in slot s
-  let propNode = null, propParentSlot = 0, propOrphaned = false, propRoot = null;
+  let propNode = null, propParentSlot = 0, propOrphaned = false, propRoot = null, propParentRoot = null;
   Object.entries(run.blocks).forEach(([root, [bslot, parent, src]]) => {
     if (bslot === s && (propNode === null || src >= 0)) {
       propNode = src;
       propParentSlot = run.blocks[parent] ? run.blocks[parent][0] : 0;
+      propParentRoot = parent;
       propOrphaned = !final.has(root);
       propRoot = root;
     }
@@ -824,13 +893,15 @@ function renderSlotDetails(run, s, T, shareA, final) {
   const ev = (run.events[s] || []);
   const evFor = (kinds) => ev.filter(e => kinds.includes(e[1]));
   const fmtEv = es => es.length ? es.map(e => e[2]).join("<br>") : "—";
+  const propName = propRoot ? getBlockLabel(propRoot, {full: true, slot: s}) : `Block #${s}`;
+  const parentName = propParentRoot ? getBlockLabel(propParentRoot, {slot: propParentSlot}) : `#${propParentSlot}`;
   const inspectLink = propRoot
-    ? `<br><a href="javascript:void(0)" onclick="selectBlock('${propRoot}');$('blockPanel').scrollIntoView({behavior:'smooth'})" style="color:var(--a);font-weight:600;text-decoration:none">🔎 Inspect Block #${s} in Block Explorer ↓</a>`
+    ? `<br><a href="javascript:void(0)" onclick="selectBlock('${propRoot}');$('blockPanel').scrollIntoView({behavior:'smooth'})" style="color:var(--a);font-weight:600;text-decoration:none">🔎 Inspect ${propName} in Block Explorer ↓</a>`
     : "";
   const step1Body = (propNode !== null && propNode >= 0
-    ? `<b>${propSide}</b> proposes <b>Block #${s}</b> on <b>#${propParentSlot}</b>${propOrphaned ? ' <span class="delta-down">(later orphaned)</span>' : ''}. ` +
+    ? `<b>${propSide}</b> proposes <b>${propName}</b> on <b>${parentName}</b>${propOrphaned ? ' <span class="delta-down">(later orphaned)</span>' : ''}. ` +
       (inCut ? `Delivered to its own side; <b>held across the cut</b> until slot ${cutB}.` : ``)
-    : (Object.values(run.blocks).some(b => b[0] === s && b[2] < 0) ? `<b>The adversary</b> proposes in slot ${s}.` : `No block proposed in slot ${s}.`)) +
+    : (Object.values(run.blocks).some(b => b[0] === s && b[2] < 0) ? `<b>The adversary</b> proposes <b>${propName}</b> in slot ${s}.` : `No block proposed in slot ${s}.`)) +
     inspectLink +
     (isHealSlot ? `<br><span style="color:var(--heal);font-weight:700">GST heal:</span> held blocks and votes of slots ${cutA}–${cutB - 1} arrive.` : "") +
     ((run.advNotes[s] || []).length ? `<br><b style="color:var(--held)">Adversary deliveries:</b><br>` + run.advNotes[s].map(([at, l]) => `• ${l}`).join("<br>") : "");
@@ -846,14 +917,16 @@ function renderSlotDetails(run, s, T, shareA, final) {
   `;
 
   // Per-side state comparison table
-  const fmtDelta = (now, prev, isRootOrphan) => {
+  const fmtDelta = (now, prev, isRootOrphan, root) => {
+    const cLab = root && customLabels && customLabels[root];
+    const disp = cLab ? `${cLab} (#${now})` : `#${now}`;
     if (prev === null || prev === undefined || now === prev) {
-      return `<b>#${now}</b>${isRootOrphan ? ' <span class="delta-down">(orphaned branch)</span>' : ''}`;
+      return `<b>${disp}</b>${isRootOrphan ? ' <span class="delta-down">(orphaned branch)</span>' : ''}`;
     }
     const diff = now - prev;
     const cls = diff < 0 ? "delta-down" : "delta-up";
     const sign = diff > 0 ? `+${diff}` : `${diff}`;
-    return `<b>#${now}</b> <span class="${cls}">(was #${prev}, ${sign})</span>${isRootOrphan ? ' <span class="delta-down">[orphaned]</span>' : ''}`;
+    return `<b>${disp}</b> <span class="${cls}">(was #${prev}, ${sign})</span>${isRootOrphan ? ' <span class="delta-down">[orphaned]</span>' : ''}`;
   };
 
   const rows = (sides ? [
@@ -868,8 +941,8 @@ function renderSlotDetails(run, s, T, shareA, final) {
       : (n[9] === "FLOOR" ? `<span class="delta-down">no live lock</span>` : `<span class="delta-up">fast lock</span>`);
     return `<tr>
       <td><b>${name}</b></td>
-      <td>${fmtDelta(n[0], p ? p[0] : null, headOrph)}</td>
-      <td>${fmtDelta(n[2], p ? p[2] : null, safeOrph)}</td>
+      <td>${fmtDelta(n[0], p ? p[0] : null, headOrph, n[1])}</td>
+      <td>${fmtDelta(n[2], p ? p[2] : null, safeOrph, n[3])}</td>
       <td>${fmtDelta(n[4], p ? p[4] : null, false)} · ${srcLabel}</td>
       <td>Justified <b>#${n[7]}</b> / Finalized <b>#${n[6]}</b> (height h=${n[8]})</td>
       <td>${(run.locks[s] && run.locks[s][i]) || "none"}</td>
@@ -1410,7 +1483,13 @@ function renderSingle() {
           tc.beginPath(); tc.arc(x, y, 7.6, 0, 7); tc.stroke();
         }
         tc.fillStyle = T.held; tc.font = "600 10px " + css("--mono"); tc.textAlign = "center";
-        tc.fillText(b.slot, x, y + 18);
+        const cLab = (customLabels && customLabels[b.root]) || b.slot;
+        tc.fillText(cLab, x, y + 18);
+      } else if (customLabels && customLabels[b.root]) {
+        tc.fillStyle = isAdversary ? T.held : T.fg;
+        tc.font = "700 10px " + css("--mono");
+        tc.textAlign = "center";
+        tc.fillText(customLabels[b.root], x, y - 12);
       }
     });
 
@@ -1525,7 +1604,8 @@ function renderSingle() {
         tc.fillStyle = isLock ? T.g1 : (isCanon ? T.muted : T.held);
         tc.font = (isLock ? "600 " : "400 ") + "9.5px " + css("--mono");
         tc.textAlign = "center";
-        tc.fillText(isLock ? `🔒#${b.slot}` : `#${b.slot}`, bx, y + 20);
+        const cLab = (customLabels && customLabels[b.root]) || `#${b.slot}`;
+        tc.fillText(isLock ? `🔒${cLab}` : cLab, bx, y + 20);
         treeHot.push({ x: bx, y, root: b.root, slot: b.slot });
       });
     });
@@ -1670,13 +1750,19 @@ function renderSingle() {
   // the message filter: block, FG attestation and vote messages are kinds 0, 1 and 2
   const shows = k => msgMode === "all" || msgMode === ["blocks", "atts", "votes"][k];
   netHot = []; netHot.w = NW;
-  const nm = r => run.blocks[r] ? `#${run.blocks[r][0]}${final.has(r) ? "" : "′"}` : "#0";
+  const nm = r => {
+    if (!r) return "—";
+    if (r === GEN || r === "GEN") return "Genesis";
+    if (customLabels && customLabels[r]) return customLabels[r];
+    return run.blocks[r] ? `#${run.blocks[r][0]}${final.has(r) ? "" : "′"}` : "#0";
+  };
   const propTip = (root, gets) => {  // gets: [node, arrival time] for each receiver
     const byAt = {};
     gets.sort((a, b) => a[0] - b[0]).forEach(([d, at]) => (byAt[at] = byAt[at] || []).push(d));
     const to = Object.entries(byAt).map(([at, ds]) =>
       `${ds.map(d => `Node ${d}`).join(", ")} at +${((at - t0) / 1000).toFixed(3)} s`);
-    return `Proposed ${nm(root)} (Parent ${nm(run.blocks[root] && run.blocks[root][1])})<br>To ${to.join("; ")}`;
+    const pRoot = run.blocks[root] && run.blocks[root][1];
+    return `Proposes ${nm(root)} (Parent ${nm(pRoot)})<br>To ${to.join("; ")}`;
   };
   if (run.adv) {
     const y = NY(-1);
@@ -1812,9 +1898,12 @@ function renderSingle() {
     }
   }
 
-  const proposedAtZoom = Object.entries(run.blocks).find(([r, b]) => b[0] === zoomSlot);
-  if (proposedAtZoom) {
-    curBlockRoot = proposedAtZoom[0];
+  if (!curBlockRoot || window._lastZoomForBlock !== zoomSlot) {
+    window._lastZoomForBlock = zoomSlot;
+    const proposedAtZoom = Object.entries(run.blocks).find(([r, b]) => b[0] === zoomSlot);
+    if (proposedAtZoom) {
+      curBlockRoot = proposedAtZoom[0];
+    }
   }
   renderBlockExplorer();
 }
@@ -1940,14 +2029,14 @@ function renderBlockExplorer() {
 
   const sel = $("blockSelect");
   if (sel) {
-    let optHtml = `<option value="G"${curBlockRoot === "G" ? " selected" : ""}>Block #0 (Genesis · G)</option>`;
+    let optHtml = `<option value="G"${curBlockRoot === "G" ? " selected" : ""}>Genesis · G</option>`;
     for (const r of allRoots) {
       const blk = blocks[r];
-      const isCanon = final.has(r);
-      const mark = isCanon ? "" : "′ (orphaned)";
       const selAttr = (r === curBlockRoot) ? " selected" : "";
       const pLab = blk[2] < 0 ? "Adversary" : `Node ${blk[2]}`;
-      optHtml += `<option value="${r}"${selAttr}>Block #${blk[0]}${mark} — ${pLab} (${r.slice(0, 8)})</option>`;
+      const cLab = customLabels && customLabels[r];
+      const namePart = cLab ? `${cLab} (Block #${blk[0]})` : `Block #${blk[0]}`;
+      optHtml += `<option value="${r}"${selAttr}>${namePart} — ${pLab} (${r.slice(0, 8)})</option>`;
     }
     sel.innerHTML = optHtml;
     sel.onchange = e => selectBlock(e.target.value);
@@ -2012,13 +2101,11 @@ function renderBlockExplorer() {
     } else if (targets.length === 1) {
       const t = targets[0];
       const tSlot = (t.target_slot !== null && t.target_slot !== undefined) ? t.target_slot : 0;
-      const isTargetCanon = (t.target_root === "G" || final.has(t.target_root));
-      const badgeCanon = isTargetCanon ? "" : '<span class="target-tag-orph">orph</span>';
+      const tDisp = getBlockLabel(t.target_root, {full: true, slot: tSlot});
       targetHtml = `
-        <span class="vote-target-chip" onclick="selectBlock('${t.target_root}')" title="Click to inspect Block #${tSlot}">
+        <span class="vote-target-chip" onclick="selectBlock('${t.target_root}')" title="Click to inspect ${tDisp}">
           <span class="vote-arrow">→</span>
-          <span class="vote-target-num">Block #${tSlot}</span>
-          ${badgeCanon}
+          <span class="vote-target-num">${tDisp}</span>
         </span>
       `;
       countHtml = `<span class="vote-cnt-pill">${t.count} votes</span>`;
@@ -2027,14 +2114,12 @@ function renderBlockExplorer() {
       const totalCnt = targets.reduce((s, x) => s + x.count, 0);
       const chips = targets.map(t => {
         const tSlot = (t.target_slot !== null && t.target_slot !== undefined) ? t.target_slot : 0;
-        const isTargetCanon = (t.target_root === "G" || final.has(t.target_root));
-        const badgeCanon = isTargetCanon ? "" : '<span class="target-tag-orph">orph</span>';
+        const tDisp = getBlockLabel(t.target_root, {full: true, slot: tSlot});
         return `
-          <span class="vote-target-chip" onclick="selectBlock('${t.target_root}')" title="Click to inspect Block #${tSlot} (${t.count} votes)">
+          <span class="vote-target-chip" onclick="selectBlock('${t.target_root}')" title="Click to inspect ${tDisp} (${t.count} votes)">
             <span class="vote-arrow">→</span>
-            <span class="vote-target-num">Block #${tSlot}</span>
+            <span class="vote-target-num">${tDisp}</span>
             <span style="font-size:10px;color:var(--muted)">(${t.count}v)</span>
-            ${badgeCanon}
           </span>
         `;
       }).join("");
@@ -2053,7 +2138,7 @@ function renderBlockExplorer() {
         <div class="node-col-id">
           <i class="dot" style="background:${nCol};width:7px;height:7px;border-radius:50%;display:inline-block"></i>
           <b>${nName}</b>
-          <span class="side-pill-mini ${sideClass}">${nSide}</span>
+          ${isAdv ? "" : `<span class="side-pill-mini ${sideClass}">${nSide}</span>`}
         </div>
         <div class="node-col-target">
           ${targetHtml}
@@ -2074,17 +2159,19 @@ function renderBlockExplorer() {
       const reachedQ = ag.count >= q;
       const tSlot = ag.T_slot !== null && ag.T_slot !== undefined ? ag.T_slot : 0;
       const tfSlot = ag.Tf_slot !== null && ag.Tf_slot !== undefined ? ag.Tf_slot : 0;
+      const tLabel = getBlockLabel(ag.T, {full: true, slot: tSlot});
+      const tfLabel = ag.Tf ? getBlockLabel(ag.Tf, {full: true, slot: tfSlot}) : "";
       if (ag.is_finality) {
         attsHtml += `
           <div class="block-att-banner">
-            📜 <b>Finality Attestation:</b> Target h=${ag.h} (<a href="javascript:void(0)" onclick="selectBlock('${ag.T}')" style="color:inherit;text-decoration:underline">Block #${tSlot}</a>) → Finalizes h<sub>f</sub>=${ag.hf} (<a href="javascript:void(0)" onclick="selectBlock('${ag.Tf}')" style="color:inherit;text-decoration:underline">Block #${tfSlot}</a>)
+            📜 <b>Finality Attestation:</b> Target h=${ag.h} (<a href="javascript:void(0)" onclick="selectBlock('${ag.T}')" style="color:inherit;text-decoration:underline">${tLabel}</a>) → Finalizes h<sub>f</sub>=${ag.hf} (<a href="javascript:void(0)" onclick="selectBlock('${ag.Tf}')" style="color:inherit;text-decoration:underline">${tfLabel}</a>)
             <div style="font-size:11px;margin-top:2px;color:var(--muted)">${ag.count}/${cfg.validators} votes · ${reachedQ ? "✓ 2/3 Quorum reached" : "below 2/3 quorum"}${ag.tau ? " · ⚠️ timed out" : ""}</div>
           </div>
         `;
       } else {
         attsHtml += `
           <div class="block-att-banner">
-            🎯 <b>Target Attestation:</b> Height h=${ag.h} (<a href="javascript:void(0)" onclick="selectBlock('${ag.T}')" style="color:inherit;text-decoration:underline">Block #${tSlot}</a>) · ${ag.count}/${cfg.validators} votes ${reachedQ ? "(2/3 Quorum)" : ""}
+            🎯 <b>Target Attestation:</b> Height h=${ag.h} (<a href="javascript:void(0)" onclick="selectBlock('${ag.T}')" style="color:inherit;text-decoration:underline">${tLabel}</a>) · ${ag.count}/${cfg.validators} votes ${reachedQ ? "(2/3 Quorum)" : ""}
           </div>
         `;
       }
@@ -2124,26 +2211,32 @@ function renderBlockExplorer() {
   const pLab = b.pnode < 0 ? "Adversary" : `Node ${b.pnode}`;
   const pGroup = b.pnode < 0 ? "Adversary" : (b.pnode < cfg.split ? "Side A" : "Side B");
   const parentSlot = b.parent ? (bd[b.parent] ? bd[b.parent].slot : 0) : null;
+  const parentLabel = b.parent ? getBlockLabel(b.parent, {full: true, slot: parentSlot}) : "Genesis";
   const parentLink = b.parent
-    ? `<a href="javascript:void(0)" onclick="selectBlock('${b.parent}')" style="color:var(--a);text-decoration:none;font-weight:600">Block #${parentSlot}</a>`
+    ? `<a href="javascript:void(0)" onclick="selectBlock('${b.parent}')" style="color:var(--a);text-decoration:none;font-weight:600">${parentLabel}</a>`
     : `<span style="color:var(--subtle)">Genesis</span>`;
+
+  const customName = customLabels && customLabels[curBlockRoot];
+  const displayTitle = customName || `Block #${b.slot}`;
+  const subTitle = customName ? `(Block #${b.slot} · ${curBlockRoot.slice(0, 8)})` : `(${curBlockRoot.slice(0, 8)})`;
 
   // 6. Build Center Block HTML
   const centerHtml = `
     <div id="centerBlock" class="chain-box center-block-box">
       <div class="block-card-head">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-          <div style="font-size:16.5px;font-weight:700;font-family:var(--mono);color:var(--fg);display:inline-flex;align-items:baseline;gap:6px">
-            <span>Block #${b.slot}</span>
-            <span style="font-size:11.5px;font-weight:400;color:var(--muted)">(${curBlockRoot.slice(0, 8)})</span>
+          <div style="display:inline-flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <span style="font-size:16.5px;font-weight:700;font-family:var(--mono);color:var(--fg)">${displayTitle}</span>
+            <span style="font-size:11.5px;font-weight:400;color:var(--muted)">${subTitle}</span>
+            <button type="button" class="label-btn" onclick="promptRelabel('${curBlockRoot}')" title="Rename or alias this block across the explorer">✏️ Relabel</button>
           </div>
           <div style="display:inline-flex;gap:4px;align-items:center">
-            <span class="badge ${isCanon ? "badge-canon" : "badge-orph"}">${isCanon ? "● Canonical" : "▲ Orphaned"}</span>
-            ${b.pnode < 0 ? '<span class="badge badge-adv">Adversary Proposer</span>' : ""}
+            ${isCanon ? '<span class="badge badge-canon">● Canonical</span>' : ''}
+            ${b.pnode < 0 ? '<span class="badge badge-adv">Adversary</span>' : ""}
           </div>
         </div>
         <div style="font-size:11.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:4px">
-          <span>Proposer: <b style="color:${pCol}"><i class="dot" style="background:${pCol};width:7px;height:7px;display:inline-block;border-radius:50%;margin-right:3px"></i>${pLab}</b> (${pGroup})</span>
+          <span>Proposer: <b style="color:${pCol}"><i class="dot" style="background:${pCol};width:7px;height:7px;display:inline-block;border-radius:50%;margin-right:3px"></i>${pLab}</b>${b.pnode < 0 ? "" : ` (${pGroup})`}</span>
           <span>Parent: ${parentLink}</span>
           <span>Round ${Math.floor(b.slot / run.spr)} (slot ${b.slot % run.spr}/${run.spr})</span>
         </div>
@@ -2176,14 +2269,15 @@ function renderBlockExplorer() {
     const pb = bd[b.parent];
     const pCanon = (b.parent === "G" || final.has(b.parent));
     const pPnodeLab = pb.pnode < 0 ? "ADV" : `Node ${pb.pnode}`;
+    const pTitle = getBlockLabel(b.parent, {slot: pb.slot});
     parentHtml = `
       <div id="peekParent" class="chain-box peek-box peek-left" onclick="selectBlock('${b.parent}')" title="Click to inspect Block #${pb.slot}">
         <div class="peek-badge">← Parent</div>
-        <div class="peek-title">#${pb.slot} · ${b.parent.slice(0, 8)}</div>
+        <div class="peek-title">${pTitle} · ${b.parent.slice(0, 8)}</div>
         <div class="peek-sub">Proposer: ${pPnodeLab}</div>
         <div class="peek-foot">
           <span>🗳️ ${pb.nvotes || 0} votes</span>
-          <span style="color:${pCanon ? 'var(--tsq)' : 'var(--held)'}">${pCanon ? "● Canon" : "▲ Orphan"}</span>
+          ${pCanon ? '<span style="color:var(--tsq)">● Canon</span>' : ''}
         </div>
       </div>
     `;
@@ -2204,14 +2298,15 @@ function renderBlockExplorer() {
       const chCanon = final.has(chRoot);
       const chPnodeLab = chb.pnode < 0 ? "ADV" : `Node ${chb.pnode}`;
       const rightTopClass = children.length > 1 ? "style='top:38%'" : "";
+      const chTitle = getBlockLabel(chRoot, {slot: chb.slot});
       childrenHtml += `
         <div id="peekChild" class="chain-box peek-box peek-right" ${rightTopClass} onclick="selectBlock('${chRoot}')" title="Click to inspect Block #${chb.slot}">
           <div class="peek-badge">Descendant →</div>
-          <div class="peek-title">#${chb.slot} · ${chRoot.slice(0, 8)}</div>
+          <div class="peek-title">${chTitle} · ${chRoot.slice(0, 8)}</div>
           <div class="peek-sub">Proposer: ${chPnodeLab}</div>
           <div class="peek-foot">
             <span>🗳️ ${chb.nvotes || 0} votes</span>
-            <span style="color:${chCanon ? 'var(--tsq)' : 'var(--held)'}">${chCanon ? "● Canon" : "▲ Orphan"}</span>
+            ${chCanon ? '<span style="color:var(--tsq)">● Canon</span>' : ''}
           </div>
         </div>
       `;
@@ -2224,14 +2319,15 @@ function renderBlockExplorer() {
       if (fb) {
         const fCanon = final.has(fRoot);
         const fPnodeLab = fb.pnode < 0 ? "ADV" : `Node ${fb.pnode}`;
+        const fTitle = getBlockLabel(fRoot, {slot: fb.slot});
         childrenHtml += `
           <div id="peekFork" class="chain-box peek-box peek-fork" onclick="selectBlock('${fRoot}')" title="Click to inspect Fork Block #${fb.slot}">
             <div class="peek-badge" style="color:var(--held)">Fork Branch ↘</div>
-            <div class="peek-title">#${fb.slot} · ${fRoot.slice(0, 8)}</div>
+            <div class="peek-title">${fTitle} · ${fRoot.slice(0, 8)}</div>
             <div class="peek-sub">Proposer: ${fPnodeLab}</div>
             <div class="peek-foot">
               <span>🗳️ ${fb.nvotes || 0} votes</span>
-              <span style="color:${fCanon ? 'var(--tsq)' : 'var(--held)'}">${fCanon ? "● Canon" : "▲ Orphan"}</span>
+              ${fCanon ? '<span style="color:var(--tsq)">● Canon</span>' : ''}
             </div>
           </div>
         `;
@@ -2245,14 +2341,15 @@ function renderBlockExplorer() {
       if (f2b) {
         const f2Canon = final.has(f2Root);
         const f2PnodeLab = f2b.pnode < 0 ? "ADV" : `Node ${f2b.pnode}`;
+        const f2Title = getBlockLabel(f2Root, {slot: f2b.slot});
         childrenHtml += `
           <div id="peekFork2" class="chain-box peek-box peek-fork2" onclick="selectBlock('${f2Root}')" title="Click to inspect Fork Block #${f2b.slot}">
             <div class="peek-badge" style="color:var(--held)">Fork Branch ↙</div>
-            <div class="peek-title">#${f2b.slot} · ${f2Root.slice(0, 8)}</div>
+            <div class="peek-title">${f2Title} · ${f2Root.slice(0, 8)}</div>
             <div class="peek-sub">Proposer: ${f2PnodeLab}</div>
             <div class="peek-foot">
               <span>🗳️ ${f2b.nvotes || 0} votes</span>
-              <span style="color:${f2Canon ? 'var(--tsq)' : 'var(--held)'}">${f2Canon ? "● Canon" : "▲ Orphan"}</span>
+              ${f2Canon ? '<span style="color:var(--tsq)">● Canon</span>' : ''}
             </div>
           </div>
         `;
@@ -2498,6 +2595,7 @@ function render() {
 function pick(name) {
   cur = name;
   curBlockRoot = null;
+  window._lastZoomForBlock = null;
   const m = (RUNS[name] || {}).meta || {};
   if (m.slot) { zoomSlot = m.slot; }
   [...$("tabs").children].forEach(b => b.setAttribute("aria-pressed", b.textContent === name));
