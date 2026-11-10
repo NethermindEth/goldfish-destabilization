@@ -78,12 +78,15 @@ def compact(path, meta=None):
         for v in raw_votes:
             val_idx, vs, vH = v[0], v[1], v[2]
             vn = val_node(val_idx)
-            key = (vs, vH)
+            target_slot = sl(vH)
+            target_name = name(vH)
+            key = (target_slot, vH)
             if key not in vote_groups_map:
                 vote_groups_map[key] = {
-                    "target_slot": vs,
+                    "target_slot": target_slot,
                     "target_root": vH,
-                    "target_name": name(vH),
+                    "target_name": target_name,
+                    "vote_slot": vs,
                     "count": 0,
                     "by_node": {},
                     "vals": []
@@ -92,7 +95,7 @@ def compact(path, meta=None):
             g["count"] += 1
             g["by_node"][str(vn)] = g["by_node"].get(str(vn), 0) + 1
             g["vals"].append(val_idx)
-        vote_groups = sorted(vote_groups_map.values(), key=lambda g: (-g["count"], -g["target_slot"]))
+        vote_groups = sorted(vote_groups_map.values(), key=lambda g: (-g["count"], -(g["target_slot"] or 0)))
 
         raw_atts = det.get("atts", [])
         att_groups_map = {}
@@ -421,77 +424,218 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
   border-radius: 6px; padding: 7px 10px; font: 12px/1.45 var(--mono); color: var(--fg);
   box-shadow: 0 6px 18px rgba(0,0,0,.16); max-width: 340px; z-index: 50;
 }
-/* Section 4: Block Explorer styles */
-.block-peek-track {
-  display: flex; align-items: center; justify-content: flex-start; gap: 8px;
-  background: var(--bg); border: 1px solid var(--grid); border-radius: 8px;
-  padding: 12px 14px; overflow-x: auto; min-height: 84px;
+/* Section 4: Visual Block Explorer & Chain Stage */
+.block-chain-stage {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  background: var(--bg);
+  border: 1px solid var(--grid);
+  border-radius: 8px;
+  overflow: hidden;
+  user-select: none;
 }
-.peek-card {
-  flex-shrink: 0; min-width: 140px; max-width: 220px;
-  background: var(--panel); border: 1px solid var(--gridStrong); border-radius: 6px;
-  padding: 8px 10px; cursor: pointer; text-align: left; transition: all 0.15s ease;
-  display: grid; gap: 3px; font-size: 12px;
+.chain-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
 }
-.peek-card.peek-opaque {
-  opacity: 0.62;
+.chain-box {
+  background: var(--panel);
+  border: 1px solid var(--gridStrong);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  z-index: 2;
+  box-sizing: border-box;
 }
-.peek-card.peek-opaque:hover {
-  opacity: 1; transform: translateY(-2px); border-color: var(--a);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+.center-block-box {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 470px;
+  max-width: 88%;
+  border: 2px solid var(--gridStrong);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.14);
+  overflow: hidden;
 }
-.peek-card.peek-active {
-  opacity: 1; border: 2px solid var(--a); box-shadow: 0 0 0 1px var(--a), 0 4px 14px var(--aSoft);
+.block-vote-stripes {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.vote-stripe {
+  padding: 7px 14px;
+  font: 700 12.5px/1.3 var(--mono);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: filter 0.15s ease;
+}
+.vote-stripe:hover {
+  filter: brightness(1.15);
+  text-decoration: underline;
+}
+.vote-stripe-side-a {
+  background: #1d4ed8; /* Blue */
+}
+.vote-stripe-side-b {
+  background: #b45309; /* Amber */
+}
+.vote-stripe-adv {
+  background: #dc2626; /* Red */
+}
+.vote-stripe-all {
+  background: #4f46e5; /* Indigo */
+}
+.vote-stripe-none {
+  background: var(--grid);
+  color: var(--muted);
+  cursor: default;
+  font-weight: 500;
+  font-family: var(--sans);
+  font-size: 12px;
+}
+.vote-stripe-none:hover {
+  filter: none;
+  text-decoration: none;
+}
+.block-box-body {
+  padding: 10px 14px;
+  display: grid;
+  gap: 6px;
+}
+.block-att-banner {
+  background: rgba(13, 148, 136, 0.12);
+  border: 1px solid rgba(13, 148, 136, 0.35);
+  border-radius: 5px;
+  padding: 6px 10px;
+  font: 600 11.5px/1.4 var(--sans);
+  color: #0d9488;
+  margin: 2px 14px 6px 14px;
+}
+.block-receipts-section {
+  padding: 8px 14px 10px 14px;
+  border-top: 1px solid var(--grid);
   background: var(--panel);
 }
-.peek-label {
-  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--subtle);
+.receipt-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  margin-top: 5px;
+}
+.receipt-chip {
+  background: var(--bg);
+  border: 1px solid var(--grid);
+  border-radius: 4px;
+  padding: 3px 7px;
+  font: 500 11px var(--mono);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.peek-box {
+  width: 175px;
+  padding: 8px 10px;
+  opacity: 0.62;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: grid;
+  gap: 3px;
+}
+.peek-box:hover {
+  opacity: 1;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.16);
+  border-color: var(--a);
+}
+.peek-left {
+  position: absolute;
+  left: -35px; top: 50%;
+  transform: translateY(-50%);
+}
+.peek-left:hover {
+  transform: translateY(-50%) translateX(12px);
+}
+.peek-right {
+  position: absolute;
+  right: -35px; top: 50%;
+  transform: translateY(-50%);
+}
+.peek-right:hover {
+  transform: translateY(-50%) translateX(-12px);
+}
+.peek-fork {
+  position: absolute;
+  right: 120px; bottom: -25px;
+}
+.peek-fork:hover {
+  transform: translateY(-12px);
+}
+.peek-fork2 {
+  position: absolute;
+  left: 120px; bottom: -25px;
+}
+.peek-fork2:hover {
+  transform: translateY(-12px);
+}
+.peek-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--subtle);
 }
 .peek-title {
-  font-size: 13.5px; font-weight: 700; color: var(--fg); font-family: var(--mono);
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--fg);
 }
-.peek-arrow {
-  flex-shrink: 0; font-size: 14px; font-weight: 700; color: var(--subtle); user-select: none; padding: 0 2px;
+.peek-sub {
+  font-size: 11px;
+  color: var(--muted);
 }
-.block-hero {
-  background: var(--panel); border: 1px solid var(--grid); border-radius: 8px;
-  padding: 14px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;
+.peek-foot {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-.hero-left { display: grid; gap: 6px; min-width: 260px; }
-.hero-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.hero-title { font-size: 19px; font-weight: 700; margin: 0; }
-.hero-hash { font-size: 12px; font-family: var(--mono); color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.peek-empty {
+  position: absolute;
+  padding: 8px 12px;
+  border: 1px dashed var(--grid);
+  border-radius: 6px;
+  color: var(--subtle);
+  font: 500 11px var(--mono);
+  background: var(--panel);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.peek-left-empty {
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+}
+.peek-right-empty {
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+}
 .copy-btn {
   font: 500 11px var(--sans); padding: 2px 7px; border-radius: 4px;
   border: 1px solid var(--gridStrong); background: var(--bg); color: var(--fg); cursor: pointer;
 }
 .copy-btn:hover { border-color: var(--a); color: var(--a); }
-.hero-stats { display: flex; flex-wrap: wrap; gap: 8px 12px; }
-.stat-pill {
-  background: var(--bg); border: 1px solid var(--grid); border-radius: 6px;
-  padding: 6px 12px; min-width: 95px; display: grid; gap: 2px;
-}
-.stat-pill-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--subtle); }
-.stat-pill-val { font-size: 14px; font-weight: 700; color: var(--fg); font-family: var(--mono); }
-.block-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 14px; }
-.block-card {
-  background: var(--panel); border: 1px solid var(--grid); border-radius: 8px;
-  padding: 14px 16px; display: grid; gap: 10px;
-}
-.block-card h3 {
-  font-size: 14.5px; font-weight: 600; margin: 0; padding-bottom: 6px; border-bottom: 1px solid var(--grid);
-  display: flex; justify-content: space-between; align-items: center;
-}
 .block-select {
   font: 500 12.5px var(--sans); padding: 4px 8px; border-radius: 5px;
   border: 1px solid var(--gridStrong); background: var(--panel); color: var(--fg); cursor: pointer;
-  max-width: 260px;
+  max-width: 280px;
 }
-.prog-bar-wrap {
-  background: var(--bg); border: 1px solid var(--grid); border-radius: 4px; height: 8px;
-  overflow: hidden; display: flex; width: 100%;
-}
-.prog-bar-seg { height: 100%; }
 .badge {
   display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px;
   font-size: 11px; font-weight: 600;
@@ -652,16 +796,11 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
           <select id="blockSelect" class="block-select" aria-label="Select block"></select>
           <button type="button" class="step-btn" id="blockPrevBtn">◀ Prev block</button>
           <button type="button" class="step-btn" id="blockNextBtn">Next block ▶</button>
+          <button type="button" class="step-btn" id="blockZoomBtn" title="Zoom this block's slot in Section 3">🔍 Zoom slot</button>
         </div>
       </div>
-      <p class="note">Inspect inside any block: votes bundled for previous heads, checkpoint &amp; finality attestations, and arrival times at each validator node. Click any ancestor or descendant below to walk the chain.</p>
-      <div id="blockPeekTrack" class="block-peek-track"></div>
-      <div id="blockHeroCard" class="block-hero"></div>
-      <div class="block-grid">
-        <div class="block-card" id="blockVotesCard"></div>
-        <div class="block-card" id="blockAttsCard"></div>
-      </div>
-      <div class="block-card" id="blockReceiptsCard"></div>
+      <p class="note">Inspect chain layout and block contents: bundled votes, finality attestations, and validator reception times. Click any peeked block on the borders or any vote bundle to walk the chain.</p>
+      <div id="blockChainStage" class="block-chain-stage"></div>
     </section>
     <section class="panel" id="settlePanel" hidden>
       <h2>Height settlements at each round boundary (majority chain)</h2>
@@ -1887,6 +2026,65 @@ function fmtValRanges(vals) {
   return ranges.join(", ");
 }
 
+let chainResizeBound = false;
+
+function updateConnectingLines() {
+  const stage = $("blockChainStage");
+  const svg = $("chainSvg");
+  const cEl = $("centerBlock");
+  if (!stage || !svg || !cEl) return;
+  const sRect = stage.getBoundingClientRect();
+  const cRect = cEl.getBoundingClientRect();
+
+  let linesHtml = "";
+
+  // 1. Horizontal line from Left Parent to Center Block
+  const pEl = $("peekParent");
+  if (pEl) {
+    const pRect = pEl.getBoundingClientRect();
+    const x1 = pRect.right - sRect.left;
+    const y1 = pRect.top + pRect.height / 2 - sRect.top;
+    const x2 = cRect.left - sRect.left;
+    const y2 = cRect.top + cRect.height / 2 - sRect.top;
+    linesHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--gridStrong)" stroke-width="2.5" />`;
+  }
+
+  // 2. Horizontal line from Center Block to Right Child
+  const chEl = $("peekChild");
+  if (chEl) {
+    const chRect = chEl.getBoundingClientRect();
+    const x1 = cRect.right - sRect.left;
+    const y1 = cRect.top + cRect.height / 2 - sRect.top;
+    const x2 = chRect.left - sRect.left;
+    const y2 = chRect.top + chRect.height / 2 - sRect.top;
+    linesHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--gridStrong)" stroke-width="2.5" />`;
+  }
+
+  // 3. Diagonal line (\) from bottom of Center Block to Bottom-Right Fork Child
+  const forkEl = $("peekFork");
+  if (forkEl) {
+    const fRect = forkEl.getBoundingClientRect();
+    const x1 = cRect.right - 45 - sRect.left;
+    const y1 = cRect.bottom - sRect.top;
+    const x2 = fRect.left + fRect.width / 2 - sRect.left;
+    const y2 = fRect.top - sRect.top;
+    linesHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--held)" stroke-width="2.5" stroke-dasharray="5,4" />`;
+  }
+
+  // 4. Diagonal line (/) from bottom of Center Block to Bottom-Left Fork Child (if 3+ children)
+  const fork2El = $("peekFork2");
+  if (fork2El) {
+    const f2Rect = fork2El.getBoundingClientRect();
+    const x1 = cRect.left + 45 - sRect.left;
+    const y1 = cRect.bottom - sRect.top;
+    const x2 = f2Rect.left + f2Rect.width / 2 - sRect.left;
+    const y2 = f2Rect.top - sRect.top;
+    linesHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--held)" stroke-width="2.5" stroke-dasharray="5,4" />`;
+  }
+
+  svg.innerHTML = linesHtml;
+}
+
 function renderBlockExplorer() {
   const run = RUNS[cur];
   if (!run || !run.blockDetails) return;
@@ -1901,13 +2099,16 @@ function renderBlockExplorer() {
     grid: css("--grid"), panel: css("--panel"), bg: css("--bg")
   };
 
+  if (!chainResizeBound) {
+    chainResizeBound = true;
+    window.addEventListener("resize", updateConnectingLines);
+  }
+
   // Ensure curBlockRoot is valid
   if (!curBlockRoot || !bd[curBlockRoot]) {
-    // Try to find block proposed at zoomSlot
     const match = Object.entries(blocks).find(([r, blk]) => blk[0] === zoomSlot);
     if (match) curBlockRoot = match[0];
     else {
-      // Find latest block <= zoomSlot
       const sorted = Object.entries(blocks).sort((x, y) => x[1][0] - y[1][0] || x[0].localeCompare(y[0]));
       const prev = sorted.filter(([r, blk]) => blk[0] <= zoomSlot).pop();
       curBlockRoot = prev ? prev[0] : (sorted[0] ? sorted[0][0] : "G");
@@ -1917,10 +2118,13 @@ function renderBlockExplorer() {
   const b = bd[curBlockRoot];
   if (!b) return;
 
-  // 1. Populate block selector dropdown
+  // 1. Populate block selector dropdown & prev/next buttons
+  const allRoots = Object.keys(blocks).sort((x, y) => blocks[x][0] - blocks[y][0] || x.localeCompare(y));
+  const allSortedRoots = ["G", ...allRoots];
+  const curIdx = allSortedRoots.indexOf(curBlockRoot);
+
   const sel = $("blockSelect");
   if (sel) {
-    const allRoots = Object.keys(blocks).sort((x, y) => blocks[x][0] - blocks[y][0] || x.localeCompare(y));
     let optHtml = `<option value="G"${curBlockRoot === "G" ? " selected" : ""}>Block #0 (Genesis · G)</option>`;
     for (const r of allRoots) {
       const blk = blocks[r];
@@ -1931,347 +2135,290 @@ function renderBlockExplorer() {
       optHtml += `<option value="${r}"${selAttr}>Block #${blk[0]}${mark} — ${pLab} (${r.slice(0, 8)})</option>`;
     }
     sel.innerHTML = optHtml;
-    sel.onchange = e => {
-      selectBlock(e.target.value);
+    sel.onchange = e => selectBlock(e.target.value);
+  }
+
+  if ($("blockPrevBtn")) {
+    $("blockPrevBtn").disabled = (curIdx <= 0);
+    $("blockPrevBtn").onclick = () => {
+      if (curIdx > 0) selectBlock(allSortedRoots[curIdx - 1]);
+    };
+  }
+  if ($("blockNextBtn")) {
+    $("blockNextBtn").disabled = (curIdx >= allSortedRoots.length - 1);
+    $("blockNextBtn").onclick = () => {
+      if (curIdx < allSortedRoots.length - 1) selectBlock(allSortedRoots[curIdx + 1]);
+    };
+  }
+  if ($("blockZoomBtn")) {
+    $("blockZoomBtn").onclick = () => {
+      zoomSlot = b.slot;
+      renderSingle();
+      $("net").scrollIntoView({ behavior: "smooth" });
     };
   }
 
-  // Prev / Next buttons
-  const allSortedRoots = ["G", ...Object.keys(blocks).sort((x, y) => blocks[x][0] - blocks[y][0] || x.localeCompare(y))];
-  const curIdx = allSortedRoots.indexOf(curBlockRoot);
-  $("blockPrevBtn").disabled = (curIdx <= 0);
-  $("blockNextBtn").disabled = (curIdx >= allSortedRoots.length - 1);
-  $("blockPrevBtn").onclick = () => {
-    if (curIdx > 0) selectBlock(allSortedRoots[curIdx - 1]);
-  };
-  $("blockNextBtn").onclick = () => {
-    if (curIdx < allSortedRoots.length - 1) selectBlock(allSortedRoots[curIdx + 1]);
-  };
-
-  // 2. Chain Peek Ribbon
-  const ancestors = [];
-  let curr = b.parent;
-  while (curr && bd[curr] && ancestors.length < 3) {
-    ancestors.unshift(curr);
-    curr = bd[curr].parent;
-  }
-
-  const children = b.children || [];
-  const descendants = [];
-  for (const c of children) {
-    descendants.push({ root: c, isChild: true, fork: children.length > 1 });
-  }
-  if (children.length === 1 && bd[children[0]] && bd[children[0]].children && bd[children[0]].children.length > 0) {
-    const gc = bd[children[0]].children[0];
-    descendants.push({ root: gc, isChild: false, fork: false });
-  }
-
-  function renderCard(root, roleLabel, isOpaque) {
-    const info = bd[root];
-    if (!info) return "";
-    const isCanon = (root === "G" || final.has(root));
-    const pCol = info.pnode < 0 ? T.held : (info.pnode < cfg.split ? T.a : T.b);
-    const pLab = info.pnode < 0 ? "Adversary" : `Node ${info.pnode}`;
-    const canonBadge = isCanon
-      ? `<span style="color:${T.tsq};font-weight:600">● canonical</span>`
-      : `<span style="color:${T.held};font-weight:600">▲ orphaned</span>`;
-    const voteBadge = root !== "G" ? `<span>🗳️ ${info.nvotes || 0}</span>` : "";
-    const attBadge = (info.natt > 0) ? `<span>📜 ${info.natt}</span>` : "";
-
-    return `
-      <div class="peek-card ${isOpaque ? "peek-opaque" : "peek-active"}" onclick="selectBlock('${root}')" title="Click to inspect Block #${info.slot}">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span class="peek-label">${roleLabel}</span>
-          ${canonBadge}
-        </div>
-        <div class="peek-title">#${info.slot} · ${root.slice(0, 8)}</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)">
-          <span style="display:inline-flex;align-items:center;gap:4px">
-            <i class="dot" style="background:${pCol};width:7px;height:7px"></i>${pLab}
-          </span>
-          <div style="display:inline-flex;gap:6px">${voteBadge} ${attBadge}</div>
-        </div>
-      </div>
-    `;
-  }
-
-  let peekHtml = "";
-  for (let i = 0; i < ancestors.length; i++) {
-    const aRoot = ancestors[i];
-    const dist = ancestors.length - i;
-    const label = dist === 1 ? "Parent (-1)" : (dist === 2 ? "Grandparent (-2)" : `Ancestor (-${dist})`);
-    peekHtml += renderCard(aRoot, label, true);
-    peekHtml += `<span class="peek-arrow">→</span>`;
-  }
-
-  peekHtml += renderCard(curBlockRoot, "Active Block", false);
-
-  if (descendants.length > 0) {
-    for (let i = 0; i < descendants.length; i++) {
-      peekHtml += `<span class="peek-arrow">→</span>`;
-      const d = descendants[i];
-      const dLabel = d.isChild ? (d.fork ? "Fork Branch (+1)" : "Child (+1)") : "Grandchild (+2)";
-      peekHtml += renderCard(d.root, dLabel, true);
-    }
-  } else {
-    peekHtml += `<span class="peek-arrow">→</span><div class="peek-card peek-opaque" style="cursor:default;opacity:0.4;border-style:dashed"><span class="peek-label">Tip</span><div class="peek-title" style="font-size:12px;font-weight:400">No descendants yet</div></div>`;
-  }
-  $("blockPeekTrack").innerHTML = peekHtml;
-
-  // 3. Block Hero Card
-  const isCanon = (curBlockRoot === "G" || final.has(curBlockRoot));
-  const pCol = b.pnode < 0 ? T.held : (b.pnode < cfg.split ? T.a : T.b);
-  const pLab = b.pnode < 0 ? "Adversary" : `Node ${b.pnode}`;
-  const pGroup = b.pnode < 0 ? "Adversary" : (b.pnode < cfg.split ? "Side A" : "Side B");
-  const parentSlot = b.parent ? (bd[b.parent] ? bd[b.parent].slot : 0) : null;
-  const parentLink = b.parent
-    ? `<a href="javascript:void(0)" onclick="selectBlock('${b.parent}')" style="color:var(--a);text-decoration:none;font-weight:600">#${parentSlot} (${b.parent.slice(0, 8)})</a>`
-    : `<span style="color:var(--subtle)">None (Genesis)</span>`;
-
-  let fastestDelay = Infinity, slowestDelay = -Infinity;
-  let receivedCount = 0;
-  if (b.receipts) {
-    for (const [nid, rinfo] of Object.entries(b.receipts)) {
-      if (rinfo) {
-        receivedCount++;
-        const delay = rinfo[1];
-        if (delay < fastestDelay) fastestDelay = delay;
-        if (delay > slowestDelay) slowestDelay = delay;
-      }
-    }
-  }
-  const propSummary = (receivedCount > 0)
-    ? `+${fastestDelay}ms / +${slowestDelay}ms`
-    : "—";
-
-  $("blockHeroCard").innerHTML = `
-    <div class="hero-left">
-      <div class="hero-title-row">
-        <h3 class="hero-title">Block #${b.slot}</h3>
-        <span class="badge ${isCanon ? "badge-canon" : "badge-orph"}">
-          ${isCanon ? "● Canonical on Node 0" : "▲ Orphaned branch"}
-        </span>
-        ${b.pnode < 0 ? '<span class="badge badge-adv">⚔️ Adversary proposal</span>' : ""}
-        ${(b.atts && b.atts.some(a => a.is_finality)) ? '<span class="badge badge-fin">🔒 Finality Checkpoint</span>' : ""}
-      </div>
-      <div class="hero-hash">
-        <span>Root: <b>${curBlockRoot}</b></span>
-        <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText('${curBlockRoot}');this.innerText='Copied!';setTimeout(()=>this.innerText='Copy',1500)">Copy</button>
-      </div>
-      <div style="font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:12px;align-items:center">
-        <span><b>Proposer:</b> <i class="dot" style="background:${pCol};width:8px;height:8px"></i> ${pLab} (${pGroup}${b.pval >= 0 ? ` · val #${b.pval}` : ""})</span>
-        <span><b>Parent:</b> ${parentLink}</span>
-        <span><b>Round:</b> ${Math.floor(b.slot / run.spr)} (slot ${b.slot % run.spr} / ${run.spr})</span>
-        <button type="button" class="copy-btn" onclick="zoomSlot=${b.slot};renderSingle();$('net').scrollIntoView({behavior:'smooth'})" style="font-size:11px">🔍 Zoom Slot #${b.slot} in Section 3</button>
-      </div>
-    </div>
-    <div class="hero-stats">
-      <div class="stat-pill">
-        <span class="stat-pill-label">Votes Included</span>
-        <span class="stat-pill-val">${b.nvotes || 0}</span>
-      </div>
-      <div class="stat-pill">
-        <span class="stat-pill-label">Attestations</span>
-        <span class="stat-pill-val">${b.natt || 0}</span>
-      </div>
-      <div class="stat-pill">
-        <span class="stat-pill-label">Declared Support</span>
-        <span class="stat-pill-val">${(b.support && b.support.length) ? b.support.reduce((s, g) => s + g.count, 0) : 0}</span>
-      </div>
-      <div class="stat-pill">
-        <span class="stat-pill-label">Propagation Delay</span>
-        <span class="stat-pill-val" style="font-size:12.5px">${propSummary}</span>
-      </div>
-    </div>
-  `;
-
-  // 4. Votes Card
+  // 2. Build Vote Stripes for the center block
+  let stripesHtml = "";
   const votes = b.votes || [];
-  let votesHtml = `<h3><span>🗳️ Votes Inside Block (${b.nvotes || 0})</span></h3>`;
   if (votes.length === 0) {
-    votesHtml += `<p class="note" style="padding:10px 0">No Goldfish votes included in this block (e.g. proposed in slot 1 or without received votes from slot ${Math.max(0, b.slot - 1)}).</p>`;
+    stripesHtml = `<div class="vote-stripe vote-stripe-none">No Goldfish votes bundled in this block</div>`;
   } else {
     for (const g of votes) {
-      const isTargetCanon = (g.target_root === "G" || final.has(g.target_root));
-      const targetLink = `<a href="javascript:void(0)" onclick="selectBlock('${g.target_root}')" style="color:var(--a);text-decoration:none;font-weight:700">Block #${g.target_slot} (${g.target_root.slice(0, 8)})</a>`;
-      const pct = Math.round(100 * g.count / cfg.validators);
+      const targetSlot = g.target_slot !== null && g.target_slot !== undefined ? g.target_slot : 0;
+      const targetRoot = g.target_root;
+      const targetLabel = `#${targetSlot}`;
 
-      let nodeBreakdownHtml = "";
-      let barSegsHtml = "";
-      const sortedNids = Object.keys(g.by_node).sort((x, y) => (+x) - (+y));
-      for (const nid of sortedNids) {
-        const cnt = g.by_node[nid];
-        const nInt = +nid;
-        const nCol = nInt < 0 ? T.held : (nInt < cfg.split ? T.a : T.b);
-        const nName = nInt < 0 ? "Adversary" : `Node ${nInt} (${nInt < cfg.split ? "Side A" : "Side B"})`;
-        const segWidth = (cnt / cfg.validators) * 100;
-        barSegsHtml += `<div class="prog-bar-seg" style="width:${segWidth}%;background:${nCol}" title="${nName}: ${cnt} votes"></div>`;
-        nodeBreakdownHtml += `
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:3px 0">
-            <span><i class="dot" style="background:${nCol};width:8px;height:8px"></i> <b>${nName}</b></span>
-            <span><b>${cnt} votes</b> (${Math.round(100 * cnt / g.count)}% of this bundle)</span>
+      // Check which nodes voted for this target
+      const advCnt = g.by_node["-1"] || 0;
+      const sideANodes = Object.keys(g.by_node).filter(n => +n >= 0 && +n < cfg.split).map(Number).sort((x, y) => x - y);
+      const sideACnt = sideANodes.reduce((s, n) => s + g.by_node[String(n)], 0);
+      const sideBNodes = Object.keys(g.by_node).filter(n => +n >= cfg.split).map(Number).sort((x, y) => x - y);
+      const sideBCnt = sideBNodes.reduce((s, n) => s + g.by_node[String(n)], 0);
+      const honestNodes = Object.keys(g.by_node).filter(n => +n >= 0).map(Number).sort((x, y) => x - y);
+      const honestCnt = honestNodes.reduce((s, n) => s + g.by_node[String(n)], 0);
+
+      // Render stripes: Side A (blue), Side B (amber), Adversary (red)
+      if (cfg.sides) {
+        if (sideACnt > 0) {
+          const nStr = sideANodes.length === 1 ? `Node ${sideANodes[0]}` : `Node ${sideANodes.join(", ")}`;
+          stripesHtml += `
+            <div class="vote-stripe vote-stripe-side-a" onclick="selectBlock('${targetRoot}')" title="Click to inspect Block ${targetLabel}">
+              <span>${nStr} → Block ${targetLabel}</span>
+              <span>${sideACnt} votes</span>
+            </div>
+          `;
+        }
+        if (sideBCnt > 0) {
+          const nStr = sideBNodes.length === 1 ? `Node ${sideBNodes[0]}` : `Node ${sideBNodes.join(", ")}`;
+          stripesHtml += `
+            <div class="vote-stripe vote-stripe-side-b" onclick="selectBlock('${targetRoot}')" title="Click to inspect Block ${targetLabel}">
+              <span>${nStr} → Block ${targetLabel}</span>
+              <span>${sideBCnt} votes</span>
+            </div>
+          `;
+        }
+      } else {
+        if (honestCnt > 0) {
+          const nStr = honestNodes.length === cfg.nodes ? "All Nodes" : (honestNodes.length === 1 ? `Node ${honestNodes[0]}` : `Node ${honestNodes.join(", ")}`);
+          stripesHtml += `
+            <div class="vote-stripe vote-stripe-all" onclick="selectBlock('${targetRoot}')" title="Click to inspect Block ${targetLabel}">
+              <span>${nStr} → Block ${targetLabel}</span>
+              <span>${honestCnt} votes</span>
+            </div>
+          `;
+        }
+      }
+
+      if (advCnt > 0) {
+        stripesHtml += `
+          <div class="vote-stripe vote-stripe-adv" onclick="selectBlock('${targetRoot}')" title="Click to inspect Block ${targetLabel}">
+            <span>ADV → Block ${targetLabel}</span>
+            <span>${advCnt} votes</span>
           </div>
         `;
       }
-
-      const valTags = (g.vals && g.vals.length > 0)
-        ? `<div style="font-size:11.5px;color:var(--muted);margin-top:6px">Validators: ${fmtValRanges(g.vals)}</div>`
-        : "";
-
-      votesHtml += `
-        <div style="background:var(--bg);border:1px solid var(--grid);border-radius:6px;padding:10px 12px;display:grid;gap:6px">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-            <div>Voted for: ${targetLink} ${isTargetCanon ? '<span class="badge badge-canon" style="font-size:10px">Canonical</span>' : '<span class="badge badge-orph" style="font-size:10px">Orphaned</span>'}</div>
-            <div style="font-family:var(--mono);font-weight:700;font-size:13px">${g.count} votes (${pct}% committee)</div>
-          </div>
-          <div class="prog-bar-wrap">${barSegsHtml}</div>
-          <div style="display:grid;gap:2px;margin-top:4px">${nodeBreakdownHtml}</div>
-          ${valTags}
-        </div>
-      `;
     }
   }
-  $("blockVotesCard").innerHTML = votesHtml;
 
-  // 5. Attestations & Finality Card
+  // 3. Build Attestations Banner
+  let attsHtml = "";
   const atts = b.atts || [];
-  let attsHtml = `<h3><span>📜 Finality &amp; Checkpoint Attestations (${b.natt || 0})</span></h3>`;
-  if (atts.length === 0) {
-    attsHtml += `<p class="note" style="padding:10px 0">No attestations carried by this block. Honest nodes attest at round action times (slots 8, 16, 24, 32, 40, 48, 56, 64...), and proposals include them on chain.</p>`;
-  } else {
+  if (atts.length > 0) {
     for (const ag of atts) {
       const q = cfg.q || Math.floor((2 * cfg.validators) / 3) + 1;
       const reachedQ = ag.count >= q;
-      const pct = Math.round(100 * ag.count / cfg.validators);
-
-      const targetLink = `<a href="javascript:void(0)" onclick="selectBlock('${ag.T}')" style="color:var(--a);text-decoration:none;font-weight:700">Block #${ag.T_slot} (${ag.T.slice(0, 8)})</a>`;
-      const finLink = ag.is_finality
-        ? `<a href="javascript:void(0)" onclick="selectBlock('${ag.Tf}')" style="color:var(--heal);text-decoration:none;font-weight:700">Block #${ag.Tf_slot} (${ag.Tf.slice(0, 8)})</a>`
-        : "";
-
-      let nodeBreakdownHtml = "";
-      let barSegsHtml = "";
-      const sortedNids = Object.keys(ag.by_node).sort((x, y) => (+x) - (+y));
-      for (const nid of sortedNids) {
-        const cnt = ag.by_node[nid];
-        const nInt = +nid;
-        const nCol = nInt < 0 ? T.held : (nInt < cfg.split ? T.a : T.b);
-        const nName = nInt < 0 ? "Adversary" : `Node ${nInt} (${nInt < cfg.split ? "Side A" : "Side B"})`;
-        const segWidth = (cnt / cfg.validators) * 100;
-        barSegsHtml += `<div class="prog-bar-seg" style="width:${segWidth}%;background:${nCol}" title="${nName}: ${cnt} atts"></div>`;
-        nodeBreakdownHtml += `
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:3px 0">
-            <span><i class="dot" style="background:${nCol};width:8px;height:8px"></i> <b>${nName}</b></span>
-            <span><b>${cnt} attestations</b></span>
+      const tSlot = ag.T_slot !== null && ag.T_slot !== undefined ? ag.T_slot : 0;
+      const tfSlot = ag.Tf_slot !== null && ag.Tf_slot !== undefined ? ag.Tf_slot : 0;
+      if (ag.is_finality) {
+        attsHtml += `
+          <div class="block-att-banner">
+            📜 <b>Finality Attestation:</b> Target h=${ag.h} (<a href="javascript:void(0)" onclick="selectBlock('${ag.T}')" style="color:inherit;text-decoration:underline">Block #${tSlot}</a>) → Finalizes h<sub>f</sub>=${ag.hf} (<a href="javascript:void(0)" onclick="selectBlock('${ag.Tf}')" style="color:inherit;text-decoration:underline">Block #${tfSlot}</a>)
+            <div style="font-size:11px;margin-top:2px;color:var(--muted)">${ag.count}/${cfg.validators} votes · ${reachedQ ? "✓ 2/3 Quorum reached" : "below 2/3 quorum"}${ag.tau ? " · ⚠️ timed out" : ""}</div>
+          </div>
+        `;
+      } else {
+        attsHtml += `
+          <div class="block-att-banner">
+            🎯 <b>Target Attestation:</b> Height h=${ag.h} (<a href="javascript:void(0)" onclick="selectBlock('${ag.T}')" style="color:inherit;text-decoration:underline">Block #${tSlot}</a>) · ${ag.count}/${cfg.validators} votes ${reachedQ ? "(2/3 Quorum)" : ""}
           </div>
         `;
       }
-
-      const valTags = (ag.vals && ag.vals.length > 0)
-        ? `<div style="font-size:11.5px;color:var(--muted);margin-top:6px">Signers: ${fmtValRanges(ag.vals)}</div>`
-        : "";
-
-      attsHtml += `
-        <div style="background:var(--bg);border:1px solid var(--grid);border-radius:6px;padding:10px 12px;display:grid;gap:6px">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:gap:6px">
-            <div>
-              ${ag.is_finality ? `<span class="badge badge-fin" style="margin-right:6px">🔒 Finality</span>` : `<span class="badge" style="background:var(--aSoft);color:var(--a);margin-right:6px">🎯 Target</span>`}
-              <b>Height h=${ag.h}</b>: ${targetLink}
-              ${ag.is_finality ? `<br><span style="font-size:12px;color:var(--muted)">Finalizes height h_f=${ag.hf} checkpoint: ${finLink}</span>` : ""}
-            </div>
-            <div style="text-align:right">
-              <span class="badge ${reachedQ ? "badge-canon" : "badge-orph"}">
-                ${reachedQ ? `✓ 2/3 Quorum reached (${ag.count}/${cfg.validators})` : `Below 2/3 quorum (${ag.count}/${cfg.validators})`}
-              </span>
-              ${ag.tau ? '<span class="badge badge-orph" style="margin-left:4px">⚠️ Timed out</span>' : ""}
-            </div>
-          </div>
-          <div class="prog-bar-wrap" style="position:relative">
-            ${barSegsHtml}
-            <div style="position:absolute;left:${(q / cfg.validators) * 100}%;top:0;bottom:0;width:2px;background:var(--fg);opacity:0.6" title="2/3 Quorum (${q})"></div>
-          </div>
-          <div style="display:grid;gap:2px;margin-top:4px">${nodeBreakdownHtml}</div>
-          ${valTags}
-        </div>
-      `;
     }
   }
-  $("blockAttsCard").innerHTML = attsHtml;
 
-  // 6. Validator Reception Times Card
-  let receiptsHtml = `
-    <h3><span>⏱️ Validator &amp; Node Reception Times</span></h3>
-    <p class="note">Shows when each validator node accepted Block #${b.slot} into its local Store. Messages delayed across a partition cut wait for GST heal; sleeping nodes process queued blocks on restart.</p>
-  `;
-
-  let tableRows = "";
+  // 4. Build Validator Reception Chips
   const rcv = b.receipts || {};
+  let chipsHtml = "";
   const allNids = [];
   for (let i = 0; i < cfg.nodes; i++) allNids.push(i);
   if (rcv["-1"] !== undefined || run.adv > 0) allNids.push(-1);
 
   for (const nid of allNids) {
     const isAdv = (nid === -1);
-    const nName = isAdv ? "Adversary" : `Node ${nid}`;
-    const nGroup = isAdv ? "Adversary" : (nid < cfg.split ? "Side A" : "Side B");
-    const nCol = isAdv ? T.held : (nid < cfg.split ? T.a : T.b);
-    const valCount = isAdv ? (run.adv || 0) : (run.vals[nid] || 0);
-    const valRangeStr = isAdv
-      ? `${valCount} validators`
-      : `${valCount} validators (${valRange(run, nid)})`;
-
+    const nName = isAdv ? "ADV" : `Node ${nid}`;
     const rinfo = rcv[nid];
-    let timeStr = "—", delayStr = "—", statusBadge = "";
-
     if (rinfo) {
-      const atMs = rinfo[0];
       const delayMs = rinfo[1];
-      timeStr = `${(atMs / 1000).toFixed(3)} s (${atMs.toLocaleString()} ms)`;
-      delayStr = `+${delayMs.toLocaleString()} ms`;
-
       if (nid === b.pnode) {
-        statusBadge = `<span class="badge badge-canon">Proposer (+0 ms)</span>`;
+        chipsHtml += `<div class="receipt-chip"><span style="color:#16a34a;font-weight:700">● ${nName}</span>: +0 ms <span style="font-size:10px;color:var(--muted)">(proposer)</span></div>`;
       } else if (delayMs <= run.deadlines[0]) {
-        statusBadge = `<span class="badge badge-canon">On-time (synchrony)</span>`;
+        chipsHtml += `<div class="receipt-chip"><span style="color:#16a34a;font-weight:600">● ${nName}</span>: +${delayMs} ms</div>`;
       } else if (cfg.slots_down > 0 && b.slot >= cfg.start && b.slot < cfg.start + cfg.slots_down) {
-        statusBadge = `<span class="badge badge-orph">Held by partition cut</span>`;
+        chipsHtml += `<div class="receipt-chip"><span style="color:#d97706;font-weight:600">▲ ${nName}</span>: +${(delayMs / 1000).toFixed(1)} s <span style="font-size:10px;color:var(--muted)">(cut)</span></div>`;
       } else {
-        statusBadge = `<span class="badge badge-fin">Delivered (+${delayMs}ms)</span>`;
+        chipsHtml += `<div class="receipt-chip"><span style="color:#0d9488;font-weight:600">● ${nName}</span>: +${delayMs} ms</div>`;
       }
     } else {
-      timeStr = "<span style='color:var(--held)'>Never received</span>";
-      delayStr = "—";
-      statusBadge = `<span class="badge badge-orph">Withheld / dropped</span>`;
+      chipsHtml += `<div class="receipt-chip"><span style="color:#dc2626;font-weight:600">✕ ${nName}</span>: not received</div>`;
     }
-
-    tableRows += `
-      <tr>
-        <td><i class="dot" style="background:${nCol};width:8px;height:8px;margin-right:6px"></i><b>${nName}</b></td>
-        <td><span class="side-pill ${isAdv ? "" : (nid < cfg.split ? "side-a" : "side-b")}" style="${isAdv ? 'border-color:var(--held);color:var(--held)' : ''}">${nGroup}</span></td>
-        <td>${valRangeStr}</td>
-        <td style="font-family:var(--mono)">${timeStr}</td>
-        <td style="font-family:var(--mono);font-weight:600">${delayStr}</td>
-        <td>${statusBadge}</td>
-      </tr>
-    `;
   }
 
-  receiptsHtml += `
-    <table class="summary" style="margin-top:6px">
-      <thead>
-        <tr>
-          <th>Node</th>
-          <th>Partition Group</th>
-          <th>Validators Assigned</th>
-          <th>Store Arrival Time</th>
-          <th>Delay (from Proposal)</th>
-          <th>Propagation Status</th>
-        </tr>
-      </thead>
-      <tbody>${tableRows}</tbody>
-    </table>
+  // 5. Proposer and block header info
+  const isCanon = (curBlockRoot === "G" || final.has(curBlockRoot));
+  const pCol = b.pnode < 0 ? T.held : (b.pnode < cfg.split ? T.a : T.b);
+  const pLab = b.pnode < 0 ? "Adversary" : `Node ${b.pnode}`;
+  const pGroup = b.pnode < 0 ? "Adversary" : (b.pnode < cfg.split ? "Side A" : "Side B");
+  const parentSlot = b.parent ? (bd[b.parent] ? bd[b.parent].slot : 0) : null;
+  const parentLink = b.parent
+    ? `<a href="javascript:void(0)" onclick="selectBlock('${b.parent}')" style="color:var(--a);text-decoration:none;font-weight:600">Block #${parentSlot}</a>`
+    : `<span style="color:var(--subtle)">Genesis</span>`;
+
+  // 6. Build Center Block HTML
+  const centerHtml = `
+    <div id="centerBlock" class="chain-box center-block-box">
+      <div class="block-vote-stripes">
+        ${stripesHtml}
+      </div>
+      <div class="block-box-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+          <div style="font-size:17px;font-weight:700;font-family:var(--mono);color:var(--fg)">
+            Block #${b.slot} <span style="font-size:12px;font-weight:400;color:var(--muted)">(${curBlockRoot.slice(0, 8)})</span>
+          </div>
+          <div style="display:inline-flex;gap:4px;align-items:center">
+            <span class="badge ${isCanon ? "badge-canon" : "badge-orph"}">${isCanon ? "● Canonical" : "▲ Orphaned"}</span>
+            ${b.pnode < 0 ? '<span class="badge badge-adv">Adversary</span>' : ""}
+            <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText('${curBlockRoot}');this.innerText='Copied!';setTimeout(()=>this.innerText='Copy',1200)">Copy</button>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:2px">
+          <span>Proposer: <b style="color:${pCol}"><i class="dot" style="background:${pCol};width:7px;height:7px;display:inline-block;border-radius:50%;margin-right:3px"></i>${pLab}</b> (${pGroup})</span>
+          <span>Parent: ${parentLink}</span>
+          <span>Round ${Math.floor(b.slot / run.spr)} (slot ${b.slot % run.spr}/${run.spr})</span>
+        </div>
+      </div>
+      ${attsHtml}
+      <div class="block-receipts-section">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--subtle)">⏱️ Node Reception Times</div>
+        <div class="receipt-chips-wrap">
+          ${chipsHtml}
+        </div>
+      </div>
+    </div>
   `;
-  $("blockReceiptsCard").innerHTML = receiptsHtml;
+
+  // 7. Build Left Peeked Block (Parent)
+  let parentHtml = "";
+  if (b.parent && bd[b.parent]) {
+    const pb = bd[b.parent];
+    const pCanon = (b.parent === "G" || final.has(b.parent));
+    const pPnodeLab = pb.pnode < 0 ? "ADV" : `Node ${pb.pnode}`;
+    parentHtml = `
+      <div id="peekParent" class="chain-box peek-box peek-left" onclick="selectBlock('${b.parent}')" title="Click to inspect Block #${pb.slot}">
+        <div class="peek-badge">← Parent</div>
+        <div class="peek-title">#${pb.slot} · ${b.parent.slice(0, 8)}</div>
+        <div class="peek-sub">Proposer: ${pPnodeLab}</div>
+        <div class="peek-foot">
+          <span>🗳️ ${pb.nvotes || 0} votes</span>
+          <span style="color:${pCanon ? 'var(--tsq)' : 'var(--held)'}">${pCanon ? "● Canon" : "▲ Orphan"}</span>
+        </div>
+      </div>
+    `;
+  } else {
+    parentHtml = `<div class="peek-empty peek-left-empty">Genesis Block #0<br><span style="font-size:10px;color:var(--muted)">No parent</span></div>`;
+  }
+
+  // 8. Build Right & Bottom Peeked Blocks (Descendants / Forks)
+  const children = b.children || [];
+  let childrenHtml = "";
+  if (children.length === 0) {
+    childrenHtml = `<div class="peek-empty peek-right-empty">Chain Tip<br><span style="font-size:10px;color:var(--muted)">No descendants yet</span></div>`;
+  } else {
+    // Primary child on right edge
+    const chRoot = children[0];
+    const chb = bd[chRoot];
+    if (chb) {
+      const chCanon = final.has(chRoot);
+      const chPnodeLab = chb.pnode < 0 ? "ADV" : `Node ${chb.pnode}`;
+      const rightTopClass = children.length > 1 ? "style='top:38%'" : "";
+      childrenHtml += `
+        <div id="peekChild" class="chain-box peek-box peek-right" ${rightTopClass} onclick="selectBlock('${chRoot}')" title="Click to inspect Block #${chb.slot}">
+          <div class="peek-badge">Descendant →</div>
+          <div class="peek-title">#${chb.slot} · ${chRoot.slice(0, 8)}</div>
+          <div class="peek-sub">Proposer: ${chPnodeLab}</div>
+          <div class="peek-foot">
+            <span>🗳️ ${chb.nvotes || 0} votes</span>
+            <span style="color:${chCanon ? 'var(--tsq)' : 'var(--held)'}">${chCanon ? "● Canon" : "▲ Orphan"}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // Fork child 1 on bottom edge (diagonal line \)
+    if (children.length > 1) {
+      const fRoot = children[1];
+      const fb = bd[fRoot];
+      if (fb) {
+        const fCanon = final.has(fRoot);
+        const fPnodeLab = fb.pnode < 0 ? "ADV" : `Node ${fb.pnode}`;
+        childrenHtml += `
+          <div id="peekFork" class="chain-box peek-box peek-fork" onclick="selectBlock('${fRoot}')" title="Click to inspect Fork Block #${fb.slot}">
+            <div class="peek-badge" style="color:var(--held)">Fork Branch ↘</div>
+            <div class="peek-title">#${fb.slot} · ${fRoot.slice(0, 8)}</div>
+            <div class="peek-sub">Proposer: ${fPnodeLab}</div>
+            <div class="peek-foot">
+              <span>🗳️ ${fb.nvotes || 0} votes</span>
+              <span style="color:${fCanon ? 'var(--tsq)' : 'var(--held)'}">${fCanon ? "● Canon" : "▲ Orphan"}</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // Fork child 2 on bottom-left edge (if 3+ children)
+    if (children.length > 2) {
+      const f2Root = children[2];
+      const f2b = bd[f2Root];
+      if (f2b) {
+        const f2Canon = final.has(f2Root);
+        const f2PnodeLab = f2b.pnode < 0 ? "ADV" : `Node ${f2b.pnode}`;
+        childrenHtml += `
+          <div id="peekFork2" class="chain-box peek-box peek-fork2" onclick="selectBlock('${f2Root}')" title="Click to inspect Fork Block #${f2b.slot}">
+            <div class="peek-badge" style="color:var(--held)">Fork Branch ↙</div>
+            <div class="peek-title">#${f2b.slot} · ${f2Root.slice(0, 8)}</div>
+            <div class="peek-sub">Proposer: ${f2PnodeLab}</div>
+            <div class="peek-foot">
+              <span>🗳️ ${f2b.nvotes || 0} votes</span>
+              <span style="color:${f2Canon ? 'var(--tsq)' : 'var(--held)'}">${f2Canon ? "● Canon" : "▲ Orphan"}</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+  }
+
+  // 9. Put everything into #blockChainStage
+  const stage = $("blockChainStage");
+  if (stage) {
+    stage.innerHTML = `
+      <svg id="chainSvg" class="chain-svg"></svg>
+      ${parentHtml}
+      ${centerHtml}
+      ${childrenHtml}
+    `;
+    // Update lines after elements are in DOM
+    requestAnimationFrame(updateConnectingLines);
+  }
 }
 
 function renderSweep() {
