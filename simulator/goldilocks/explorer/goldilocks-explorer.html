@@ -138,59 +138,191 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
   position: absolute;
   left: 50%; top: 50%;
   transform: translate(-50%, -50%);
-  width: 470px;
-  max-width: 88%;
+  width: 500px;
+  max-width: 90%;
   border: 2px solid var(--gridStrong);
   box-shadow: 0 10px 28px rgba(0,0,0,0.14);
   overflow: hidden;
+  background: var(--panel);
 }
-.block-vote-stripes {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+.block-card-head {
+  padding: 11px 14px 9px 14px;
+  border-bottom: 1px solid var(--grid);
+  background: var(--panel);
 }
-.vote-stripe {
-  padding: 7px 14px;
-  font: 700 12.5px/1.3 var(--mono);
-  color: #fff;
-  cursor: pointer;
+.block-votes-section {
+  padding: 9px 14px 10px 14px;
+  border-bottom: 1px solid var(--grid);
+  background: var(--panel);
+}
+.section-head-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: filter 0.15s ease;
+  margin-bottom: 6px;
 }
-.vote-stripe:hover {
-  filter: brightness(1.15);
-  text-decoration: underline;
+.section-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--subtle);
 }
-.vote-stripe-side-a {
-  background: #1d4ed8; /* Blue */
-}
-.vote-stripe-side-b {
-  background: #b45309; /* Amber */
-}
-.vote-stripe-adv {
-  background: #dc2626; /* Red */
-}
-.vote-stripe-all {
-  background: #4f46e5; /* Indigo */
-}
-.vote-stripe-none {
-  background: var(--grid);
+.section-meta {
+  font-size: 10.5px;
   color: var(--muted);
-  cursor: default;
-  font-weight: 500;
-  font-family: var(--sans);
+  font-family: var(--mono);
+}
+.node-vote-table {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.node-vote-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 6px;
+  border-radius: 4px;
   font-size: 12px;
+  background: rgba(0, 0, 0, 0.08);
+  border: 1px solid transparent;
+  transition: background 0.12s ease;
 }
-.vote-stripe-none:hover {
-  filter: none;
-  text-decoration: none;
+[data-theme="light"] .node-vote-row {
+  background: rgba(0, 0, 0, 0.03);
 }
-.block-box-body {
-  padding: 10px 14px;
-  display: grid;
+.node-vote-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--grid);
+}
+.node-vote-row.row-equiv {
+  background: rgba(239, 68, 68, 0.07);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+.node-col-id {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
+  min-width: 125px;
+  flex-shrink: 0;
+  font-size: 11.5px;
+}
+.side-pill-mini {
+  font-size: 9.5px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--gridStrong);
+  color: var(--muted);
+}
+.side-pill-mini.side-a {
+  color: var(--a);
+  border-color: var(--aSoft);
+  background: rgba(37, 99, 235, 0.08);
+}
+.side-pill-mini.side-b {
+  color: var(--b);
+  border-color: var(--bSoft);
+  background: rgba(217, 119, 6, 0.08);
+}
+.side-pill-mini.side-adv {
+  color: var(--held);
+  border-color: var(--held);
+  background: rgba(220, 38, 38, 0.08);
+}
+.node-col-target {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  font-family: var(--mono);
+}
+.vote-target-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--grid);
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--fg);
+  transition: all 0.12s ease;
+}
+.vote-target-chip:hover {
+  border-color: var(--a);
+  color: var(--a);
+  transform: translateY(-1px);
+}
+.vote-arrow {
+  color: var(--muted);
+  font-weight: 700;
+}
+.vote-target-num {
+  font-weight: 600;
+}
+.target-tag-orph {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 0 4px;
+  border-radius: 2px;
+  background: rgba(220, 38, 38, 0.15);
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+.badge-equiv {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(239, 68, 68, 0.18);
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.equiv-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.equiv-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.vote-none {
+  color: var(--muted);
+  font-size: 11px;
+  font-style: italic;
+}
+.node-col-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg);
+  text-align: right;
+  min-width: 65px;
+  flex-shrink: 0;
+}
+.vote-cnt-pill {
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--bg);
+  border: 1px solid var(--grid);
+}
+.vote-cnt-pill.cnt-equiv {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+.vote-cnt-zero {
+  color: var(--subtle);
 }
 .block-att-banner {
   background: rgba(13, 148, 136, 0.12);
@@ -199,11 +331,10 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
   padding: 6px 10px;
   font: 600 11.5px/1.4 var(--sans);
   color: #0d9488;
-  margin: 2px 14px 6px 14px;
+  margin: 6px 14px;
 }
 .block-receipts-section {
   padding: 8px 14px 10px 14px;
-  border-top: 1px solid var(--grid);
   background: var(--panel);
 }
 .receipt-chips-wrap {
@@ -1842,67 +1973,96 @@ function renderBlockExplorer() {
     };
   }
 
-  // 2. Build Vote Stripes for the center block
-  let stripesHtml = "";
+  // 2. Build Bundled Votes section (dedicated row per node)
   const votes = b.votes || [];
-  if (votes.length === 0) {
-    stripesHtml = `<div class="vote-stripe vote-stripe-none">No Goldfish votes bundled in this block</div>`;
-  } else {
-    for (const g of votes) {
-      const targetSlot = g.target_slot !== null && g.target_slot !== undefined ? g.target_slot : 0;
-      const targetRoot = g.target_root;
-      const targetLabel = `#${targetSlot}`;
-
-      // Check which nodes voted for this target
-      const advCnt = g.by_node["-1"] || 0;
-      const sideANodes = Object.keys(g.by_node).filter(n => +n >= 0 && +n < cfg.split).map(Number).sort((x, y) => x - y);
-      const sideACnt = sideANodes.reduce((s, n) => s + g.by_node[String(n)], 0);
-      const sideBNodes = Object.keys(g.by_node).filter(n => +n >= cfg.split).map(Number).sort((x, y) => x - y);
-      const sideBCnt = sideBNodes.reduce((s, n) => s + g.by_node[String(n)], 0);
-      const honestNodes = Object.keys(g.by_node).filter(n => +n >= 0).map(Number).sort((x, y) => x - y);
-      const honestCnt = honestNodes.reduce((s, n) => s + g.by_node[String(n)], 0);
-
-      // Render stripes: Side A (blue), Side B (amber), Adversary (red)
-      if (cfg.sides) {
-        if (sideACnt > 0) {
-          const nStr = sideANodes.length === 1 ? `Node ${sideANodes[0]}` : `Node ${sideANodes.join(", ")}`;
-          stripesHtml += `
-            <div class="vote-stripe vote-stripe-side-a" onclick="selectBlock('${targetRoot}')" title="Click to inspect Block ${targetLabel}">
-              <span>${nStr} → Block ${targetLabel}</span>
-              <span>${sideACnt} votes</span>
-            </div>
-          `;
-        }
-        if (sideBCnt > 0) {
-          const nStr = sideBNodes.length === 1 ? `Node ${sideBNodes[0]}` : `Node ${sideBNodes.join(", ")}`;
-          stripesHtml += `
-            <div class="vote-stripe vote-stripe-side-b" onclick="selectBlock('${targetRoot}')" title="Click to inspect Block ${targetLabel}">
-              <span>${nStr} → Block ${targetLabel}</span>
-              <span>${sideBCnt} votes</span>
-            </div>
-          `;
-        }
-      } else {
-        if (honestCnt > 0) {
-          const nStr = honestNodes.length === cfg.nodes ? "All Nodes" : (honestNodes.length === 1 ? `Node ${honestNodes[0]}` : `Node ${honestNodes.join(", ")}`);
-          stripesHtml += `
-            <div class="vote-stripe vote-stripe-all" onclick="selectBlock('${targetRoot}')" title="Click to inspect Block ${targetLabel}">
-              <span>${nStr} → Block ${targetLabel}</span>
-              <span>${honestCnt} votes</span>
-            </div>
-          `;
-        }
-      }
-
-      if (advCnt > 0) {
-        stripesHtml += `
-          <div class="vote-stripe vote-stripe-adv" onclick="selectBlock('${targetRoot}')" title="Click to inspect Block ${targetLabel}">
-            <span>ADV → Block ${targetLabel}</span>
-            <span>${advCnt} votes</span>
-          </div>
-        `;
-      }
+  const nodeVotes = {};
+  for (const g of votes) {
+    for (const [nid, count] of Object.entries(g.by_node)) {
+      if (!nodeVotes[nid]) nodeVotes[nid] = [];
+      nodeVotes[nid].push({
+        target_slot: g.target_slot,
+        target_root: g.target_root,
+        target_name: g.target_name,
+        count: count
+      });
     }
+  }
+
+  // Determine list of nodes to render
+  const nodesToRender = [];
+  for (let i = 0; i < cfg.nodes; i++) nodesToRender.push(i);
+  if (run.adv > 0 || nodeVotes["-1"] !== undefined) nodesToRender.push(-1);
+
+  let rowsHtml = "";
+  for (const nid of nodesToRender) {
+    const isAdv = (nid === -1);
+    const nName = isAdv ? "Adversary" : `Node ${nid}`;
+    const nCol = isAdv ? T.held : (nid < cfg.split ? T.a : T.b);
+    const nSide = isAdv ? "Adversary" : (cfg.sides ? (nid < cfg.split ? "Side A" : "Side B") : "Honest");
+    const sideClass = isAdv ? "side-adv" : (nid < cfg.split ? "side-a" : "side-b");
+
+    const targets = nodeVotes[String(nid)] || [];
+    let targetHtml = "";
+    let countHtml = "";
+    const isEquiv = targets.length > 1;
+
+    if (targets.length === 0) {
+      targetHtml = `<span class="vote-none">— no votes bundled</span>`;
+      countHtml = `<span class="vote-cnt-zero">0</span>`;
+    } else if (targets.length === 1) {
+      const t = targets[0];
+      const tSlot = (t.target_slot !== null && t.target_slot !== undefined) ? t.target_slot : 0;
+      const isTargetCanon = (t.target_root === "G" || final.has(t.target_root));
+      const badgeCanon = isTargetCanon ? "" : '<span class="target-tag-orph">orph</span>';
+      targetHtml = `
+        <span class="vote-target-chip" onclick="selectBlock('${t.target_root}')" title="Click to inspect Block #${tSlot}">
+          <span class="vote-arrow">→</span>
+          <span class="vote-target-num">Block #${tSlot}</span>
+          ${badgeCanon}
+        </span>
+      `;
+      countHtml = `<span class="vote-cnt-pill">${t.count} votes</span>`;
+    } else {
+      // Equivocation (multiple contradictory heads)
+      const totalCnt = targets.reduce((s, x) => s + x.count, 0);
+      const chips = targets.map(t => {
+        const tSlot = (t.target_slot !== null && t.target_slot !== undefined) ? t.target_slot : 0;
+        const isTargetCanon = (t.target_root === "G" || final.has(t.target_root));
+        const badgeCanon = isTargetCanon ? "" : '<span class="target-tag-orph">orph</span>';
+        return `
+          <span class="vote-target-chip" onclick="selectBlock('${t.target_root}')" title="Click to inspect Block #${tSlot} (${t.count} votes)">
+            <span class="vote-arrow">→</span>
+            <span class="vote-target-num">Block #${tSlot}</span>
+            <span style="font-size:10px;color:var(--muted)">(${t.count}v)</span>
+            ${badgeCanon}
+          </span>
+        `;
+      }).join("");
+
+      targetHtml = `
+        <div class="equiv-wrap">
+          <span class="badge-equiv">⚡ Equivocation</span>
+          <div class="equiv-chips">${chips}</div>
+        </div>
+      `;
+      countHtml = `<span class="vote-cnt-pill cnt-equiv" title="Equivocated across ${targets.length} different heads">${totalCnt} votes</span>`;
+    }
+
+    rowsHtml += `
+      <div class="node-vote-row ${isEquiv ? "row-equiv" : ""}">
+        <div class="node-col-id">
+          <i class="dot" style="background:${nCol};width:7px;height:7px;border-radius:50%;display:inline-block"></i>
+          <b>${nName}</b>
+          <span class="side-pill-mini ${sideClass}">${nSide}</span>
+        </div>
+        <div class="node-col-target">
+          ${targetHtml}
+        </div>
+        <div class="node-col-count">
+          ${countHtml}
+        </div>
+      </div>
+    `;
   }
 
   // 3. Build Attestations Banner
@@ -1971,29 +2131,38 @@ function renderBlockExplorer() {
   // 6. Build Center Block HTML
   const centerHtml = `
     <div id="centerBlock" class="chain-box center-block-box">
-      <div class="block-vote-stripes">
-        ${stripesHtml}
-      </div>
-      <div class="block-box-body">
+      <div class="block-card-head">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-          <div style="font-size:17px;font-weight:700;font-family:var(--mono);color:var(--fg)">
-            Block #${b.slot} <span style="font-size:12px;font-weight:400;color:var(--muted)">(${curBlockRoot.slice(0, 8)})</span>
+          <div style="font-size:16.5px;font-weight:700;font-family:var(--mono);color:var(--fg);display:inline-flex;align-items:baseline;gap:6px">
+            <span>Block #${b.slot}</span>
+            <span style="font-size:11.5px;font-weight:400;color:var(--muted)">(${curBlockRoot.slice(0, 8)})</span>
           </div>
           <div style="display:inline-flex;gap:4px;align-items:center">
             <span class="badge ${isCanon ? "badge-canon" : "badge-orph"}">${isCanon ? "● Canonical" : "▲ Orphaned"}</span>
-            ${b.pnode < 0 ? '<span class="badge badge-adv">Adversary</span>' : ""}
-            <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText('${curBlockRoot}');this.innerText='Copied!';setTimeout(()=>this.innerText='Copy',1200)">Copy</button>
+            ${b.pnode < 0 ? '<span class="badge badge-adv">Adversary Proposer</span>' : ""}
           </div>
         </div>
-        <div style="font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:2px">
+        <div style="font-size:11.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:4px">
           <span>Proposer: <b style="color:${pCol}"><i class="dot" style="background:${pCol};width:7px;height:7px;display:inline-block;border-radius:50%;margin-right:3px"></i>${pLab}</b> (${pGroup})</span>
           <span>Parent: ${parentLink}</span>
           <span>Round ${Math.floor(b.slot / run.spr)} (slot ${b.slot % run.spr}/${run.spr})</span>
         </div>
       </div>
+
+      <div class="block-votes-section">
+        <div class="section-head-row">
+          <span class="section-title">🗳️ Bundled Votes (${b.nvotes || 0} votes)</span>
+          <span class="section-meta">from slot ${Math.max(0, b.slot - 1)}</span>
+        </div>
+        <div class="node-vote-table">
+          ${rowsHtml}
+        </div>
+      </div>
+
       ${attsHtml}
+
       <div class="block-receipts-section">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--subtle)">⏱️ Node Reception Times</div>
+        <div class="section-title" style="margin-bottom:5px">⏱️ Validator Store Arrival</div>
         <div class="receipt-chips-wrap">
           ${chipsHtml}
         </div>
