@@ -1,0 +1,480 @@
+{
+ "config": {
+  "validators": 64,
+  "nodes": 4,
+  "shares": null,
+  "latency_ms": 200,
+  "jitter_ms": 0,
+  "delta_ms": 1500,
+  "k": 4,
+  "c": 2,
+  "R": 8,
+  "delta_t": 8,
+  "no_forward": false,
+  "seed": 0,
+  "lean_finality": false,
+  "groups": "2,2",
+  "start": 48,
+  "slots_down": 16,
+  "start2": null,
+  "slots_down2": 0,
+  "groups2": null,
+  "sleep": "",
+  "release_spread_ms": 12000,
+  "after": 32,
+  "quiet": true,
+  "json": "data/runs/p50_s48_d16_spread.json",
+  "events": "data/runs/p50_s48_d16_spread.events.json"
+ },
+ "heal_slot": 64,
+ "reconverge_head_slots": 4,
+ "reconverge_conf_slots": 4,
+ "agree_head_since": 68,
+ "agree_conf_since": 68,
+ "lock_conflict_slots": [
+  52,
+  53,
+  54,
+  55,
+  56,
+  57,
+  58,
+  59,
+  60,
+  61,
+  62,
+  63,
+  64
+ ],
+ "last_lock_conflict_after_heal": 64,
+ "finalized_conflict": false,
+ "invariant_violations": [],
+ "finality_timeline": [
+  [
+   0,
+   0
+  ],
+  [
+   4,
+   2
+  ],
+  [
+   5,
+   3
+  ],
+  [
+   6,
+   4
+  ],
+  [
+   7,
+   5
+  ],
+  [
+   8,
+   6
+  ],
+  [
+   9,
+   7
+  ],
+  [
+   10,
+   8
+  ],
+  [
+   11,
+   9
+  ],
+  [
+   12,
+   10
+  ],
+  [
+   13,
+   11
+  ],
+  [
+   14,
+   12
+  ],
+  [
+   15,
+   13
+  ],
+  [
+   16,
+   14
+  ],
+  [
+   17,
+   15
+  ],
+  [
+   18,
+   16
+  ],
+  [
+   19,
+   17
+  ],
+  [
+   20,
+   18
+  ],
+  [
+   21,
+   19
+  ],
+  [
+   22,
+   20
+  ],
+  [
+   23,
+   21
+  ],
+  [
+   24,
+   22
+  ],
+  [
+   25,
+   23
+  ],
+  [
+   26,
+   24
+  ],
+  [
+   27,
+   25
+  ],
+  [
+   28,
+   26
+  ],
+  [
+   29,
+   27
+  ],
+  [
+   30,
+   28
+  ],
+  [
+   31,
+   29
+  ],
+  [
+   32,
+   30
+  ],
+  [
+   33,
+   31
+  ],
+  [
+   34,
+   32
+  ],
+  [
+   35,
+   33
+  ],
+  [
+   36,
+   34
+  ],
+  [
+   37,
+   35
+  ],
+  [
+   38,
+   36
+  ],
+  [
+   39,
+   37
+  ],
+  [
+   40,
+   38
+  ],
+  [
+   41,
+   39
+  ],
+  [
+   42,
+   40
+  ],
+  [
+   43,
+   41
+  ],
+  [
+   44,
+   42
+  ],
+  [
+   45,
+   43
+  ],
+  [
+   46,
+   44
+  ],
+  [
+   47,
+   45
+  ],
+  [
+   48,
+   46
+  ],
+  [
+   69,
+   47
+  ],
+  [
+   78,
+   76
+  ],
+  [
+   79,
+   77
+  ],
+  [
+   80,
+   78
+  ],
+  [
+   81,
+   79
+  ],
+  [
+   82,
+   80
+  ],
+  [
+   83,
+   81
+  ],
+  [
+   84,
+   82
+  ],
+  [
+   85,
+   83
+  ],
+  [
+   86,
+   84
+  ],
+  [
+   87,
+   85
+  ],
+  [
+   88,
+   86
+  ],
+  [
+   89,
+   87
+  ],
+  [
+   90,
+   88
+  ],
+  [
+   91,
+   89
+  ],
+  [
+   92,
+   90
+  ],
+  [
+   93,
+   91
+  ],
+  [
+   94,
+   92
+  ],
+  [
+   95,
+   93
+  ],
+  [
+   96,
+   94
+  ]
+ ],
+ "contest_slots": [],
+ "per_node": [
+  {
+   "node": 0,
+   "group": "A",
+   "validators": 16,
+   "reorgs": 4,
+   "max_reorg_depth": 9,
+   "reorg_list": [
+    [
+     65,
+     1,
+     63
+    ],
+    [
+     66,
+     1,
+     63
+    ],
+    [
+     67,
+     1,
+     63
+    ],
+    [
+     68,
+     9,
+     47
+    ]
+   ],
+   "head_stepbacks": 0,
+   "conf_reversals": [
+    [
+     68,
+     63,
+     68
+    ]
+   ],
+   "conf_stepbacks": 0,
+   "orphaned_confirmed": [
+    48,
+    49,
+    50,
+    55,
+    58,
+    59,
+    60,
+    63
+   ],
+   "last_slot_with_orphaned_conf": 67,
+   "final_F_slot": 94,
+   "final_hj": 68,
+   "final_hmax": 69
+  },
+  {
+   "node": 1,
+   "group": "A",
+   "validators": 16,
+   "reorgs": 4,
+   "max_reorg_depth": 9,
+   "reorg_list": [
+    [
+     65,
+     1,
+     63
+    ],
+    [
+     66,
+     1,
+     63
+    ],
+    [
+     67,
+     1,
+     63
+    ],
+    [
+     68,
+     9,
+     47
+    ]
+   ],
+   "head_stepbacks": 0,
+   "conf_reversals": [
+    [
+     68,
+     63,
+     68
+    ]
+   ],
+   "conf_stepbacks": 0,
+   "orphaned_confirmed": [
+    48,
+    49,
+    50,
+    55,
+    58,
+    59,
+    60,
+    63
+   ],
+   "last_slot_with_orphaned_conf": 67,
+   "final_F_slot": 94,
+   "final_hj": 68,
+   "final_hmax": 69
+  },
+  {
+   "node": 2,
+   "group": "B",
+   "validators": 16,
+   "reorgs": 0,
+   "max_reorg_depth": 0,
+   "reorg_list": [],
+   "head_stepbacks": 1,
+   "conf_reversals": [],
+   "conf_stepbacks": 1,
+   "orphaned_confirmed": [
+    51,
+    52,
+    53,
+    54,
+    56,
+    57,
+    61,
+    62
+   ],
+   "last_slot_with_orphaned_conf": 64,
+   "final_F_slot": 94,
+   "final_hj": 68,
+   "final_hmax": 69
+  },
+  {
+   "node": 3,
+   "group": "B",
+   "validators": 16,
+   "reorgs": 0,
+   "max_reorg_depth": 0,
+   "reorg_list": [],
+   "head_stepbacks": 1,
+   "conf_reversals": [],
+   "conf_stepbacks": 1,
+   "orphaned_confirmed": [
+    51,
+    52,
+    53,
+    54,
+    56,
+    57,
+    61,
+    62
+   ],
+   "last_slot_with_orphaned_conf": 64,
+   "final_F_slot": 94,
+   "final_hj": 68,
+   "final_hmax": 69
+  }
+ ],
+ "held": {
+  "block": 64,
+  "vote": 256,
+  "att": 16
+ }
+}
