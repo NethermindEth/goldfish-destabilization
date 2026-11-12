@@ -8,13 +8,15 @@ them under partitions and against a Byzantine adversary, and textbooks that expl
 2. **Goldilocks**: Goldfish with locks, composed with a finality gadget. There is no executable
    fork choice upstream, so the simulators transcribe the spec figure by figure in standard-library
    Python: one model of the FGSA spec of 22 Oct 2026, and one of the live spec
-   (`ethlabs-org/eth-consensus-lean` at `4a63033`, 10 Nov 2026).
+   (`ethlabs-org/eth-consensus-lean` at `4a63033e`, 10 Nov 2026).
 
 ## Start here
 
-- **Explorer:** open `simulator/goldilocks/explorer/goldilocks-explorer.html` in a browser.
-  Each tab is one run (honest, partitions, sleep, adversaries, the attacks and their fixes) with an
-  About card that says what happens and where to look.
+- **Explorers:** https://nethermindeth.github.io/goldfish-destabilization/, or open
+  `simulator/goldilocks/explorer/index.html` in a browser. One page per spec: the 22 Oct 2026 text
+  (honest, partitions, sleep, adversaries, the attacks and their fixes) and the live spec
+  (partitions and sleep). Each tab is one run, with an About card that says what happens and
+  where to look. GitHub Pages deploys them from master (`.github/workflows/pages.yml`).
 - **Report:** `reports/goldilocks-finalization-hiding/finalization_hiding.pdf`, the
   finalization-hiding attack on Goldilocks.
 - **Textbooks:** `explainer/goldilocks/goldilocks-textbook.pdf` and
@@ -25,7 +27,7 @@ them under partitions and against a Byzantine adversary, and textbooks that expl
 | Folder | Contents |
 |---|---|
 | `simulator/goldilocks/` | The Goldilocks model of the 22 Oct text (`model.py`), the network driver, partition scenarios, the adversary (`adversary.py`), batch drivers, the explorer and its data (`data/`). See its README |
-| `simulator/goldilocks-live/` | The model of the live spec, with the same driver and partition scenarios. See its README |
+| `simulator/goldilocks-live/` | The model of the live spec, with the same driver and partition scenarios, and its own explorer page. See its README |
 | `simulator/goldfish-simplex/` | A multi-node harness around the `simplex-healing` pyspec: partitions, adversaries, stability and margin analyses. Needs a local build of that pyspec (see its README) |
 | `explainer/goldilocks/` | The Goldilocks textbook (Typst sources and PDF) |
 | `explainer/goldfish-simplex/` | The textbook of the first proposal (Typst sources and PDF) |
@@ -43,13 +45,14 @@ them under partitions and against a Byzantine adversary, and textbooks that expl
 - **Status against the live spec.** The attack targets the 22 Oct 2026 text. The live spec
   (`ethlabs-org/eth-consensus-lean`) requires honest nodes to forward the votes carried by every
   block they accept, one of the two fixes the report proposes, and that closes every variant
-  (explorer tab 17). Ethereum's gossip does not forward block-carried votes today, so clients
+  (explorer tab 13). Ethereum's gossip does not forward block-carried votes today, so clients
   must add it.
-- **Partitions on the live spec** (`simulator/goldilocks-live`). No finality or lock conflict and
-  no interface violation. The FG now takes a source every slot, so finality runs 2 slots behind
-  the head, a one-slot glitch at a round start no longer costs a round, and finality returns 2–4
-  slots after a heal when one side had a majority (16–26 on the 22 Oct text). After an even cut
-  both branches are still discarded, and finality returns only after the FG timeout delay: 5 + δ_t slots.
+- **Partitions on the live spec** (`simulator/goldilocks-live`, its own explorer page). No finality
+  or lock conflict and no interface violation. The FG now takes a source every slot, so finality
+  runs 2 slots behind the head, a one-slot glitch at a round start no longer costs a round, and
+  finality returns 2–4 slots after a heal when one side had a majority (16–26 on the 22 Oct text).
+  After an even cut both branches are still discarded, and finality returns only after the FG
+  timeout delay: 5 + δ_t slots.
 - **Negative results.** The random adversary, partitions and sleep break no synchrony claim.
   Frontier contests can be built but are harmless. The asynchrony a fast confirmation survives
   matches the Lean formalization's bound exactly. Ethereum's Fast Confirmation Rule is immune to

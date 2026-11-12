@@ -13,7 +13,8 @@ nodes forward the votes carried by every block they accept, nodes vote as soon a
 ready proposal, blocks declare their support votes, there is an optimistic confirmation at 3/4
 of the committee, fast locks are graded and every lock expires at a slot start. Only the first
 of these is in the model, as `adversary.py --relay-carried`; it closes the finalization-hiding
-attacks (explorer tab 17).
+attacks (explorer tab 13). `../goldilocks-live/` transcribes the live spec in full; its explorer page is
+`explorer/goldilocks-live-explorer.html`.
 
 **Explorer.** Open `explorer/goldilocks-explorer.html` in a browser: every experiment below, one
 tab each, with an About card that says what to look at. `#run=<tab>&slot=<s>&mode=lag&win=16&from=<s>`

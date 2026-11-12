@@ -1,0 +1,290 @@
+{
+ "01 Honest Run": {
+  "slot": 24,
+  "jumps": [
+   [
+    "Slots 8–16",
+    8
+   ],
+   [
+    "Slots 24–32",
+    24
+   ]
+  ],
+  "zooms": [
+   [
+    "s24",
+    24
+   ],
+   [
+    "s25",
+    25
+   ]
+  ],
+  "goal": "The reference behaviour with no faults: when blocks are confirmed and finalized.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2, δ_t = 8.",
+  "result": "Nodes vote as soon as the proposal arrives, about 0.2 s into the slot, and 3/4 of the committee confirm it <b>optimistically within the slot</b>: the confirmed tip is the head. The FG gets a new source after every tick, so every block opens an FG height and <b>the finalized checkpoint runs 2 slots behind the head</b>.",
+  "group": "Network faults",
+  "short": "Honest run"
+ },
+ "02 Partition 50/50": {
+  "slot": 56,
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ],
+   [
+    "Finality after the heal",
+    74
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s67",
+    67
+   ],
+   [
+    "s75",
+    75
+   ]
+  ],
+  "goal": "What an even split does to confirmations, locks and finality, and how the network heals.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2, δ_t = 8. Nodes 0–1 and 2–3 are cut apart for slots 48–63.",
+  "result": "Each half confirms and fast-locks its own branch (32 votes, exactly n/2), and finality stalls: 32 is below the quorum of 43. After the heal the votes split 32–32, no child of the last common block holds a strict majority, and <b>both branches are discarded</b>: 7–8 confirmed blocks per node are orphaned. <b>Finality returns 13 slots after the heal</b>: every validator already sent its target at the stuck height for its own side's block, so the new chain crosses that height only by timeout, δ_t slots after entering it (5 + δ_t slots for δ_t from 2 to 8).",
+  "group": "Network faults",
+  "short": "Cut 50/50"
+ },
+ "03 Partition 75/25": {
+  "slot": 56,
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    60
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s63 (last cut slot)",
+    63
+   ],
+   [
+    "s64 (heal)",
+    64
+   ]
+  ],
+  "goal": "A split whose larger side still holds a finality quorum.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2, δ_t = 8. Node 3 is cut off from nodes 0–2 for slots 48–63.",
+  "result": "The 48-validator side keeps confirming and finalizing through the cut. The lone node confirms its own blocks (a strict majority of the 16 voters it sees) and loses 3 of them at the heal. <b>It catches up with finality 2 slots after the heal.</b> With 16 votes it never passes the fast test during the cut, so <b>its first fast locks after the heal are graded</b>: they live 2, then 3, then 4 slots (the Fast-lock lifetime row of panel 1: side B's line breaks during the cut, then climbs).",
+  "group": "Network faults",
+  "short": "Cut 75/25"
+ },
+ "04 Partition 52/48": {
+  "slot": 56,
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ]
+  ],
+  "goal": "A near-tie: one side with slightly more than half of the validators.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2, δ_t = 8. Nodes 0–1 (33 validators) and 2–3 (31) are cut apart for slots 48–63.",
+  "result": "Neither side reaches the quorum of 43, so finality stalls. At the heal the 33 side's branch wins and the 31 side loses 7 confirmed blocks. Finality is back 3 slots after the heal.",
+  "group": "Network faults",
+  "short": "Cut 52/48"
+ },
+ "05 Long Partition 50/50": {
+  "slot": 80,
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s112)",
+    110
+   ],
+   [
+    "Finality after the heal",
+    122
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s112 (heal)",
+    112
+   ]
+  ],
+  "goal": "A 64-slot even split: do old locks or the FG window get in the way of the heal?",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2, δ_t = 8. Nodes 0–1 and 2–3 are cut apart for slots 48–111.",
+  "result": "The same outcome as the short cut (tab 02): both branches are discarded (28–35 confirmed blocks per node) and finality returns 12 slots after the heal. No lock or finality conflict.",
+  "group": "Network faults",
+  "short": "Long cut 50/50"
+ },
+ "06 Messy Heal": {
+  "slot": 64,
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ]
+  ],
+  "zooms": [
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ],
+   [
+    "s66",
+    66
+   ]
+  ],
+  "goal": "The 50/50 cut of tab 02, with the held messages trickling out over two slots after the heal.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2, δ_t = 8. Nodes 0–1 and 2–3 are cut apart for slots 48–63; each held message arrives up to 12 s after the heal.",
+  "result": "The same outcome as tab 02, one slot later: heads agree 4 slots after the heal, 8 confirmed blocks per node are orphaned, and finality returns 14 slots after the heal. No lock or finality conflict.",
+  "group": "Network faults",
+  "short": "Messy heal"
+ },
+ "07 Three-Way Cut": {
+  "slot": 56,
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ]
+  ],
+  "goal": "A cut into three groups: half of the validators together, and the other half split in two.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2, δ_t = 8. Nodes 0–1 (32 validators), node 2 (16) and node 3 (16) are cut apart for slots 48–63.",
+  "result": "Every group confirms its own blocks; no group reaches the quorum of 43, so finality stalls. At the heal the half's branch wins: the two single nodes lose 5 and 3 confirmed blocks. Finality is back 3 slots after the heal.",
+  "group": "Network faults",
+  "short": "Three-way cut"
+ },
+ "08 One-Slot Glitch at Slot 48": {
+  "slot": 49,
+  "jumps": [
+   [
+    "The glitch (s48)",
+    46
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut)",
+    48
+   ],
+   [
+    "s49",
+    49
+   ],
+   [
+    "s50",
+    50
+   ]
+  ],
+  "goal": "How much finality one bad slot costs.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2, δ_t = 8. A one-slot 50/50 cut at slot 48.",
+  "result": "No node locks slot 48's block, yet <b>finality is delayed by two slots and has caught up by slot 52</b>: the FG takes a new source after every tick, so the next slot's fast lock is a source at once. A glitch at slot 49 gives the same.",
+  "group": "Network faults",
+  "short": "One-slot glitch"
+ },
+ "09 Half the Network Asleep": {
+  "slot": 56,
+  "jumps": [
+   [
+    "Sleep starts (s48)",
+    46
+   ],
+   [
+    "Wake (s64)",
+    62
+   ]
+  ],
+  "zooms": [
+   [
+    "s48",
+    48
+   ],
+   [
+    "s64 (wake)",
+    64
+   ],
+   [
+    "s66",
+    66
+   ]
+  ],
+  "goal": "Half of the validators asleep for 16 slots, then a restart and a rejoin.",
+  "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2, δ_t = 8. Nodes 2–3 sleep through slots 48–63.",
+  "result": "The awake half keeps a confirmed chain (a strict majority of the voters it sees) but cannot finalize. The sleepers restart, join a slot later, and finality is past the wake 4 slots after it. Nothing is orphaned.",
+  "group": "Network faults",
+  "short": "Half asleep"
+ }
+}

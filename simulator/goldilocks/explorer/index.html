@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goldilocks Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f6f9; --panel: #ffffff; --fg: #0f172a; --muted: #5b6b80; --line: #e2e8f0; --hover: #f8fafc;
+  --a: #2563eb; --live: #16a34a; --old: #94a3b8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0f17; --panel: #131b26; --fg: #e2e8f0; --muted: #94a3b8; --line: #243041; --hover: #182231;
+    --a: #60a5fa; --live: #4ade80; --old: #64748b;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b0f17; --panel: #131b26; --fg: #e2e8f0; --muted: #94a3b8; --line: #243041; --hover: #182231;
+  --a: #60a5fa; --live: #4ade80; --old: #64748b;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 Inter, system-ui, sans-serif;
+  display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+.card { width: 100%; max-width: 540px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 14px; padding: 32px 32px 24px; box-shadow: 0 10px 30px rgba(15, 23, 42, .06); }
+h1 { font-size: 22px; margin: 0 0 6px; letter-spacing: -0.01em; }
+.lead { color: var(--muted); margin: 0 0 24px; font-size: 14px; }
+.opt { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--line);
+  border-radius: 10px; margin-bottom: 10px; }
+.opt:hover { background: var(--hover); }
+.bar { width: 4px; align-self: stretch; border-radius: 2px; background: var(--c); flex: none; }
+.txt { flex: 1; min-width: 0; }
+.name { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.tag { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; color: var(--c);
+  border: 1px solid var(--c); }
+.ver { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.ver a { color: var(--muted); }
+.open { flex: none; font-weight: 600; font-size: 14px; color: var(--a); text-decoration: none; white-space: nowrap; }
+.open::after { content: " →"; }
+.open:hover { text-decoration: underline; }
+.foot { color: var(--muted); font-size: 13px; margin: 18px 0 0; }
+.foot a { color: var(--a); text-decoration: none; }
+.foot a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<main class="card">
+  <h1>Goldilocks Explorer</h1>
+  <p class="lead">Seeded simulator runs of Goldilocks, replayed slot by slot: each node's head, confirmed tip,
+    locks and finality, every message and every block. Pick the spec version.</p>
+
+  <div class="opt" style="--c: var(--live)">
+    <span class="bar"></span>
+    <div class="txt">
+      <div class="name">Live spec <span class="tag">current</span></div>
+      <div class="ver"><a href="https://github.com/ethlabs-org/eth-consensus-lean/tree/4a63033e53c13e07cab0d538a04ea87e1a8de02d/specs/goldilocks/tex">eth-consensus-lean @ 4a63033</a>, 10 Nov 2026 · partitions and sleep</div>
+    </div>
+    <a class="open" href="goldilocks-live-explorer.html">Open</a>
+  </div>
+
+  <div class="opt" style="--c: var(--old)">
+    <span class="bar"></span>
+    <div class="txt">
+      <div class="name">22 Oct 2026 spec</div>
+      <div class="ver">FGSA text of 22 Oct, before the public repo · partitions, adversaries, finalization hiding</div>
+    </div>
+    <a class="open" href="goldilocks-explorer.html">Open</a>
+  </div>
+
+  <p class="foot">Code, data and the attack report:
+    <a href="https://github.com/NethermindEth/goldfish-destabilization">NethermindEth/goldfish-destabilization</a></p>
+</main>
+</body>
+</html>

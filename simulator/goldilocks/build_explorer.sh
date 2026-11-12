@@ -1,5 +1,7 @@
 #!/bin/bash
-# The Goldilocks explorer: every experiment on this protocol, one tab each, with an About card.
+# The Goldilocks explorer of the 22 Oct 2026 text: every experiment on that model, one tab each,
+# with an About card. The live spec has its own page, built by ../goldilocks-live/build_explorer.sh
+# into explorer/goldilocks-live-explorer.html; explorer/index.html links the two.
 # Run from simulator/goldilocks/:
 #   bash build_explorer.sh         -> data/runs/ (the runs) and explorer/goldilocks-explorer.html
 #   bash build_explorer.sh --new   -> also explorer/goldilocks-explorer-new.html (the newer UI: per-slot
@@ -27,7 +29,6 @@ a fin_hide --strategy fin_hide --seed 13 --group-a 0,1,2 --relay-ms 200 --slots 
 a fin_hide_strict --strategy fin_hide --seed 13 --group-a 0,1,2 --relay-ms 200 --slots 48 --fast-strict --late-z proposer
 a fin_hide_fix --strategy fin_hide --seed 13 --group-a 0,1,2 --relay-ms 200 --slots 48 --refused-votes
 a fin_hide_seq $SEQ
-a fin_hide_seq_first_seen $SEQ --relay first-seen
 a fin_hide_seq_forwarding $SEQ --relay-carried
 a fin_hide_df --strategy fin_hide_df --seed 17 --group-a 0,1,2 --relay-ms 200 --slots 64 --delta-f-ms 12000
 a late_j --strategy late_j --seed 0 --group-a 0,1 --cut 50:8 --slots 112
@@ -43,19 +44,18 @@ TABS=(
   "06 Messy Heal=$R/p50_s48_d16_spread.events.json"
   "07 One-Slot Glitch at a Round Start=$R/glitch_s48_d1.events.json"
   "08 Half the Network Asleep=$R/sleep50_s48_d16.events.json"
-  "09 Silent Adversary=$R/adv_silent.events.json"
-  "10 Equivocating Adversary=$R/adv_equiv.events.json"
-  "11 Two-Faced Adversary Across a Cut=$R/adv_twoface.events.json"
-  "12 Finalization Hiding=$R/fin_hide.events.json"
-  "13 Finalization Hiding, Strict Fast Test=$R/fin_hide_strict.events.json"
-  "14 Finalization Hiding, Refused-Votes Fix=$R/fin_hide_fix.events.json"
-  "15 Finalization Hiding Without Equivocation=$R/fin_hide_seq.events.json"
-  "16 Without Equivocation, First-Seen Gossip=$R/fin_hide_seq_first_seen.events.json"
-  "17 Without Equivocation, Vote Forwarding=$R/fin_hide_seq_forwarding.events.json"
-  "18 Finalization Hiding, Slow Attestations=$R/fin_hide_df.events.json"
-  "19 Late Justification Contest=$R/late_j.events.json"
-  "20 Outage of 3 Slots=$R/outage_3.events.json"
-  "21 Outage of 3.75 Slots=$R/outage_3_75.events.json"
+  "09 Finalization Hiding=$R/fin_hide.events.json"
+  "10 Finalization Hiding, Strict Fast Test=$R/fin_hide_strict.events.json"
+  "11 Finalization Hiding, Refused-Votes Fix=$R/fin_hide_fix.events.json"
+  "12 Finalization Hiding Without Equivocation=$R/fin_hide_seq.events.json"
+  "13 Without Equivocation, Vote Forwarding=$R/fin_hide_seq_forwarding.events.json"
+  "14 Finalization Hiding, Slow Attestations=$R/fin_hide_df.events.json"
+  "15 Silent Adversary=$R/adv_silent.events.json"
+  "16 Equivocating Adversary=$R/adv_equiv.events.json"
+  "17 Two-Faced Adversary Across a Cut=$R/adv_twoface.events.json"
+  "18 Late Justification Contest=$R/late_j.events.json"
+  "19 Outage of 3 Slots=$R/outage_3.events.json"
+  "20 Outage of 3.75 Slots=$R/outage_3_75.events.json"
 )
 python3 explorer_classic.py explorer/goldilocks-explorer.html --meta explorer_meta.json "${TABS[@]}"
 if [ "$1" = "--new" ]; then

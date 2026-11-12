@@ -1,0 +1,42 @@
+# The explorer pages on GitHub Pages, from master: the landing page and the two explorers
+# (22 Oct 2026 text and live spec), as built and committed under simulator/goldilocks/explorer/.
+name: Explorer on GitHub Pages
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "simulator/goldilocks/explorer/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect the pages
+        run: |
+          mkdir site
+          cp simulator/goldilocks/explorer/index.html \
+             simulator/goldilocks/explorer/goldilocks-explorer.html \
+             simulator/goldilocks/explorer/goldilocks-live-explorer.html site/
+          touch site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
