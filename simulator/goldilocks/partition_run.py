@@ -184,6 +184,28 @@ def dump_events(path, args, world, tracker, group_of, windows):
     P = world.P
     blocks = {r: [b.slot, b.parent, b.proposer, world.node_of.get(b.proposer, -1), len(b.attestations), len(b.votes)]
               for r, b in BLOCKS.items() if r != GEN}
+    block_details = {}
+    is_adv = hasattr(world, "adv") and world.adv is not None
+    for r, b in BLOCKS.items():
+        if r == GEN:
+            continue
+        rcv = {}
+        for n in world.nodes:
+            t = n.ac.bts.get(r)
+            if t is not None and t != -float("inf"):
+                rcv[str(n.id)] = round(t, 3) if isinstance(t, float) else t
+        pnode = world.node_of.get(b.proposer, -1)
+        if pnode == -1 or is_adv:
+            rcv["-1"] = P.t(b.slot)
+        b_votes = [[v.v, v.s, v.H] for v in b.votes]
+        b_atts = [[a.v, a.h, a.T, 1 if a.tau else 0, a.hf, a.Tf] for a in b.attestations]
+        b_support = [[v.v, v.s, v.H] for v in b.support_votes]
+        block_details[r] = {
+            "votes": b_votes,
+            "atts": b_atts,
+            "support": b_support,
+            "receipts": rcv,
+        }
     with open(path, "w") as fh:
         json.dump({
             "protocol": "goldilocks",
@@ -194,6 +216,7 @@ def dump_events(path, args, world, tracker, group_of, windows):
             "windows": [[a, b, g] for a, b, g in windows],
             "validators": [len(n.validators) for n in world.nodes],
             "blocks": blocks,
+            "block_details": block_details,
             "messages": world.net.events or [],
             "states": tracker.states,
             "log": world.log_events,

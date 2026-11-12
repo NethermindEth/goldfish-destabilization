@@ -49,6 +49,152 @@ def compact(path, meta=None):
             return "⊥"
         return f"#{sl(r)}" + ("" if r == GEN or r in final else "′")
 
+    def val_node(v):
+        cum = 0
+        for i, count in enumerate(vals):
+            if cum <= v < cum + count:
+                return i
+            cum += count
+        return -1
+
+    children = {r: [] for r in blocks}
+    children[GEN] = []
+    for r, b in blocks.items():
+        p = b[1]
+        if p in children:
+            children[p].append(r)
+        elif p == GEN:
+            children[GEN].append(r)
+
+    for r in children:
+        children[r].sort(key=lambda c: (blocks[c][0] if c in blocks else 0, c))
+
+    raw_details = d.get("block_details", {})
+    block_details_processed = {}
+    for r, b in blocks.items():
+        det = raw_details.get(r, {})
+        raw_votes = det.get("votes", [])
+        vote_groups_map = {}
+        for v in raw_votes:
+            val_idx, vs, vH = v[0], v[1], v[2]
+            vn = val_node(val_idx)
+            target_slot = sl(vH)
+            target_name = name(vH)
+            key = (target_slot, vH)
+            if key not in vote_groups_map:
+                vote_groups_map[key] = {
+                    "target_slot": target_slot,
+                    "target_root": vH,
+                    "target_name": target_name,
+                    "vote_slot": vs,
+                    "count": 0,
+                    "by_node": {},
+                    "vals": []
+                }
+            g = vote_groups_map[key]
+            g["count"] += 1
+            g["by_node"][str(vn)] = g["by_node"].get(str(vn), 0) + 1
+            g["vals"].append(val_idx)
+        vote_groups = sorted(vote_groups_map.values(), key=lambda g: (-g["count"], -(g["target_slot"] or 0)))
+
+        raw_atts = det.get("atts", [])
+        att_groups_map = {}
+        for a in raw_atts:
+            val_idx, h, T, tau, hf, Tf = a[0], a[1], a[2], bool(a[3]), a[4], a[5]
+            vn = val_node(val_idx)
+            key = (h, T, tau, hf, Tf)
+            if key not in att_groups_map:
+                att_groups_map[key] = {
+                    "h": h,
+                    "T": T,
+                    "T_slot": sl(T),
+                    "T_name": name(T),
+                    "tau": tau,
+                    "hf": hf,
+                    "Tf": Tf,
+                    "Tf_slot": sl(Tf) if Tf else None,
+                    "Tf_name": name(Tf) if Tf else None,
+                    "is_finality": (hf is not None),
+                    "count": 0,
+                    "by_node": {},
+                    "vals": []
+                }
+            ag = att_groups_map[key]
+            ag["count"] += 1
+            ag["by_node"][str(vn)] = ag["by_node"].get(str(vn), 0) + 1
+            ag["vals"].append(val_idx)
+        att_groups = sorted(att_groups_map.values(), key=lambda g: (-g["count"], -g["h"]))
+
+        raw_supp = det.get("support", [])
+        supp_groups_map = {}
+        for sv in raw_supp:
+            val_idx, vs, vH = sv[0], sv[1], sv[2]
+            vn = val_node(val_idx)
+            key = (vs, vH)
+            if key not in supp_groups_map:
+                supp_groups_map[key] = {
+                    "target_slot": vs,
+                    "target_root": vH,
+                    "target_name": name(vH),
+                    "count": 0,
+                    "by_node": {}
+                }
+            sg = supp_groups_map[key]
+            sg["count"] += 1
+            sg["by_node"][str(vn)] = sg["by_node"].get(str(vn), 0) + 1
+        supp_groups = sorted(supp_groups_map.values(), key=lambda g: (-g["count"], -g["target_slot"]))
+
+        raw_rcv = det.get("receipts", {})
+        b_slot = b[0]
+        slot_start_ms = b_slot * slot_ms
+        rcv_processed = {}
+        for nid in range(nodes):
+            t = raw_rcv.get(str(nid))
+            if t is not None:
+                rcv_processed[str(nid)] = [round(t, 1), round(t - slot_start_ms, 1)]
+            else:
+                rcv_processed[str(nid)] = None
+        if "-1" in raw_rcv or (cfg.get("f", 0) > 0 or (P["n"] - sum(vals) > 0)):
+            t_adv = raw_rcv.get("-1")
+            if t_adv is not None:
+                rcv_processed["-1"] = [round(t_adv, 1), round(t_adv - slot_start_ms, 1)]
+            else:
+                rcv_processed["-1"] = None
+
+        block_details_processed[r] = {
+            "slot": b_slot,
+            "parent": b[1],
+            "parent_slot": sl(b[1]),
+            "parent_name": name(b[1]),
+            "pnode": b[2],
+            "pval": b[3],
+            "natt": b[4],
+            "nvotes": d["blocks"][r][5] if len(d["blocks"][r]) > 5 else sum(g["count"] for g in vote_groups),
+            "is_canon": (r in final),
+            "votes": vote_groups,
+            "atts": att_groups,
+            "support": supp_groups,
+            "receipts": rcv_processed,
+            "children": children.get(r, []),
+        }
+
+    block_details_processed[GEN] = {
+        "slot": 0,
+        "parent": None,
+        "parent_slot": None,
+        "parent_name": None,
+        "pnode": -1,
+        "pval": -1,
+        "natt": 0,
+        "nvotes": 0,
+        "is_canon": True,
+        "votes": [],
+        "atts": [],
+        "support": [],
+        "receipts": {},
+        "children": children.get(GEN, []),
+    }
+
     # lock kinds per node, from the confirmation updates (a lock moved back keeps its kind)
     how = [dict() for _ in range(nodes)]
     events = {}
@@ -135,6 +281,7 @@ def compact(path, meta=None):
         "votes": votes,
         "msgs": msgs,
         "blocks": blocks,
+        "blockDetails": block_details_processed,
         "states": states,
         "settlements": None,
         "meta": meta,
@@ -277,6 +424,368 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
   border-radius: 6px; padding: 7px 10px; font: 12px/1.45 var(--mono); color: var(--fg);
   box-shadow: 0 6px 18px rgba(0,0,0,.16); max-width: 340px; z-index: 50;
 }
+/* Section 4: Visual Block Explorer & Chain Stage */
+.block-chain-stage {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  background: var(--bg);
+  border: 1px solid var(--grid);
+  border-radius: 8px;
+  overflow: hidden;
+  user-select: none;
+}
+.chain-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+.chain-box {
+  background: var(--panel);
+  border: 1px solid var(--gridStrong);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  z-index: 2;
+  box-sizing: border-box;
+}
+.center-block-box {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  max-width: 90%;
+  border: 2px solid var(--gridStrong);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.14);
+  overflow: hidden;
+  background: var(--panel);
+}
+.block-card-head {
+  padding: 11px 14px 9px 14px;
+  border-bottom: 1px solid var(--grid);
+  background: var(--panel);
+}
+.block-votes-section {
+  padding: 9px 14px 10px 14px;
+  border-bottom: 1px solid var(--grid);
+  background: var(--panel);
+}
+.section-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.section-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--subtle);
+}
+.section-meta {
+  font-size: 10.5px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+.node-vote-table {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.node-vote-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.08);
+  border: 1px solid transparent;
+  transition: background 0.12s ease;
+}
+[data-theme="light"] .node-vote-row {
+  background: rgba(0, 0, 0, 0.03);
+}
+.node-vote-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--grid);
+}
+.node-vote-row.row-equiv {
+  background: rgba(239, 68, 68, 0.07);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+.node-col-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 125px;
+  flex-shrink: 0;
+  font-size: 11.5px;
+}
+.side-pill-mini {
+  font-size: 9.5px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--gridStrong);
+  color: var(--muted);
+}
+.side-pill-mini.side-a {
+  color: var(--a);
+  border-color: var(--aSoft);
+  background: rgba(37, 99, 235, 0.08);
+}
+.side-pill-mini.side-b {
+  color: var(--b);
+  border-color: var(--bSoft);
+  background: rgba(217, 119, 6, 0.08);
+}
+.side-pill-mini.side-adv {
+  color: var(--held);
+  border-color: var(--held);
+  background: rgba(220, 38, 38, 0.08);
+}
+.node-col-target {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  font-family: var(--mono);
+}
+.vote-target-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--grid);
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--fg);
+  transition: all 0.12s ease;
+}
+.vote-target-chip:hover {
+  border-color: var(--a);
+  color: var(--a);
+  transform: translateY(-1px);
+}
+.vote-arrow {
+  color: var(--muted);
+  font-weight: 700;
+}
+.vote-target-num {
+  font-weight: 600;
+}
+.label-btn {
+  font-size: 11px;
+  font-family: var(--sans);
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--grid);
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.12s ease;
+}
+.label-btn:hover {
+  background: var(--panel);
+  border-color: var(--a);
+  color: var(--a);
+}
+.badge-equiv {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(239, 68, 68, 0.18);
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.equiv-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.equiv-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.vote-none {
+  color: var(--muted);
+  font-size: 11px;
+  font-style: italic;
+}
+.node-col-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg);
+  text-align: right;
+  min-width: 65px;
+  flex-shrink: 0;
+}
+.vote-cnt-pill {
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--bg);
+  border: 1px solid var(--grid);
+}
+.vote-cnt-pill.cnt-equiv {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+.vote-cnt-zero {
+  color: var(--subtle);
+}
+.block-att-banner {
+  background: rgba(13, 148, 136, 0.12);
+  border: 1px solid rgba(13, 148, 136, 0.35);
+  border-radius: 5px;
+  padding: 6px 10px;
+  font: 600 11.5px/1.4 var(--sans);
+  color: #0d9488;
+  margin: 6px 14px;
+}
+.block-receipts-section {
+  padding: 8px 14px 10px 14px;
+  background: var(--panel);
+}
+.receipt-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  margin-top: 5px;
+}
+.receipt-chip {
+  background: var(--bg);
+  border: 1px solid var(--grid);
+  border-radius: 4px;
+  padding: 3px 7px;
+  font: 500 11px var(--mono);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.peek-box {
+  width: 175px;
+  padding: 8px 10px;
+  opacity: 0.62;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: grid;
+  gap: 3px;
+}
+.peek-box:hover {
+  opacity: 1;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.16);
+  border-color: var(--a);
+}
+.peek-left {
+  position: absolute;
+  left: -35px; top: 50%;
+  transform: translateY(-50%);
+}
+.peek-left:hover {
+  transform: translateY(-50%) translateX(12px);
+}
+.peek-right {
+  position: absolute;
+  right: -35px; top: 50%;
+  transform: translateY(-50%);
+}
+.peek-right:hover {
+  transform: translateY(-50%) translateX(-12px);
+}
+.peek-fork {
+  position: absolute;
+  right: 120px; bottom: -25px;
+}
+.peek-fork:hover {
+  transform: translateY(-12px);
+}
+.peek-fork2 {
+  position: absolute;
+  left: 120px; bottom: -25px;
+}
+.peek-fork2:hover {
+  transform: translateY(-12px);
+}
+.peek-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--subtle);
+}
+.peek-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--fg);
+}
+.peek-sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+.peek-foot {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.peek-empty {
+  position: absolute;
+  padding: 8px 12px;
+  border: 1px dashed var(--grid);
+  border-radius: 6px;
+  color: var(--subtle);
+  font: 500 11px var(--mono);
+  background: var(--panel);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.peek-left-empty {
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+}
+.peek-right-empty {
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+}
+.copy-btn {
+  font: 500 11px var(--sans); padding: 2px 7px; border-radius: 4px;
+  border: 1px solid var(--gridStrong); background: var(--bg); color: var(--fg); cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--a); color: var(--a); }
+.block-select {
+  font: 500 12.5px var(--sans); padding: 4px 8px; border-radius: 5px;
+  border: 1px solid var(--gridStrong); background: var(--panel); color: var(--fg); cursor: pointer;
+  max-width: 280px;
+}
+.badge {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px;
+  font-size: 11px; font-weight: 600;
+}
+.badge-canon { background: rgba(22, 163, 74, 0.12); color: #16a34a; border: 1px solid rgba(22, 163, 74, 0.3); }
+.badge-orph { background: rgba(220, 38, 38, 0.12); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.3); }
+.badge-adv { background: rgba(147, 51, 234, 0.12); color: #9333ea; border: 1px solid rgba(147, 51, 234, 0.3); }
+.badge-fin { background: rgba(13, 148, 136, 0.12); color: #0d9488; border: 1px solid rgba(13, 148, 136, 0.3); }
 </style>
 </head>
 <body>
@@ -420,6 +929,21 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
       <div class="callouts" id="slotStepCards"></div>
       <div id="slotStateTable"></div>
     </section>
+
+    <section class="panel" id="blockPanel">
+      <div class="panel-head">
+        <h2>4. Block explorer</h2>
+        <div class="controls">
+          <span>Block:</span>
+          <select id="blockSelect" class="block-select" aria-label="Select block"></select>
+          <button type="button" class="step-btn" id="blockPrevBtn">◀ Prev block</button>
+          <button type="button" class="step-btn" id="blockNextBtn">Next block ▶</button>
+          <button type="button" class="step-btn" id="blockZoomBtn" title="Zoom this block's slot in Section 3">🔍 Zoom slot</button>
+        </div>
+      </div>
+      <p class="note">Inspect chain layout and block contents: bundled votes, finality attestations, and validator reception times. Click any peeked block on the borders or any vote bundle to walk the chain.</p>
+      <div id="blockChainStage" class="block-chain-stage"></div>
+    </section>
     <section class="panel" id="settlePanel" hidden>
       <h2>Height settlements at each round boundary (majority chain)</h2>
       <p class="note">Every round boundary settles one height outcome from the votes <b>already on chain</b>. Bars: target (justify) votes and finality-piggyback votes counted by the spec state at that moment; dashed line: the 2/3 quorum. A red marker under the axis means the round's first slot had no block on the majority chain, so the last slot's votes could not be included before the settlement. Finality piggybacks accumulate across rounds (extended window); target votes do not.</p>
@@ -488,10 +1012,69 @@ let zoomSlot = 40;
 let msgMode = "blocks";
 let showRelays = true;
 let netHot = [];  // hover targets of the slot panel: {x, y, html}
+let treeHot = [];  // click targets for blocks in the tree panel: {x, y, root, slot}
+let curBlockRoot = null;
 let treeView = "final";
 let treePhase = "end";
 const $ = id => document.getElementById(id);
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+let customLabels = {};
+try {
+  customLabels = JSON.parse(localStorage.getItem("goldilocks_labels") || "{}");
+} catch(e) {
+  customLabels = {};
+}
+
+function saveCustomLabels() {
+  try {
+    localStorage.setItem("goldilocks_labels", JSON.stringify(customLabels));
+  } catch(e) {}
+}
+
+function getBlockLabel(root, opts = {}) {
+  if (!root) return "—";
+  if (root === GEN || root === "GEN") return "Genesis";
+  if (customLabels && customLabels[root]) {
+    if (opts.full && opts.slot !== undefined) {
+      return `${customLabels[root]} (Block #${opts.slot})`;
+    }
+    return customLabels[root];
+  }
+  if (opts.slot !== undefined) {
+    return opts.full ? `Block #${opts.slot}` : `#${opts.slot}`;
+  }
+  const run = RUNS[cur];
+  if (run && run.blocks && run.blocks[root]) {
+    const s = run.blocks[root][0];
+    return opts.full ? `Block #${s}` : `#${s}`;
+  }
+  return root.length > 8 ? root.slice(0, 8) : root;
+}
+
+function setBlockLabel(root, label) {
+  if (!root) return;
+  label = (label || "").trim();
+  if (label) {
+    customLabels[root] = label;
+  } else {
+    delete customLabels[root];
+  }
+  saveCustomLabels();
+  renderSingle();
+}
+
+function promptRelabel(root) {
+  if (!root) return;
+  const current = (customLabels && customLabels[root]) || "";
+  const run = RUNS[cur];
+  const blk = run && run.blocks ? run.blocks[root] : null;
+  const defName = blk ? `Block #${blk[0]}` : (root === "G" ? "Genesis" : root.slice(0, 8));
+  const val = prompt(`Enter custom label for ${defName} (leave blank to reset):`, current);
+  if (val !== null) {
+    setBlockLabel(root, val);
+  }
+}
 
 function setup(cv, w, h, mode = "full") {
   const r = window.devicePixelRatio || 1;
@@ -610,12 +1193,14 @@ function renderSlotDetails(run, s, T, shareA, final) {
   const nA = curRow[idxA], nB = curRow[idxB];
 
   // Find block proposed in slot s
-  let propNode = null, propParentSlot = 0, propOrphaned = false;
+  let propNode = null, propParentSlot = 0, propOrphaned = false, propRoot = null, propParentRoot = null;
   Object.entries(run.blocks).forEach(([root, [bslot, parent, src]]) => {
     if (bslot === s && (propNode === null || src >= 0)) {
       propNode = src;
       propParentSlot = run.blocks[parent] ? run.blocks[parent][0] : 0;
+      propParentRoot = parent;
       propOrphaned = !final.has(root);
+      propRoot = root;
     }
   });
   const sides = cut || !!cfg.sides;
@@ -624,10 +1209,16 @@ function renderSlotDetails(run, s, T, shareA, final) {
   const ev = (run.events[s] || []);
   const evFor = (kinds) => ev.filter(e => kinds.includes(e[1]));
   const fmtEv = es => es.length ? es.map(e => e[2]).join("<br>") : "—";
+  const propName = propRoot ? getBlockLabel(propRoot, {full: true, slot: s}) : `Block #${s}`;
+  const parentName = propParentRoot ? getBlockLabel(propParentRoot, {slot: propParentSlot}) : `#${propParentSlot}`;
+  const inspectLink = propRoot
+    ? `<br><a href="javascript:void(0)" onclick="selectBlock('${propRoot}');$('blockPanel').scrollIntoView({behavior:'smooth'})" style="color:var(--a);font-weight:600;text-decoration:none">🔎 Inspect ${propName} in Block Explorer ↓</a>`
+    : "";
   const step1Body = (propNode !== null && propNode >= 0
-    ? `<b>${propSide}</b> proposes <b>Block #${s}</b> on <b>#${propParentSlot}</b>${propOrphaned ? ' <span class="delta-down">(later orphaned)</span>' : ''}. ` +
+    ? `<b>${propSide}</b> proposes <b>${propName}</b> on <b>${parentName}</b>${propOrphaned ? ' <span class="delta-down">(later orphaned)</span>' : ''}. ` +
       (inCut ? `Delivered to its own side; <b>held across the cut</b> until slot ${cutB}.` : ``)
-    : (Object.values(run.blocks).some(b => b[0] === s && b[2] < 0) ? `<b>The adversary</b> proposes in slot ${s}.` : `No block proposed in slot ${s}.`)) +
+    : (Object.values(run.blocks).some(b => b[0] === s && b[2] < 0) ? `<b>The adversary</b> proposes <b>${propName}</b> in slot ${s}.` : `No block proposed in slot ${s}.`)) +
+    inspectLink +
     (isHealSlot ? `<br><span style="color:var(--heal);font-weight:700">GST heal:</span> held blocks and votes of slots ${cutA}–${cutB - 1} arrive.` : "") +
     ((run.advNotes[s] || []).length ? `<br><b style="color:var(--held)">Adversary deliveries:</b><br>` + run.advNotes[s].map(([at, l]) => `• ${l}`).join("<br>") : "");
   const step2Body = `Locks with n/2 or more opponents among the slot-${s - 1} votes move back; then each node votes.<br>` + fmtEv(evFor(["unlock"]));
@@ -642,14 +1233,16 @@ function renderSlotDetails(run, s, T, shareA, final) {
   `;
 
   // Per-side state comparison table
-  const fmtDelta = (now, prev, isRootOrphan) => {
+  const fmtDelta = (now, prev, isRootOrphan, root) => {
+    const cLab = root && customLabels && customLabels[root];
+    const disp = cLab ? `${cLab} (#${now})` : `#${now}`;
     if (prev === null || prev === undefined || now === prev) {
-      return `<b>#${now}</b>${isRootOrphan ? ' <span class="delta-down">(orphaned branch)</span>' : ''}`;
+      return `<b>${disp}</b>${isRootOrphan ? ' <span class="delta-down">(orphaned branch)</span>' : ''}`;
     }
     const diff = now - prev;
     const cls = diff < 0 ? "delta-down" : "delta-up";
     const sign = diff > 0 ? `+${diff}` : `${diff}`;
-    return `<b>#${now}</b> <span class="${cls}">(was #${prev}, ${sign})</span>${isRootOrphan ? ' <span class="delta-down">[orphaned]</span>' : ''}`;
+    return `<b>${disp}</b> <span class="${cls}">(was #${prev}, ${sign})</span>${isRootOrphan ? ' <span class="delta-down">[orphaned]</span>' : ''}`;
   };
 
   const rows = (sides ? [
@@ -664,8 +1257,8 @@ function renderSlotDetails(run, s, T, shareA, final) {
       : (n[9] === "FLOOR" ? `<span class="delta-down">no live lock</span>` : `<span class="delta-up">fast lock</span>`);
     return `<tr>
       <td><b>${name}</b></td>
-      <td>${fmtDelta(n[0], p ? p[0] : null, headOrph)}</td>
-      <td>${fmtDelta(n[2], p ? p[2] : null, safeOrph)}</td>
+      <td>${fmtDelta(n[0], p ? p[0] : null, headOrph, n[1])}</td>
+      <td>${fmtDelta(n[2], p ? p[2] : null, safeOrph, n[3])}</td>
       <td>${fmtDelta(n[4], p ? p[4] : null, false)} · ${srcLabel}</td>
       <td>Justified <b>#${n[7]}</b> / Finalized <b>#${n[6]}</b> (height h=${n[8]})</td>
       <td>${(run.locks[s] && run.locks[s][i]) || "none"}</td>
@@ -1078,6 +1671,7 @@ function renderSingle() {
 
   const lc = setup($("treeLeft"), LW, TH, "fixed");
   const tc = setup($("tree"), TW, TH, "scroll");
+  treeHot = [];
 
   // --- Draw treeLeft (pinned left column) ---
   lc.fillStyle = T.panel;
@@ -1184,11 +1778,13 @@ function renderSingle() {
     // Genesis
     tc.fillStyle = T.muted; tc.beginPath(); tc.arc(TX(0), TY(0), 4.5, 0, 7); tc.fill();
     tc.strokeStyle = T.fg; tc.lineWidth = 1.8; tc.strokeRect(TX(0) - 6.5, TY(0) - 6.5, 13, 13);
+    treeHot.push({ x: TX(0), y: TY(0), root: GEN, slot: 0 });
 
     const finSlots = new Set([0]); run.states.forEach(r => finSlots.add(r[1][0][6]));
 
     blocks.forEach(b => {
       const x = TX(b.slot), y = TY(rowOf[b.root]);
+      treeHot.push({ x, y, root: b.root, slot: b.slot });
       const isAdversary = b.src < 0;
       const baseCol = isAdversary ? T.held : (!sides ? T.a : (run.groupOf[b.src] === 0 ? T.a : T.b));
       tc.fillStyle = baseCol;
@@ -1203,7 +1799,13 @@ function renderSingle() {
           tc.beginPath(); tc.arc(x, y, 7.6, 0, 7); tc.stroke();
         }
         tc.fillStyle = T.held; tc.font = "600 10px " + css("--mono"); tc.textAlign = "center";
-        tc.fillText(b.slot, x, y + 18);
+        const cLab = (customLabels && customLabels[b.root]) || b.slot;
+        tc.fillText(cLab, x, y + 18);
+      } else if (customLabels && customLabels[b.root]) {
+        tc.fillStyle = isAdversary ? T.held : T.fg;
+        tc.font = "700 10px " + css("--mono");
+        tc.textAlign = "center";
+        tc.fillText(customLabels[b.root], x, y - 12);
       }
     });
 
@@ -1318,7 +1920,9 @@ function renderSingle() {
         tc.fillStyle = isLock ? T.g1 : (isCanon ? T.muted : T.held);
         tc.font = (isLock ? "600 " : "400 ") + "9.5px " + css("--mono");
         tc.textAlign = "center";
-        tc.fillText(isLock ? `🔒#${b.slot}` : `#${b.slot}`, bx, y + 20);
+        const cLab = (customLabels && customLabels[b.root]) || `#${b.slot}`;
+        tc.fillText(isLock ? `🔒${cLab}` : cLab, bx, y + 20);
+        treeHot.push({ x: bx, y, root: b.root, slot: b.slot });
       });
     });
   }
@@ -1356,11 +1960,18 @@ function renderSingle() {
     });
   }
 
-  // Click on tree canvas to select slot
+  // Click on tree canvas to select block or slot
   $("tree").onclick = e => {
     if (treeDidDrag) return;
     const rect = $("tree").getBoundingClientRect();
     const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    const hit = treeHot.find(h => Math.hypot(h.x - clickX, h.y - clickY) < 14);
+    if (hit) {
+      selectBlock(hit.root);
+      $("blockPanel").scrollIntoView({ behavior: "smooth" });
+      return;
+    }
     const clickedSlot = Math.round((clickX - TL) / stepW);
     if (clickedSlot >= 1 && clickedSlot <= maxSlot) {
       zoomSlot = clickedSlot;
@@ -1455,13 +2066,19 @@ function renderSingle() {
   // the message filter: block, FG attestation and vote messages are kinds 0, 1 and 2
   const shows = k => msgMode === "all" || msgMode === ["blocks", "atts", "votes"][k];
   netHot = []; netHot.w = NW;
-  const nm = r => run.blocks[r] ? `#${run.blocks[r][0]}${final.has(r) ? "" : "′"}` : "#0";
+  const nm = r => {
+    if (!r) return "—";
+    if (r === GEN || r === "GEN") return "Genesis";
+    if (customLabels && customLabels[r]) return customLabels[r];
+    return run.blocks[r] ? `#${run.blocks[r][0]}${final.has(r) ? "" : "′"}` : "#0";
+  };
   const propTip = (root, gets) => {  // gets: [node, arrival time] for each receiver
     const byAt = {};
     gets.sort((a, b) => a[0] - b[0]).forEach(([d, at]) => (byAt[at] = byAt[at] || []).push(d));
     const to = Object.entries(byAt).map(([at, ds]) =>
       `${ds.map(d => `Node ${d}`).join(", ")} at +${((at - t0) / 1000).toFixed(3)} s`);
-    return `Proposed ${nm(root)} (Parent ${nm(run.blocks[root] && run.blocks[root][1])})<br>To ${to.join("; ")}`;
+    const pRoot = run.blocks[root] && run.blocks[root][1];
+    return `Proposes ${nm(root)} (Parent ${nm(pRoot)})<br>To ${to.join("; ")}`;
   };
   if (run.adv) {
     const y = NY(-1);
@@ -1595,6 +2212,478 @@ function renderSingle() {
       nc.fillStyle = T.muted; nc.font = "9.5px " + css("--mono"); nc.textAlign = "left";
       nc.fillText(`locks ${(run.locks[s] && run.locks[s][n]) || "none"}`, x75 + 7, y + 3);
     }
+  }
+
+  if (!curBlockRoot || window._lastZoomForBlock !== zoomSlot) {
+    window._lastZoomForBlock = zoomSlot;
+    const proposedAtZoom = Object.entries(run.blocks).find(([r, b]) => b[0] === zoomSlot);
+    if (proposedAtZoom) {
+      curBlockRoot = proposedAtZoom[0];
+    }
+  }
+  renderBlockExplorer();
+}
+
+function selectBlock(root) {
+  curBlockRoot = root;
+  renderBlockExplorer();
+}
+
+function fmtValRanges(vals) {
+  if (!vals || vals.length === 0) return "none";
+  const sorted = [...new Set(vals)].sort((a, b) => a - b);
+  const ranges = [];
+  let start = sorted[0], end = sorted[0];
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === end + 1) {
+      end = sorted[i];
+    } else {
+      ranges.push(start === end ? `${start}` : `${start}–${end}`);
+      start = end = sorted[i];
+    }
+  }
+  ranges.push(start === end ? `${start}` : `${start}–${end}`);
+  return ranges.join(", ");
+}
+
+let chainResizeBound = false;
+
+function updateConnectingLines() {
+  const stage = $("blockChainStage");
+  const svg = $("chainSvg");
+  const cEl = $("centerBlock");
+  if (!stage || !svg || !cEl) return;
+  const sRect = stage.getBoundingClientRect();
+  const cRect = cEl.getBoundingClientRect();
+
+  let linesHtml = "";
+
+  // 1. Horizontal line from Left Parent to Center Block
+  const pEl = $("peekParent");
+  if (pEl) {
+    const pRect = pEl.getBoundingClientRect();
+    const x1 = pRect.right - sRect.left;
+    const y1 = pRect.top + pRect.height / 2 - sRect.top;
+    const x2 = cRect.left - sRect.left;
+    const y2 = cRect.top + cRect.height / 2 - sRect.top;
+    linesHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--gridStrong)" stroke-width="2.5" />`;
+  }
+
+  // 2. Horizontal line from Center Block to Right Child
+  const chEl = $("peekChild");
+  if (chEl) {
+    const chRect = chEl.getBoundingClientRect();
+    const x1 = cRect.right - sRect.left;
+    const y1 = cRect.top + cRect.height / 2 - sRect.top;
+    const x2 = chRect.left - sRect.left;
+    const y2 = chRect.top + chRect.height / 2 - sRect.top;
+    linesHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--gridStrong)" stroke-width="2.5" />`;
+  }
+
+  // 3. Diagonal line (\) from bottom of Center Block to Bottom-Right Fork Child
+  const forkEl = $("peekFork");
+  if (forkEl) {
+    const fRect = forkEl.getBoundingClientRect();
+    const x1 = cRect.right - 45 - sRect.left;
+    const y1 = cRect.bottom - sRect.top;
+    const x2 = fRect.left + fRect.width / 2 - sRect.left;
+    const y2 = fRect.top - sRect.top;
+    linesHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--held)" stroke-width="2.5" stroke-dasharray="5,4" />`;
+  }
+
+  // 4. Diagonal line (/) from bottom of Center Block to Bottom-Left Fork Child (if 3+ children)
+  const fork2El = $("peekFork2");
+  if (fork2El) {
+    const f2Rect = fork2El.getBoundingClientRect();
+    const x1 = cRect.left + 45 - sRect.left;
+    const y1 = cRect.bottom - sRect.top;
+    const x2 = f2Rect.left + f2Rect.width / 2 - sRect.left;
+    const y2 = f2Rect.top - sRect.top;
+    linesHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--held)" stroke-width="2.5" stroke-dasharray="5,4" />`;
+  }
+
+  svg.innerHTML = linesHtml;
+}
+
+function renderBlockExplorer() {
+  const run = RUNS[cur];
+  if (!run || !run.blockDetails) return;
+  const cfg = run.cfg;
+  const bd = run.blockDetails;
+  const blocks = run.blocks;
+  const final = finalChain(run);
+  const T = {
+    a: css("--a"), b: css("--b"), aSoft: css("--aSoft"), bSoft: css("--bSoft"),
+    held: css("--held"), heal: css("--heal"), tsq: css("--tsq"), g1: css("--g1"),
+    fg: css("--fg"), muted: css("--muted"), subtle: css("--subtle"),
+    grid: css("--grid"), panel: css("--panel"), bg: css("--bg")
+  };
+
+  if (!chainResizeBound) {
+    chainResizeBound = true;
+    window.addEventListener("resize", updateConnectingLines);
+  }
+
+  // Ensure curBlockRoot is valid
+  if (!curBlockRoot || !bd[curBlockRoot]) {
+    const match = Object.entries(blocks).find(([r, blk]) => blk[0] === zoomSlot);
+    if (match) curBlockRoot = match[0];
+    else {
+      const sorted = Object.entries(blocks).sort((x, y) => x[1][0] - y[1][0] || x[0].localeCompare(y[0]));
+      const prev = sorted.filter(([r, blk]) => blk[0] <= zoomSlot).pop();
+      curBlockRoot = prev ? prev[0] : (sorted[0] ? sorted[0][0] : "G");
+    }
+  }
+
+  const b = bd[curBlockRoot];
+  if (!b) return;
+
+  // 1. Populate block selector dropdown & prev/next buttons
+  const allRoots = Object.keys(blocks).sort((x, y) => blocks[x][0] - blocks[y][0] || x.localeCompare(y));
+  const allSortedRoots = ["G", ...allRoots];
+  const curIdx = allSortedRoots.indexOf(curBlockRoot);
+
+  const sel = $("blockSelect");
+  if (sel) {
+    let optHtml = `<option value="G"${curBlockRoot === "G" ? " selected" : ""}>Genesis · G</option>`;
+    for (const r of allRoots) {
+      const blk = blocks[r];
+      const selAttr = (r === curBlockRoot) ? " selected" : "";
+      const pLab = blk[2] < 0 ? "Adversary" : `Node ${blk[2]}`;
+      const cLab = customLabels && customLabels[r];
+      const namePart = cLab ? `${cLab} (Block #${blk[0]})` : `Block #${blk[0]}`;
+      optHtml += `<option value="${r}"${selAttr}>${namePart} — ${pLab} (${r.slice(0, 8)})</option>`;
+    }
+    sel.innerHTML = optHtml;
+    sel.onchange = e => selectBlock(e.target.value);
+  }
+
+  if ($("blockPrevBtn")) {
+    $("blockPrevBtn").disabled = (curIdx <= 0);
+    $("blockPrevBtn").onclick = () => {
+      if (curIdx > 0) selectBlock(allSortedRoots[curIdx - 1]);
+    };
+  }
+  if ($("blockNextBtn")) {
+    $("blockNextBtn").disabled = (curIdx >= allSortedRoots.length - 1);
+    $("blockNextBtn").onclick = () => {
+      if (curIdx < allSortedRoots.length - 1) selectBlock(allSortedRoots[curIdx + 1]);
+    };
+  }
+  if ($("blockZoomBtn")) {
+    $("blockZoomBtn").onclick = () => {
+      zoomSlot = b.slot;
+      renderSingle();
+      $("net").scrollIntoView({ behavior: "smooth" });
+    };
+  }
+
+  // 2. Build Bundled Votes section (dedicated row per node)
+  const votes = b.votes || [];
+  const nodeVotes = {};
+  for (const g of votes) {
+    for (const [nid, count] of Object.entries(g.by_node)) {
+      if (!nodeVotes[nid]) nodeVotes[nid] = [];
+      nodeVotes[nid].push({
+        target_slot: g.target_slot,
+        target_root: g.target_root,
+        target_name: g.target_name,
+        count: count
+      });
+    }
+  }
+
+  // Determine list of nodes to render
+  const nodesToRender = [];
+  for (let i = 0; i < cfg.nodes; i++) nodesToRender.push(i);
+  if (run.adv > 0 || nodeVotes["-1"] !== undefined) nodesToRender.push(-1);
+
+  let rowsHtml = "";
+  for (const nid of nodesToRender) {
+    const isAdv = (nid === -1);
+    const nName = isAdv ? "Adversary" : `Node ${nid}`;
+    const nCol = isAdv ? T.held : (nid < cfg.split ? T.a : T.b);
+    const nSide = isAdv ? "Adversary" : (cfg.sides ? (nid < cfg.split ? "Side A" : "Side B") : "Honest");
+    const sideClass = isAdv ? "side-adv" : (nid < cfg.split ? "side-a" : "side-b");
+
+    const targets = nodeVotes[String(nid)] || [];
+    let targetHtml = "";
+    let countHtml = "";
+    const isEquiv = targets.length > 1;
+
+    if (targets.length === 0) {
+      targetHtml = `<span class="vote-none">— no votes bundled</span>`;
+      countHtml = `<span class="vote-cnt-zero">0</span>`;
+    } else if (targets.length === 1) {
+      const t = targets[0];
+      const tSlot = (t.target_slot !== null && t.target_slot !== undefined) ? t.target_slot : 0;
+      const tDisp = getBlockLabel(t.target_root, {full: true, slot: tSlot});
+      targetHtml = `
+        <span class="vote-target-chip" onclick="selectBlock('${t.target_root}')" title="Click to inspect ${tDisp}">
+          <span class="vote-arrow">→</span>
+          <span class="vote-target-num">${tDisp}</span>
+        </span>
+      `;
+      countHtml = `<span class="vote-cnt-pill">${t.count} votes</span>`;
+    } else {
+      // Equivocation (multiple contradictory heads)
+      const totalCnt = targets.reduce((s, x) => s + x.count, 0);
+      const chips = targets.map(t => {
+        const tSlot = (t.target_slot !== null && t.target_slot !== undefined) ? t.target_slot : 0;
+        const tDisp = getBlockLabel(t.target_root, {full: true, slot: tSlot});
+        return `
+          <span class="vote-target-chip" onclick="selectBlock('${t.target_root}')" title="Click to inspect ${tDisp} (${t.count} votes)">
+            <span class="vote-arrow">→</span>
+            <span class="vote-target-num">${tDisp}</span>
+            <span style="font-size:10px;color:var(--muted)">(${t.count}v)</span>
+          </span>
+        `;
+      }).join("");
+
+      targetHtml = `
+        <div class="equiv-wrap">
+          <span class="badge-equiv">⚡ Equivocation</span>
+          <div class="equiv-chips">${chips}</div>
+        </div>
+      `;
+      countHtml = `<span class="vote-cnt-pill cnt-equiv" title="Equivocated across ${targets.length} different heads">${totalCnt} votes</span>`;
+    }
+
+    rowsHtml += `
+      <div class="node-vote-row ${isEquiv ? "row-equiv" : ""}">
+        <div class="node-col-id">
+          <i class="dot" style="background:${nCol};width:7px;height:7px;border-radius:50%;display:inline-block"></i>
+          <b>${nName}</b>
+          ${isAdv ? "" : `<span class="side-pill-mini ${sideClass}">${nSide}</span>`}
+        </div>
+        <div class="node-col-target">
+          ${targetHtml}
+        </div>
+        <div class="node-col-count">
+          ${countHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  // 3. Build Attestations Banner
+  let attsHtml = "";
+  const atts = b.atts || [];
+  if (atts.length > 0) {
+    for (const ag of atts) {
+      const q = cfg.q || Math.floor((2 * cfg.validators) / 3) + 1;
+      const reachedQ = ag.count >= q;
+      const tSlot = ag.T_slot !== null && ag.T_slot !== undefined ? ag.T_slot : 0;
+      const tfSlot = ag.Tf_slot !== null && ag.Tf_slot !== undefined ? ag.Tf_slot : 0;
+      const tLabel = getBlockLabel(ag.T, {full: true, slot: tSlot});
+      const tfLabel = ag.Tf ? getBlockLabel(ag.Tf, {full: true, slot: tfSlot}) : "";
+      if (ag.is_finality) {
+        attsHtml += `
+          <div class="block-att-banner">
+            📜 <b>Finality Attestation:</b> Target h=${ag.h} (<a href="javascript:void(0)" onclick="selectBlock('${ag.T}')" style="color:inherit;text-decoration:underline">${tLabel}</a>) → Finalizes h<sub>f</sub>=${ag.hf} (<a href="javascript:void(0)" onclick="selectBlock('${ag.Tf}')" style="color:inherit;text-decoration:underline">${tfLabel}</a>)
+            <div style="font-size:11px;margin-top:2px;color:var(--muted)">${ag.count}/${cfg.validators} votes · ${reachedQ ? "✓ 2/3 Quorum reached" : "below 2/3 quorum"}${ag.tau ? " · ⚠️ timed out" : ""}</div>
+          </div>
+        `;
+      } else {
+        attsHtml += `
+          <div class="block-att-banner">
+            🎯 <b>Target Attestation:</b> Height h=${ag.h} (<a href="javascript:void(0)" onclick="selectBlock('${ag.T}')" style="color:inherit;text-decoration:underline">${tLabel}</a>) · ${ag.count}/${cfg.validators} votes ${reachedQ ? "(2/3 Quorum)" : ""}
+          </div>
+        `;
+      }
+    }
+  }
+
+  // 4. Build Validator Reception Chips
+  const rcv = b.receipts || {};
+  let chipsHtml = "";
+  const allNids = [];
+  for (let i = 0; i < cfg.nodes; i++) allNids.push(i);
+  if (rcv["-1"] !== undefined || run.adv > 0) allNids.push(-1);
+
+  for (const nid of allNids) {
+    const isAdv = (nid === -1);
+    const nName = isAdv ? "ADV" : `Node ${nid}`;
+    const rinfo = rcv[nid];
+    if (rinfo) {
+      const delayMs = rinfo[1];
+      if (nid === b.pnode) {
+        chipsHtml += `<div class="receipt-chip"><span style="color:#16a34a;font-weight:700">● ${nName}</span>: +0 ms <span style="font-size:10px;color:var(--muted)">(proposer)</span></div>`;
+      } else if (delayMs <= run.deadlines[0]) {
+        chipsHtml += `<div class="receipt-chip"><span style="color:#16a34a;font-weight:600">● ${nName}</span>: +${delayMs} ms</div>`;
+      } else if (cfg.slots_down > 0 && b.slot >= cfg.start && b.slot < cfg.start + cfg.slots_down) {
+        chipsHtml += `<div class="receipt-chip"><span style="color:#d97706;font-weight:600">▲ ${nName}</span>: +${(delayMs / 1000).toFixed(1)} s <span style="font-size:10px;color:var(--muted)">(cut)</span></div>`;
+      } else {
+        chipsHtml += `<div class="receipt-chip"><span style="color:#0d9488;font-weight:600">● ${nName}</span>: +${delayMs} ms</div>`;
+      }
+    } else {
+      chipsHtml += `<div class="receipt-chip"><span style="color:#dc2626;font-weight:600">✕ ${nName}</span>: not received</div>`;
+    }
+  }
+
+  // 5. Proposer and block header info
+  const isCanon = (curBlockRoot === "G" || final.has(curBlockRoot));
+  const pCol = b.pnode < 0 ? T.held : (b.pnode < cfg.split ? T.a : T.b);
+  const pLab = b.pnode < 0 ? "Adversary" : `Node ${b.pnode}`;
+  const pGroup = b.pnode < 0 ? "Adversary" : (b.pnode < cfg.split ? "Side A" : "Side B");
+  const parentSlot = b.parent ? (bd[b.parent] ? bd[b.parent].slot : 0) : null;
+  const parentLabel = b.parent ? getBlockLabel(b.parent, {full: true, slot: parentSlot}) : "Genesis";
+  const parentLink = b.parent
+    ? `<a href="javascript:void(0)" onclick="selectBlock('${b.parent}')" style="color:var(--a);text-decoration:none;font-weight:600">${parentLabel}</a>`
+    : `<span style="color:var(--subtle)">Genesis</span>`;
+
+  const customName = customLabels && customLabels[curBlockRoot];
+  const displayTitle = customName || `Block #${b.slot}`;
+  const subTitle = customName ? `(Block #${b.slot} · ${curBlockRoot.slice(0, 8)})` : `(${curBlockRoot.slice(0, 8)})`;
+
+  // 6. Build Center Block HTML
+  const centerHtml = `
+    <div id="centerBlock" class="chain-box center-block-box">
+      <div class="block-card-head">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+          <div style="display:inline-flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <span style="font-size:16.5px;font-weight:700;font-family:var(--mono);color:var(--fg)">${displayTitle}</span>
+            <span style="font-size:11.5px;font-weight:400;color:var(--muted)">${subTitle}</span>
+            <button type="button" class="label-btn" onclick="promptRelabel('${curBlockRoot}')" title="Rename or alias this block across the explorer">✏️ Relabel</button>
+          </div>
+          <div style="display:inline-flex;gap:4px;align-items:center">
+            ${isCanon ? '<span class="badge badge-canon">● Canonical</span>' : ''}
+            ${b.pnode < 0 ? '<span class="badge badge-adv">Adversary</span>' : ""}
+          </div>
+        </div>
+        <div style="font-size:11.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:4px">
+          <span>Proposer: <b style="color:${pCol}"><i class="dot" style="background:${pCol};width:7px;height:7px;display:inline-block;border-radius:50%;margin-right:3px"></i>${pLab}</b>${b.pnode < 0 ? "" : ` (${pGroup})`}</span>
+          <span>Parent: ${parentLink}</span>
+          <span>Round ${Math.floor(b.slot / run.spr)} (slot ${b.slot % run.spr}/${run.spr})</span>
+        </div>
+      </div>
+
+      <div class="block-votes-section">
+        <div class="section-head-row">
+          <span class="section-title">🗳️ Bundled Votes (${b.nvotes || 0} votes)</span>
+          <span class="section-meta">from slot ${Math.max(0, b.slot - 1)}</span>
+        </div>
+        <div class="node-vote-table">
+          ${rowsHtml}
+        </div>
+      </div>
+
+      ${attsHtml}
+
+      <div class="block-receipts-section">
+        <div class="section-title" style="margin-bottom:5px">⏱️ Validator Store Arrival</div>
+        <div class="receipt-chips-wrap">
+          ${chipsHtml}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // 7. Build Left Peeked Block (Parent)
+  let parentHtml = "";
+  if (b.parent && bd[b.parent]) {
+    const pb = bd[b.parent];
+    const pCanon = (b.parent === "G" || final.has(b.parent));
+    const pPnodeLab = pb.pnode < 0 ? "ADV" : `Node ${pb.pnode}`;
+    const pTitle = getBlockLabel(b.parent, {slot: pb.slot});
+    parentHtml = `
+      <div id="peekParent" class="chain-box peek-box peek-left" onclick="selectBlock('${b.parent}')" title="Click to inspect Block #${pb.slot}">
+        <div class="peek-badge">← Parent</div>
+        <div class="peek-title">${pTitle} · ${b.parent.slice(0, 8)}</div>
+        <div class="peek-sub">Proposer: ${pPnodeLab}</div>
+        <div class="peek-foot">
+          <span>🗳️ ${pb.nvotes || 0} votes</span>
+          ${pCanon ? '<span style="color:var(--tsq)">● Canon</span>' : ''}
+        </div>
+      </div>
+    `;
+  } else {
+    parentHtml = `<div class="peek-empty peek-left-empty">Genesis Block #0<br><span style="font-size:10px;color:var(--muted)">No parent</span></div>`;
+  }
+
+  // 8. Build Right & Bottom Peeked Blocks (Descendants / Forks)
+  const children = b.children || [];
+  let childrenHtml = "";
+  if (children.length === 0) {
+    childrenHtml = `<div class="peek-empty peek-right-empty">Chain Tip<br><span style="font-size:10px;color:var(--muted)">No descendants yet</span></div>`;
+  } else {
+    // Primary child on right edge
+    const chRoot = children[0];
+    const chb = bd[chRoot];
+    if (chb) {
+      const chCanon = final.has(chRoot);
+      const chPnodeLab = chb.pnode < 0 ? "ADV" : `Node ${chb.pnode}`;
+      const rightTopClass = children.length > 1 ? "style='top:38%'" : "";
+      const chTitle = getBlockLabel(chRoot, {slot: chb.slot});
+      childrenHtml += `
+        <div id="peekChild" class="chain-box peek-box peek-right" ${rightTopClass} onclick="selectBlock('${chRoot}')" title="Click to inspect Block #${chb.slot}">
+          <div class="peek-badge">Descendant →</div>
+          <div class="peek-title">${chTitle} · ${chRoot.slice(0, 8)}</div>
+          <div class="peek-sub">Proposer: ${chPnodeLab}</div>
+          <div class="peek-foot">
+            <span>🗳️ ${chb.nvotes || 0} votes</span>
+            ${chCanon ? '<span style="color:var(--tsq)">● Canon</span>' : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    // Fork child 1 on bottom edge (diagonal line \)
+    if (children.length > 1) {
+      const fRoot = children[1];
+      const fb = bd[fRoot];
+      if (fb) {
+        const fCanon = final.has(fRoot);
+        const fPnodeLab = fb.pnode < 0 ? "ADV" : `Node ${fb.pnode}`;
+        const fTitle = getBlockLabel(fRoot, {slot: fb.slot});
+        childrenHtml += `
+          <div id="peekFork" class="chain-box peek-box peek-fork" onclick="selectBlock('${fRoot}')" title="Click to inspect Fork Block #${fb.slot}">
+            <div class="peek-badge" style="color:var(--held)">Fork Branch ↘</div>
+            <div class="peek-title">${fTitle} · ${fRoot.slice(0, 8)}</div>
+            <div class="peek-sub">Proposer: ${fPnodeLab}</div>
+            <div class="peek-foot">
+              <span>🗳️ ${fb.nvotes || 0} votes</span>
+              ${fCanon ? '<span style="color:var(--tsq)">● Canon</span>' : ''}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // Fork child 2 on bottom-left edge (if 3+ children)
+    if (children.length > 2) {
+      const f2Root = children[2];
+      const f2b = bd[f2Root];
+      if (f2b) {
+        const f2Canon = final.has(f2Root);
+        const f2PnodeLab = f2b.pnode < 0 ? "ADV" : `Node ${f2b.pnode}`;
+        const f2Title = getBlockLabel(f2Root, {slot: f2b.slot});
+        childrenHtml += `
+          <div id="peekFork2" class="chain-box peek-box peek-fork2" onclick="selectBlock('${f2Root}')" title="Click to inspect Fork Block #${f2b.slot}">
+            <div class="peek-badge" style="color:var(--held)">Fork Branch ↙</div>
+            <div class="peek-title">${f2Title} · ${f2Root.slice(0, 8)}</div>
+            <div class="peek-sub">Proposer: ${f2PnodeLab}</div>
+            <div class="peek-foot">
+              <span>🗳️ ${f2b.nvotes || 0} votes</span>
+              ${f2Canon ? '<span style="color:var(--tsq)">● Canon</span>' : ''}
+            </div>
+          </div>
+        `;
+      }
+    }
+  }
+
+  // 9. Put everything into #blockChainStage
+  const stage = $("blockChainStage");
+  if (stage) {
+    stage.innerHTML = `
+      <svg id="chainSvg" class="chain-svg"></svg>
+      ${parentHtml}
+      ${centerHtml}
+      ${childrenHtml}
+    `;
+    // Update lines after elements are in DOM
+    requestAnimationFrame(updateConnectingLines);
   }
 }
 
@@ -1790,6 +2879,13 @@ function nodeRange(a, b) { return a === b ? `node ${a}` : `nodes ${a}–${b}`; }
 function sideVals(run, g) {
   return run.vals.reduce((a, v, i) => a + (run.groupOf[i] === g ? v : 0), 0);
 }
+function valRange(run, nid) {
+  if (nid < 0 || !run.vals || nid >= run.vals.length) return "adversary";
+  let start = 0;
+  for (let i = 0; i < nid; i++) start += run.vals[i];
+  let end = start + run.vals[nid] - 1;
+  return start === end ? `val #${start}` : `val #${start}–#${end}`;
+}
 function renderAbout(run) {
   const a = $("about"), m = run.meta || {};
   const secs = [["Goal", m.goal], ["Setup", m.setup], ["How", m.how], ["Result", m.result]].filter(x => x[1]);
@@ -1814,6 +2910,8 @@ function render() {
 
 function pick(name) {
   cur = name;
+  curBlockRoot = null;
+  window._lastZoomForBlock = null;
   const m = (RUNS[name] || {}).meta || {};
   if (m.slot) { zoomSlot = m.slot; }
   [...$("tabs").children].forEach(b => b.setAttribute("aria-pressed", b.textContent === name));
