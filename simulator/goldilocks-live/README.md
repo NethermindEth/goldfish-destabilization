@@ -3,7 +3,7 @@
 An executable transcription of the live Goldilocks spec, `ethlabs-org/eth-consensus-lean` at commit
 `4a63033e` (10 Nov 2026), `specs/goldilocks/tex/` (`goldilocks-spec.tex`, `shared/composition.tex`,
 `shared/fg.tex`). `../goldilocks/` is the same harness on the 22 Oct 2026 text; this folder reuses its
-driver and CLI, and replaces the protocol.
+driver, CLI and explorer, and replaces the protocol.
 
 **What the live spec changes**, and where it is in `model.py`:
 
@@ -27,13 +27,20 @@ python scenarios.py --out results/first                           # the partitio
 python timeout_sweep.py                                           # heal-to-finality time against δ_t
 ```
 
+**Explorer.** `../goldilocks/explorer/goldilocks-live-explorer.html` (online:
+https://nethermindeth.github.io/goldfish-destabilization/goldilocks-live-explorer.html) has these runs,
+one tab each. It is the explorer of `../goldilocks` with the live spec's timeline: votes at their real
+time, optimistic confirmations, an FG attestation after any tick, no rounds, every lock with its expiry,
+and how long each node's newest fast lock lives (the graded fast locks). `bash build_explorer.sh` rebuilds the runs into `data/runs/` and the page.
+
 | File | Contents |
 |---|---|
 | `model.py` | The protocol, under the spec's figure names |
 | `sim.py` | The driver of `../goldilocks/sim.py`; receipt handlers can send (forwarding, early votes) |
 | `partition_run.py`, `scenarios.py` | The CLI and the named scenarios of `../goldilocks`, on this model |
 | `timeout_sweep.py` | How fast finality returns after a cut, against the FG timeout delay δ_t |
-| `data/runs/` | The runs of the partition study |
+| `build_explorer.sh`, `explorer_meta.json` | The explorer page of the live spec, with an About card per tab |
+| `data/runs/` | The runs of the explorer tabs |
 
 **Model.** `n = 64` validators of weight 1 on 4 nodes; Δ = Δ_F = 1500 ms (slot 6 s); k = 4, c = 2,
 K_W = 2, δ_t = 8 (as in `../goldilocks`, for comparison; the spec asks δ_t ≥ x + c_F + k_F with
@@ -46,4 +53,4 @@ The checks that the spec runs after each receipt run once after a batch of votes
 
 **Not yet here.** The adversary of `../goldilocks/adversary.py` (the finalization-hiding attacks
 and their controls) runs on the 22 Oct model only; there, `--relay-carried` is the live spec's
-forwarding rule and closes the attacks (explorer tab 17).
+forwarding rule and closes the attacks (explorer tab 13).

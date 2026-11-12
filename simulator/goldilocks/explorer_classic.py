@@ -195,16 +195,45 @@ def compact(path, meta=None):
         "children": children.get(GEN, []),
     }
 
+    # The live spec's runs (../goldilocks-live) carry each lock as (block, slot j, fast bit, expiry e),
+    # optimistic confirmations, early votes and an FG source after every tick.
+    live = d.get("protocol") == "goldilocks-live"
+
+    def off(t, s):  # ms into slot s
+        return round(t - s * slot_ms)
+
     # lock kinds per node, from the confirmation updates (a lock moved back keeps its kind)
     how = [dict() for _ in range(nodes)]
     events = {}
-    vote_view = {}  # slot -> node -> [voted block, voters, equivocators, [[block, supporting votes], ...]]
+    vote_view = {}  # slot -> node -> [voted block, voters, equivocators, [[block, supporting votes], ...], ms into slot]
+    opt_at, fg_at = {}, {}  # live: slot -> node -> [ms into slot, ...] of optimistic locks / FG sources
     for e in d["log"]:
         k, n = e["kind"], e.get("node")
         s = int(e["t"] // slot_ms)
         if k == "vote":
-            vote_view.setdefault(e["slot"], {})[n] = [e["head"], e["voters"], e["equivocators"], e["tally"]]
-        if k == "confirm":
+            vote_view.setdefault(e["slot"], {})[n] = [e["head"], e["voters"], e["equivocators"], e["tally"],
+                                                      off(e["t"], e["slot"])]
+        if k == "confirm" and live:
+            res = e.get("result")
+            if res is None:
+                txt = f"n{n}: update of slot {e['slot']} → no result"
+            else:
+                lk = []
+                if e.get("fast"):
+                    lk.append(f"fast lock on {name(e['fast'])} until slot {e['fast_e']}")
+                if e.get("slow"):
+                    lk.append(f"slow lock on {name(e['slow'])} until slot {e['slow_e']}")
+                txt = (f"n{n}: update of slot {e['slot']} → confirmed <b>{name(res)}</b>"
+                       + (" <span class='delta-down'>vetoed by a live lock (locks still written below it)</span>"
+                          if e.get("vetoed") else "")
+                       + (" · " + " · ".join(lk) if lk else ""))
+            events.setdefault(s, []).append([s, "confirm", txt])
+        elif k == "opt_confirm":
+            opt_at.setdefault(s, {}).setdefault(n, []).append([off(e["t"], s), name(e["block"]), e["expiry"]])
+            events.setdefault(s, []).append(
+                [s, "opt", f"n{n}: optimistic confirmation of <b>{name(e['block'])}</b> at +{off(e['t'], s) / 1000:.1f} s"
+                           f" · fast lock until slot {e['expiry']}"])
+        elif k == "confirm":
             if e.get("lock"):
                 how[n][e["lock"]] = e.get("how")
             res = e.get("result")
@@ -217,8 +246,17 @@ def compact(path, meta=None):
             how[n][e["to"]] = how[n].get(e["block"])
             events.setdefault(s, []).append([s, "unlock", f"n{n}: lock {name(e['block'])} moved back to {name(e['to'])}"])
         elif k == "fg_pair":
+            if live:
+                fg_at.setdefault(s, {}).setdefault(n, []).append([off(e["t"], s), name(e["fg_confirmed"])])
             events.setdefault(s, []).append(
                 [s, "fg", f"n{n}: FG source {name(e['fg_confirmed'])}" + ("" if e["fg_confirmed"] else " — no attestation")])
+
+    def newest_fast(det, s):  # live: the lifetime (expiry - slot) of the newest fast lock written lately
+        fast = [(j, ex) for _, j, f, ex in det if f]
+        if not fast:
+            return None
+        j, ex = max(fast)
+        return ex - j if j >= s - 1 else None
 
     states, locks = [], {}
     for row in d["states"]:
@@ -229,11 +267,23 @@ def compact(path, meta=None):
         for i, x in enumerate(row["nodes"]):
             lk = [b for b, _, _ in x["locks"]]
             a = x["anchor"]
-            tag = "FLOOR" if (a == x["fc_root"] and a not in lk) else ("G1" if how[i].get(a) == "slow" else "TSQ")
+            det = x.get("lock_detail") or []
+            if live:  # the anchor's lock: fast or slow, read from the lock itself
+                kinds = [f for b, _, f, _ in det if b == a]
+                tag = "FLOOR" if not kinds else ("TSQ" if any(kinds) else "G1")
+            else:
+                tag = "FLOOR" if (a == x["fc_root"] and a not in lk) else ("G1" if how[i].get(a) == "slow" else "TSQ")
             nrow.append([x["head_slot"], x["head"], x["conf_slot"], x["conf"], x["anchor_slot"], a,
                          x["F_slot"], x["J_slot"], x["head_h"], tag, x["hmax"],
-                         [ls for _, ls, _ in x["locks"]], [b for b, _, _ in x["locks"]]])  # 11, 12: every live lock
-            locks.setdefault(s, {})[i] = ", ".join(f"{name(b)}→{dl}" for b, _, dl in x["locks"]) or "none"
+                         [ls for _, ls, _ in x["locks"]], [b for b, _, _ in x["locks"]],  # 11, 12: every live lock
+                         [[sl(b), j, int(f), ex, b] for b, j, f, ex in det],  # 13: (block slot, j, fast, expiry, root)
+                         newest_fast(det, s)])  # 14: slots the newest fast lock lives, None if none of slot >= s-1
+            if live:
+                locks.setdefault(s, {})[i] = ", ".join(sorted(
+                    {f"{name(b)} {'fast' if f else 'slow'}→{ex}" for b, j, f, ex in det},
+                    key=lambda x: -int(x.rsplit("→", 1)[1]))[:4]) or "none"
+            else:
+                locks.setdefault(s, {})[i] = ", ".join(f"{name(b)}→{dl}" for b, _, dl in x["locks"]) or "none"
         states.append([s, nrow])
 
     votes, msgs, vote_head, vote_root, adv_groups = [], [], {}, {}, {}
@@ -293,6 +343,11 @@ def compact(path, meta=None):
         "voteRoot": vote_root,
         "locks": locks,
         "events": events,
+        "live": live,
+        "k": P.get("k"),
+        "c": P.get("c"),
+        "optAt": opt_at,
+        "fgAt": fg_at,
     }
 
 
@@ -303,16 +358,65 @@ def main(argv):
         with open(argv[i + 1]) as fh:
             meta = json.load(fh)
         argv = argv[:i] + argv[i + 2:]
+    page = "oct22"
+    if "--spec" in argv:  # oct22 (the 22 Oct 2026 text) or live (the live spec's page)
+        i = argv.index("--spec")
+        page = argv[i + 1]
+        argv = argv[:i] + argv[i + 2:]
     out, specs = argv[0], argv[1:]
     runs = {}
     for spec in specs:
         name, path = spec.split("=", 1)
         runs[name] = compact(path, meta.get(name))
-    payload = {"runs": runs, "sweep": []}
+    payload = {"runs": runs, "sweep": [], "spec": page}
     html = TEMPLATE.replace("/*DATA*/", "const DATA = " + json.dumps(payload, separators=(",", ":")) + ";")
+    for old, new in PAGE_TEXT[page]:
+        assert old in html, old
+        html = html.replace(old, new)
     with open(out, "w", encoding="utf-8") as fh:
         fh.write(html)
     print(f"wrote {out} ({len(html) / 1e6:.2f} MB, {len(runs)} runs)")
+
+_LEAD = ('<p class="lead">Seeded runs of our executable model of the Goldilocks spec (FGSA, 22 Oct 2026). '
+         'Slots of 6 s (&Delta; = 1.5 s), rounds of 8 slots, locks of k = 4 slots, 64 validators of equal stake.</p>')
+_TITLE = "<h1>Goldilocks — Partition, Healing &amp; Attack Explorer</h1>"
+_SLOT_LEGEND = '''<span><i class="dot" style="background:var(--g1)"></i>Unlock and vote (+1.5 s)</span>'''
+# The text that differs between the two pages: (in the template, on this page)
+_LIVE_SPEC = ("https://github.com/ethlabs-org/eth-consensus-lean/tree/"
+              "4a63033e53c13e07cab0d538a04ea87e1a8de02d/specs/goldilocks/tex")
+
+
+def _specbar(current, other_label, other_href):
+    """The version strip under the title: what this page models, and the way to the other version."""
+    return (f'<div class="specbar"><span class="specnow">{current}</span>'
+            f'<a href="{other_href}">{other_label} →</a><a href="index.html">All versions</a></div>')
+
+
+PAGE_TEXT = {
+    "oct22": [
+        ("<title>", "<title>22 Oct 2026 spec · "),
+        (_TITLE, _TITLE + _specbar('<b>Spec:</b> FGSA Goldilocks text of 22 Oct 2026',
+                                   "Live spec", "goldilocks-live-explorer.html")),
+        (_LEAD, '<p class="lead">Seeded runs of our executable model of the 22 Oct 2026 text, which predates the '
+                'public repository. Slots of 6 s (&Delta; = 1.5 s), rounds of 8 slots, locks of k = 4 slots, '
+                '64 validators of equal stake. The adversary runs and the finalization-hiding attack are here.</p>'),
+    ],
+    "live": [
+        ("<title>", "<title>Live spec · "),
+        (_TITLE, "<h1>Goldilocks — Partition &amp; Healing Explorer</h1>"
+                 + _specbar(f'<b>Spec:</b> <a href="{_LIVE_SPEC}">ethlabs-org/eth-consensus-lean @ 4a63033</a>, '
+                            '10 Nov 2026 <span class="specnew">current</span>',
+                            "22 Oct 2026 spec", "goldilocks-explorer.html")),
+        (_LEAD, '<p class="lead">Seeded runs of our executable model of the live spec. Slots of 6 s (&Delta; = 1.5 s), '
+                'locks that live 2 to k = 4 slots (fast locks graded with c = 2), 64 validators of equal stake. '
+                'A node votes as soon as the proposal is ready, 3/4 of the committee confirm optimistically, '
+                'and the finality gadget takes a new source after every tick.</p>'),
+        (_SLOT_LEGEND, '<span><i class="dot" style="background:var(--g1)"></i>Vote (at its real time, by +1.5 s)</span>'
+                       '<span><i class="dot" style="border:2px solid var(--tsq);background:var(--panel)"></i>Optimistic confirmation</span>'),
+        ('<span><i class="dot" style="background:var(--tsq)"></i>FG attestations</span>',
+         '<span><i class="dot" style="background:var(--tsq)"></i>FG attestation (after any tick)</span>'),
+    ],
+}
 
 TEMPLATE = r"""<!DOCTYPE html>
 <html lang="en">
@@ -350,8 +454,23 @@ h1 { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.015em; }
 h2 { font-size: 16.5px; font-weight: 600; margin: 0; }
 p { margin: 0; }
 .lead { color: var(--muted); max-width: 88ch; font-size: 14px; }
+.specbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin: 6px 0 2px;
+  padding: 8px 12px; border: 1px solid var(--grid); border-radius: 8px; background: var(--panel); font-size: 13px; }
+.specbar .specnow { flex: 1 1 auto; }
+.specbar a { color: var(--a); text-decoration: none; font-weight: 500; }
+.specbar a:hover { text-decoration: underline; }
+.specnew, .specold { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; margin-left: 4px; }
+.specnew { color: var(--tsq); border: 1px solid var(--tsq); }
+.specold { color: var(--muted); border: 1px solid var(--muted); }
 .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
 .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+#tabs { display: grid; gap: 10px; width: 100%; }
+.tabrow { display: grid; grid-template-columns: 150px 1fr; align-items: start; gap: 12px; }
+.tablabel { font: 600 11.5px var(--sans); color: var(--muted); text-transform: uppercase; letter-spacing: .04em;
+  padding-top: 9px; }
+.tabnum { font: 500 11px var(--mono); color: var(--muted); margin-right: 7px; }
+.tabs button[aria-pressed="true"] .tabnum { color: var(--a); }
+@media (max-width: 720px) { .tabrow { grid-template-columns: 1fr; gap: 4px; } .tablabel { padding-top: 0; } }
 .subtabs { display: inline-flex; flex-wrap: wrap; gap: 4px; }
 .tabs button, .subtabs button {
   font: 600 13.5px var(--sans); padding: 7px 14px; border-radius: 6px;
@@ -999,6 +1118,7 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
 <script>
 /*DATA*/
 const RUNS = DATA.runs;
+const LIVE = DATA.spec === "live";  // the live spec: no rounds, early votes, optimistic and graded locks
 const SWEEP = DATA.sweep || [];
 const runNames = Object.keys(RUNS);
 const SWEEP_TAB = "30-Run Sweep (16 nodes)";
@@ -1172,7 +1292,8 @@ function clampZoomSlot(maxSlot, spr, slotMs) {
   const posInRound = (zoomSlot % spr) + 1;
   const t0s = (zoomSlot * slotMs / 1000).toFixed(1);
   const t1s = ((zoomSlot + 1) * slotMs / 1000).toFixed(1);
-  $("sReadout").textContent = `Slot ${zoomSlot} of ${maxSlot} · round ${rIdx}, slot ${posInRound} of ${spr}`;
+  $("sReadout").textContent = LIVE ? `Slot ${zoomSlot} of ${maxSlot}`
+    : `Slot ${zoomSlot} of ${maxSlot} · round ${rIdx}, slot ${posInRound} of ${spr}`;
   [...$("zoomTabs").querySelectorAll("button")].forEach(b => {
     b.setAttribute("aria-pressed", +b.dataset.slot === zoomSlot);
   });
@@ -1183,9 +1304,9 @@ function renderSlotDetails(run, s, T, shareA, final) {
   const cutA = cfg.start, cutB = cfg.start + cfg.slots_down;
   const inCut = cut && s >= cutA && s < cutB;
   const isHealSlot = cut && s === cutB;
-  const isRb = s % run.spr === 0;
-  const isLastInRound = (s + 1) % run.spr === 0;
-  const isAct = s % run.spr === 1;
+  const isRb = !LIVE && s % run.spr === 0;
+  const isLastInRound = !LIVE && (s + 1) % run.spr === 0;
+  const isAct = !LIVE && s % run.spr === 1;
   const rIdx = Math.floor(s / run.spr);
   const curRow = run.states[s - 1][1];
   const prevRow = s > 1 ? run.states[s - 2][1] : null;
@@ -1225,6 +1346,22 @@ function renderSlotDetails(run, s, T, shareA, final) {
   const step3Body = `Update of slot ${s - 1}: the deepest block with a strict majority of the voters is confirmed, and fast-locked with n/2 support or more.<br>` + fmtEv(evFor(["confirm"])) +
     (isAct ? `<br><b>FG action (round ${rIdx}):</b> each node attests to its deepest recent fast-locked block.<br>` + fmtEv(evFor(["fg"])) : "");
   const step4Body = `The slot-${s + 1} vote reads only the slot-${s} votes received before this point, plus those in the slot-${s + 1} proposal.`;
+  if (LIVE) {
+    const voteTimes = Object.values((run.voteView && run.voteView[s]) || {}).map(v => v[4]);
+    const vtxt = voteTimes.length
+      ? `Nodes voted at ${[...new Set(voteTimes)].sort((a, b) => a - b).map(t => `+${(t / 1000).toFixed(1)} s`).join(", ")}: `
+        + `each votes as soon as it holds the slot's proposal with its support resolved, at the latest at +1.5 s, `
+        + `after moving back the locks that half of the committee or more oppose among the slot-${s - 1} votes.`
+      : `No node voted in this slot.`;
+    $("slotStepCards").innerHTML = `
+    <div class="callout" style="border-left-color:var(--a)"><b>Proposal · +0 s</b>${step1Body}</div>
+    <div class="callout" style="border-left-color:var(--g1)"><b>Unlock and vote · by +1.5 s</b>${vtxt}<br>${fmtEv(evFor(["unlock"]))}</div>
+    <div class="callout" style="border-left-color:var(--tsq)"><b>Optimistic confirmation · before +3 s</b>3/4 of the committee voting for a block's descendants confirms it and gives it a fast lock.<br>${fmtEv(evFor(["opt"]))}</div>
+    <div class="callout" style="border-left-color:var(--g1)"><b>Confirmation update · +3 s</b>Update of slot ${s - 1}: the deepest block with a strict majority of the voters is confirmed; fast lock with n/2 support or more, slow lock when the last k − 1 updates agree.<br>${fmtEv(evFor(["confirm"]))}</div>
+    <div class="callout" style="border-left-color:var(--tsq)"><b>FG attestations · after every tick</b>A node attests whenever its deepest fast lock of the last two slots is new.<br>${fmtEv(evFor(["fg"]))}</div>
+    <div class="callout" style="border-left-color:var(--fg)"><b>Vote freeze · +4.5 s</b>${step4Body}</div>
+  `;
+  } else
   $("slotStepCards").innerHTML = `
     <div class="callout" style="border-left-color:var(--a)"><b>Proposal · +0 s${isRb ? " · round start" : ""}</b>${step1Body}</div>
     <div class="callout" style="border-left-color:var(--g1)"><b>Unlock and vote · +1.5 s</b>${step2Body}</div>
@@ -1356,7 +1493,7 @@ function renderSingle() {
     ["Confirmed tip", "confirmed block", 2, 3, "safe"],
     ["Locks", "each locked block (dots) and anchor (deepest lock, line)", 4, 5, "stable"],
     ["Finality", "finalized (solid) and justified (dashed) block; h = FG height", 6, null, "fin"],
-  ];
+  ].concat(LIVE ? [["Fast-lock lifetime", "slots the node's newest fast lock lives, from 2 up to k; a gap: no fast lock lately", 14, null, "life"]] : []);
   const ph = 138, gap = 36, PH = panels.length * (ph + gap) + 20;
   const pc = setup($("prog"), W, PH);
   const L = 66, R = 48;
@@ -1404,16 +1541,17 @@ function renderSingle() {
       }
     }
 
+    if (kind === "life") { yMin = 0; yMax = (run.k || 4) + 1; }  // lifetimes, not slots
     const PY = v => y0 + 22 + (1 - (v - yMin) / Math.max(1, yMax - yMin)) * (ph - 30);
 
     pc.fillStyle = T.fg; pc.font = "600 13px " + css("--sans"); pc.textAlign = "left";
     pc.fillText(label, L, y0 + 10);
     const lw = pc.measureText(label).width;
     pc.fillStyle = T.muted; pc.font = "12px " + css("--sans");
-    pc.fillText((isLag ? "  ·  slots behind the current slot: " : "  ·  ") + what, L + lw, y0 + 10);
+    pc.fillText((isLag && kind !== "life" ? "  ·  slots behind the current slot: " : "  ·  ") + what, L + lw, y0 + 10);
     pc.save(); pc.translate(16, y0 + 22 + (ph - 30) / 2); pc.rotate(-Math.PI / 2);
     pc.textAlign = "center"; pc.fillStyle = T.subtle; pc.font = "11px " + css("--sans");
-    pc.fillText(isLag ? "slots behind" : "block (by slot)", 0, 0); pc.restore();
+    pc.fillText(kind === "life" ? "slots" : isLag ? "slots behind" : "block (by slot)", 0, 0); pc.restore();
     pc.font = "11px " + css("--mono");
 
     // Determine clean integer tick step for [yMin, yMax]
@@ -1457,6 +1595,40 @@ function renderSingle() {
       pc.strokeStyle = isRb ? T.gs : T.grid;
       pc.lineWidth = isRb ? 1.2 : 0.8;
       pc.beginPath(); pc.moveTo(PX(s), y0 + 18); pc.lineTo(PX(s), y0 + ph - 4); pc.stroke();
+    }
+
+    // Live spec: the lifetime of each side's newest fast lock, a step line that breaks where the node
+    // holds no recent fast lock; the graded values (below k) get a dot and a label
+    if (kind === "life") {
+      const kk = run.k || 4;
+      pc.strokeStyle = T.subtle; pc.lineWidth = 1; pc.setLineDash([4, 3]);
+      pc.beginPath(); pc.moveTo(L, PY(kk)); pc.lineTo(W - R, PY(kk)); pc.stroke(); pc.setLineDash([]);
+      [[idxB, T.b, +1.1], [idxA, T.a, -1.1]].forEach(([ni, col, dy]) => {
+        if (ni === idxB && !sides) return;
+        const dyy = sides ? dy : 0;
+        pc.strokeStyle = col; pc.lineWidth = 2.3; pc.beginPath();
+        let prev = null;
+        run.states.forEach(([s, ns]) => {
+          const v = ns[ni][14];
+          if (v === null || v === undefined) { prev = null; return; }
+          const x = PX(s), y = PY(v) + dyy;
+          if (prev === null) pc.moveTo(x, y); else { pc.lineTo(x, prev); pc.lineTo(x, y); }
+          prev = y;
+        });
+        pc.stroke();
+        run.states.forEach(([s, ns]) => {
+          const v = ns[ni][14];
+          if (v === null || v === undefined || (v >= kk && winSize > 16)) return;
+          const x = PX(s), y = PY(v) + dyy;
+          pc.fillStyle = col; pc.beginPath(); pc.arc(x, y, v < kk ? 3.6 : 2.4, 0, 7); pc.fill();
+          if (v < kk && s >= sFrom - 1 && s <= sTo + 1) {
+            pc.font = "600 10.5px " + css("--mono"); pc.textAlign = "left";
+            pc.fillText(v, x + 5, y + (ni === idxA ? -5 : 13));
+          }
+        });
+      });
+      pc.restore();
+      return;
     }
 
     const ptsA = [], ptsB = [];
@@ -1614,7 +1786,7 @@ function renderSingle() {
   const lblStep = winSize <= 16 ? 1 : 8;
   for (let s = Math.max(1, Math.floor(xMinSlot)); s <= Math.min(maxSlot, Math.ceil(xMaxSlot)); s++) {
     if (winSize > 16 && s % lblStep !== 0) continue;
-    const isRb = s % run.spr === 0;
+    const isRb = !LIVE && s % run.spr === 0;
     pc.fillStyle = isRb ? T.fg : T.muted;
     pc.font = (isRb ? "600 " : "400 ") + "11px " + css("--mono");
     pc.fillText(isRb ? `slot ${s} (r${s / run.spr})` : `s${s}`, PX(s), PH - 4);
@@ -1742,7 +1914,7 @@ function renderSingle() {
   drawTreeBadge(tc, TX(curSlot), 11, `SLOT ${curSlot}`, T.a, T.panel);
 
   for (let s = 0; s <= maxSlot; s++) {
-    const isRb = s % run.spr === 0;
+    const isRb = !LIVE && s % run.spr === 0;
     const isStep4 = s % 4 === 0;
     if (isRb) {
       tc.strokeStyle = T.gs; tc.lineWidth = 1.2;
@@ -1993,9 +2165,9 @@ function renderSingle() {
   const NY = n => ny0 + 22 + (n + advOff + (n >= cfg.split && sides ? 0.7 : 0)) / (cfg.nodes - 1 + advOff + (sides ? 0.7 : 0)) * (nph - 44);
   const yMidCut = sides ? (NY(cfg.split - 1) + NY(cfg.split)) / 2 : (ny0 + nph / 2);
 
-  const isRb = s % run.spr === 0;
-  const isLastInRound = (s + 1) % run.spr === 0;
-  const isAct = s % run.spr === 1;
+  const isRb = !LIVE && s % run.spr === 0;
+  const isLastInRound = !LIVE && (s + 1) % run.spr === 0;
+  const isAct = !LIVE && s % run.spr === 1;
   const rIdx = Math.floor(s / run.spr);
   const inCut = cut && s >= cutA && s < cutB;
   const isHealSlot = cut && s === cutB;
@@ -2005,7 +2177,7 @@ function renderSingle() {
   const statusStr = inCut
     ? `partition: messages across the cut held until slot ${cutB}`
     : (isHealSlot ? `heal: the messages held since slot ${cutA} arrive` : "");
-  nc.fillText(`Slot ${s} (round ${rIdx})` + (statusStr ? ` · ${statusStr}` : ""), 6, 16);
+  nc.fillText((LIVE ? `Slot ${s}` : `Slot ${s} (round ${rIdx})`) + (statusStr ? ` · ${statusStr}` : ""), 6, 16);
 
   // Shaded background & partition barrier line if in cut
   if (inCut) {
@@ -2019,7 +2191,7 @@ function renderSingle() {
   // Sub-slot deadlines: 0%, 25%, 50%, 75%, 100% with plain-English headers
   const dSpecs = [
     [0, "+0 s", isRb ? "Proposal (round start)" : "Proposal", T.a, true],
-    [run.deadlines[0], "+1.5 s", "Unlock and vote", T.g1, false],
+    [run.deadlines[0], "+1.5 s", LIVE ? "Last vote time" : "Unlock and vote", T.g1, false],
     [run.deadlines[1], "+3 s", isAct ? "Update and FG attestations" : "Confirmation update", T.g1, false],
     [run.deadlines[2], "+4.5 s", "View freeze", T.fg, false],
     [run.slotMs, "+6 s", `Slot ${s + 1}`, T.muted, true],
@@ -2173,18 +2345,35 @@ function renderSingle() {
     const y = NY(n), nst = ns[n], pnst = prevNs ? prevNs[n] : null;
     const isRepNode = (n === 0) || (sides && n === cfg.split);
 
-    // 25% (+1.5s): purple dot = Goldfish vote (after unlocking); the pill names the vote's head
-    nc.fillStyle = T.g1;
-    nc.beginPath(); nc.arc(x25, y, 3.8, 0, 7); nc.fill();
+    // 25% (+1.5s): purple dot = Goldfish vote (after unlocking); the pill names the vote's head.
+    // The live spec votes as soon as the proposal is ready: the dot sits at the node's actual vote time.
     const vv = run.voteView && run.voteView[s] && run.voteView[s][n];
+    const xv = LIVE && vv && vv[4] !== undefined ? ZX(t0 + vv[4]) : x25;
+    nc.fillStyle = T.g1;
+    nc.beginPath(); nc.arc(xv, y, 3.8, 0, 7); nc.fill();
     if (vv) {
       const [vH, voters, eqs, tally] = vv;
-      netHot.push({x: x25, y, html: `Votes for ${nm(vH)}<br>` + tally.map(([b, c]) => `${nm(b)}: ${c} votes`).join(", ")
+      netHot.push({x: xv, y, html: `Votes for ${nm(vH)}` + (LIVE ? ` at +${(vv[4] / 1000).toFixed(2)} s` : "") + `<br>`
+        + tally.map(([b, c]) => `${nm(b)}: ${c} votes`).join(", ")
         + ` · ${voters} voters` + (eqs ? ` · ${eqs} equivocators` : "")});
     }
     if (isRepNode) {
       const vh = run.voteHead[s] && run.voteHead[s][n];
-      if (vh !== undefined && vh !== null) drawPill(x25 + 8, y - 6, `votes #${vh}` + (nst[4] !== null ? ` · anchor #${nst[4]}` : ""), T.g1, null, "left");
+      if (vh !== undefined && vh !== null) drawPill(xv + 8, y - 6, `votes #${vh}` + (nst[4] !== null ? ` · anchor #${nst[4]}` : ""), T.g1, null, "left");
+    }
+    if (LIVE) {  // optimistic confirmations (green ring) and FG attestations (green dot), at their real times
+      ((run.optAt[s] || {})[n] || []).forEach(([o, b, e]) => {
+        const xo = ZX(t0 + o);
+        nc.strokeStyle = T.tsq; nc.lineWidth = 2;
+        nc.beginPath(); nc.arc(xo, y, 5.5, 0, 7); nc.stroke();
+        netHot.push({x: xo, y, html: `Optimistic confirmation of ${b} at +${(o / 1000).toFixed(2)} s<br>fast lock until slot ${e}`});
+      });
+      ((run.fgAt[s] || {})[n] || []).forEach(([o, b]) => {
+        const xf = ZX(t0 + o) + 7;
+        nc.fillStyle = T.tsq;
+        nc.beginPath(); nc.arc(xf, y + 8, 3.2, 0, 7); nc.fill();
+        netHot.push({x: xf, y: y + 8, html: `FG attestation, source ${b} (+${(o / 1000).toFixed(1)} s)`});
+      });
     }
     if (isAct) { nc.fillStyle = T.tsq; nc.beginPath(); nc.arc(x50 + 9, y, 3.6, 0, 7); nc.fill(); }
 
@@ -2554,7 +2743,7 @@ function renderBlockExplorer() {
         <div style="font-size:11.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:4px">
           <span>Proposer: <b style="color:${pCol}"><i class="dot" style="background:${pCol};width:7px;height:7px;display:inline-block;border-radius:50%;margin-right:3px"></i>${pLab}</b>${b.pnode < 0 ? "" : ` (${pGroup})`}</span>
           <span>Parent: ${parentLink}</span>
-          <span>Round ${Math.floor(b.slot / run.spr)} (slot ${b.slot % run.spr}/${run.spr})</span>
+          ${LIVE ? "" : `<span>Round ${Math.floor(b.slot / run.spr)} (slot ${b.slot % run.spr}/${run.spr})</span>`}
         </div>
       </div>
 
@@ -2914,15 +3103,37 @@ function pick(name) {
   window._lastZoomForBlock = null;
   const m = (RUNS[name] || {}).meta || {};
   if (m.slot) { zoomSlot = m.slot; }
-  [...$("tabs").children].forEach(b => b.setAttribute("aria-pressed", b.textContent === name));
+  $("tabs").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.run === name));
   render();
 }
 
-allTabs.forEach(n => {
-  const b = document.createElement("button");
-  b.textContent = n; b.type = "button"; b.onclick = () => pick(n);
-  $("tabs").appendChild(b);
-});
+// One row per group of tabs (meta.group), in the order the groups first appear; each tab shows its
+// number and its short label (meta.short), with the full name as the tooltip.
+(() => {
+  const groups = [];
+  allTabs.forEach(n => {
+    const m = (RUNS[n] || {}).meta || {}, g = m.group || "";
+    let row = groups.find(r => r.g === g);
+    if (!row) groups.push(row = {g, tabs: []});
+    row.tabs.push(n);
+  });
+  groups.forEach(({g, tabs}) => {
+    const row = document.createElement("div");
+    row.className = "tabrow";
+    if (g) { const l = document.createElement("span"); l.className = "tablabel"; l.textContent = g; row.appendChild(l); }
+    const box = document.createElement("div");
+    box.className = "tabs";
+    tabs.forEach(n => {
+      const m = (RUNS[n] || {}).meta || {}, num = n.split(" ")[0];
+      const b = document.createElement("button");
+      b.type = "button"; b.dataset.run = n; b.title = n; b.onclick = () => pick(n);
+      b.innerHTML = m.short ? `<span class="tabnum">${num}</span>${m.short}` : n;
+      box.appendChild(b);
+    });
+    row.appendChild(box);
+    $("tabs").appendChild(row);
+  });
+})();
 
 [...$("winSizeTabs").querySelectorAll("button")].forEach(b => {
   b.onclick = () => {
