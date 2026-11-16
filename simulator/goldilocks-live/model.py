@@ -520,6 +520,8 @@ class AC:
     @staticmethod
     def viable_ancestor(phi, B):  # B itself when B is viable or at or below Φ.fc_root
         full = phi.full_viable()
+        if B in full:
+            return B  # the deepest of its own ancestors
         return deepest([X for X in ANC[B] if prec(X, phi.fc_root) or X in full])
 
     def live_locks(self, phi, t, locks=None):
@@ -603,11 +605,17 @@ class AC:
     @staticmethod
     def _counts(phi, heads_by_v, floor):
         """For each block B of Φ.tree at or above `floor`: the validators with a head extending B."""
-        cnt = {}
+        by_head = {}  # the votes share few heads: walk each head's ancestors once
         for v, H in heads_by_v:
+            by_head.setdefault(H, set()).add(v)
+        cnt = {}
+        for H, vs in by_head.items():
             for B in ANC[H]:
                 if B in phi.tree and prec(floor, B):
-                    cnt.setdefault(B, set()).add(v)
+                    if B in cnt:
+                        cnt[B] |= vs
+                    else:
+                        cnt[B] = set(vs)
         return cnt
 
     def confirmation_score(self, phi, s, B):
