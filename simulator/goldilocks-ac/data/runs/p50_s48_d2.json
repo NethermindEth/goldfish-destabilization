@@ -1,0 +1,132 @@
+{
+ "config": {
+  "validators": 64,
+  "nodes": 4,
+  "shares": null,
+  "latency_ms": 200,
+  "jitter_ms": 0,
+  "delta_ms": 1500,
+  "k": 4,
+  "c": 2,
+  "no_forward": false,
+  "seed": 0,
+  "groups": "2,2",
+  "start": 48,
+  "slots_down": 2,
+  "start2": null,
+  "slots_down2": 0,
+  "groups2": null,
+  "sleep": "",
+  "release_spread_ms": 0,
+  "after": 32,
+  "quiet": true,
+  "json": "data/runs/p50_s48_d2.json",
+  "events": "data/runs/p50_s48_d2.events.json"
+ },
+ "heal_slot": 50,
+ "reconverge_head_slots": 2,
+ "reconverge_conf_slots": 2,
+ "agree_head_since": 52,
+ "agree_conf_since": 52,
+ "lock_conflict_slots": [],
+ "last_lock_conflict_after_heal": null,
+ "invariant_violations": [],
+ "per_node": [
+  {
+   "node": 0,
+   "group": "A",
+   "validators": 16,
+   "reorgs": 1,
+   "max_reorg_depth": 1,
+   "reorg_list": [
+    [
+     52,
+     1,
+     47
+    ]
+   ],
+   "head_stepbacks": 1,
+   "conf_reversals": [
+    [
+     52,
+     48,
+     52
+    ]
+   ],
+   "conf_stepbacks": 0,
+   "orphaned_confirmed": [
+    48
+   ],
+   "last_slot_with_orphaned_conf": 51
+  },
+  {
+   "node": 1,
+   "group": "A",
+   "validators": 16,
+   "reorgs": 1,
+   "max_reorg_depth": 1,
+   "reorg_list": [
+    [
+     52,
+     1,
+     47
+    ]
+   ],
+   "head_stepbacks": 1,
+   "conf_reversals": [
+    [
+     52,
+     48,
+     52
+    ]
+   ],
+   "conf_stepbacks": 0,
+   "orphaned_confirmed": [
+    48
+   ],
+   "last_slot_with_orphaned_conf": 51
+  },
+  {
+   "node": 2,
+   "group": "B",
+   "validators": 16,
+   "reorgs": 1,
+   "max_reorg_depth": 1,
+   "reorg_list": [
+    [
+     52,
+     1,
+     47
+    ]
+   ],
+   "head_stepbacks": 0,
+   "conf_reversals": [],
+   "conf_stepbacks": 0,
+   "orphaned_confirmed": [],
+   "last_slot_with_orphaned_conf": null
+  },
+  {
+   "node": 3,
+   "group": "B",
+   "validators": 16,
+   "reorgs": 1,
+   "max_reorg_depth": 1,
+   "reorg_list": [
+    [
+     52,
+     1,
+     47
+    ]
+   ],
+   "head_stepbacks": 0,
+   "conf_reversals": [],
+   "conf_stepbacks": 0,
+   "orphaned_confirmed": [],
+   "last_slot_with_orphaned_conf": null
+  }
+ ],
+ "held": {
+  "block": 8,
+  "vote": 32
+ }
+}

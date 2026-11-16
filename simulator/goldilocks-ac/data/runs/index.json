@@ -1,0 +1,1772 @@
+{
+ "honest": {
+  "args": [
+   "--slots-down",
+   "0",
+   "--after",
+   "72"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "c": 2,
+    "no_forward": false,
+    "seed": 0,
+    "groups": "2,2",
+    "start": 24,
+    "slots_down": 0,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 72,
+    "quiet": true,
+    "json": "data/runs/honest.json",
+    "events": "data/runs/honest.events.json"
+   },
+   "heal_slot": 0,
+   "reconverge_head_slots": null,
+   "reconverge_conf_slots": null,
+   "agree_head_since": 0,
+   "agree_conf_since": 0,
+   "lock_conflict_slots": [],
+   "last_lock_conflict_after_heal": null,
+   "invariant_violations": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    }
+   ],
+   "held": {}
+  }
+ },
+ "p50_s48_d2": {
+  "args": [
+   "--groups",
+   "2,2",
+   "--start",
+   "48",
+   "--slots-down",
+   "2"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "c": 2,
+    "no_forward": false,
+    "seed": 0,
+    "groups": "2,2",
+    "start": 48,
+    "slots_down": 2,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p50_s48_d2.json",
+    "events": "data/runs/p50_s48_d2.events.json"
+   },
+   "heal_slot": 50,
+   "reconverge_head_slots": 2,
+   "reconverge_conf_slots": 2,
+   "agree_head_since": 52,
+   "agree_conf_since": 52,
+   "lock_conflict_slots": [],
+   "last_lock_conflict_after_heal": null,
+   "invariant_violations": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 1,
+     "reorg_list": [
+      [
+       52,
+       1,
+       47
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [
+      [
+       52,
+       48,
+       52
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      48
+     ],
+     "last_slot_with_orphaned_conf": 51
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 1,
+     "reorg_list": [
+      [
+       52,
+       1,
+       47
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [
+      [
+       52,
+       48,
+       52
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      48
+     ],
+     "last_slot_with_orphaned_conf": 51
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 1,
+     "reorg_list": [
+      [
+       52,
+       1,
+       47
+      ]
+     ],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 1,
+     "reorg_list": [
+      [
+       52,
+       1,
+       47
+      ]
+     ],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    }
+   ],
+   "held": {
+    "block": 8,
+    "vote": 32
+   }
+  }
+ },
+ "p50_s48_d16": {
+  "args": [
+   "--groups",
+   "2,2",
+   "--start",
+   "48",
+   "--slots-down",
+   "16"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "c": 2,
+    "no_forward": false,
+    "seed": 0,
+    "groups": "2,2",
+    "start": 48,
+    "slots_down": 16,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p50_s48_d16.json",
+    "events": "data/runs/p50_s48_d16.events.json"
+   },
+   "heal_slot": 64,
+   "reconverge_head_slots": 3,
+   "reconverge_conf_slots": 3,
+   "agree_head_since": 67,
+   "agree_conf_since": 67,
+   "lock_conflict_slots": [
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+   ],
+   "last_lock_conflict_after_heal": null,
+   "invariant_violations": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 2,
+     "max_reorg_depth": 8,
+     "reorg_list": [
+      [
+       66,
+       1,
+       60
+      ],
+      [
+       67,
+       8,
+       47
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [
+      [
+       67,
+       60,
+       67
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50,
+      55,
+      58,
+      59,
+      60
+     ],
+     "last_slot_with_orphaned_conf": 66
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 2,
+     "max_reorg_depth": 8,
+     "reorg_list": [
+      [
+       66,
+       1,
+       60
+      ],
+      [
+       67,
+       8,
+       47
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [
+      [
+       67,
+       60,
+       67
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50,
+      55,
+      58,
+      59,
+      60
+     ],
+     "last_slot_with_orphaned_conf": 66
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      61,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 63
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      61,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 63
+    }
+   ],
+   "held": {
+    "block": 64,
+    "vote": 256
+   }
+  }
+ },
+ "p75_s48_d16": {
+  "args": [
+   "--groups",
+   "3,1",
+   "--start",
+   "48",
+   "--slots-down",
+   "16"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "c": 2,
+    "no_forward": false,
+    "seed": 0,
+    "groups": "3,1",
+    "start": 48,
+    "slots_down": 16,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p75_s48_d16.json",
+    "events": "data/runs/p75_s48_d16.events.json"
+   },
+   "heal_slot": 64,
+   "reconverge_head_slots": 0,
+   "reconverge_conf_slots": 0,
+   "agree_head_since": 64,
+   "agree_conf_since": 64,
+   "lock_conflict_slots": [
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+   ],
+   "last_lock_conflict_after_heal": null,
+   "invariant_violations": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 2,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 3,
+     "reorg_list": [
+      [
+       64,
+       3,
+       47
+      ]
+     ],
+     "head_stepbacks": 0,
+     "conf_reversals": [
+      [
+       64,
+       62,
+       64
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      52,
+      57,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 63
+    }
+   ],
+   "held": {
+    "block": 48,
+    "vote": 192
+   }
+  }
+ },
+ "p52_s48_d16": {
+  "args": [
+   "--groups",
+   "2,2",
+   "--shares",
+   "17,16,16,15",
+   "--start",
+   "48",
+   "--slots-down",
+   "16"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": "17,16,16,15",
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "c": 2,
+    "no_forward": false,
+    "seed": 0,
+    "groups": "2,2",
+    "start": 48,
+    "slots_down": 16,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p52_s48_d16.json",
+    "events": "data/runs/p52_s48_d16.events.json"
+   },
+   "heal_slot": 64,
+   "reconverge_head_slots": 0,
+   "reconverge_conf_slots": 0,
+   "agree_head_since": 64,
+   "agree_conf_since": 64,
+   "lock_conflict_slots": [
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+   ],
+   "last_lock_conflict_after_heal": null,
+   "invariant_violations": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 17,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 7,
+     "reorg_list": [
+      [
+       64,
+       7,
+       47
+      ]
+     ],
+     "head_stepbacks": 0,
+     "conf_reversals": [
+      [
+       64,
+       62,
+       64
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      57,
+      61,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 63
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 15,
+     "reorgs": 1,
+     "max_reorg_depth": 7,
+     "reorg_list": [
+      [
+       64,
+       7,
+       47
+      ]
+     ],
+     "head_stepbacks": 0,
+     "conf_reversals": [
+      [
+       64,
+       62,
+       64
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      57,
+      61,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 63
+    }
+   ],
+   "held": {
+    "block": 64,
+    "vote": 256
+   }
+  }
+ },
+ "p50_s48_d64": {
+  "args": [
+   "--groups",
+   "2,2",
+   "--start",
+   "48",
+   "--slots-down",
+   "64"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "c": 2,
+    "no_forward": false,
+    "seed": 0,
+    "groups": "2,2",
+    "start": 48,
+    "slots_down": 64,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p50_s48_d64.json",
+    "events": "data/runs/p50_s48_d64.events.json"
+   },
+   "heal_slot": 112,
+   "reconverge_head_slots": 2,
+   "reconverge_conf_slots": 2,
+   "agree_head_since": 114,
+   "agree_conf_since": 114,
+   "lock_conflict_slots": [
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111
+   ],
+   "last_lock_conflict_after_heal": null,
+   "invariant_violations": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 35,
+     "reorg_list": [
+      [
+       114,
+       35,
+       47
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [
+      [
+       114,
+       110,
+       114
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50,
+      55,
+      58,
+      59,
+      60,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      70,
+      71,
+      73,
+      74,
+      77,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      91,
+      92,
+      93,
+      95,
+      98,
+      105,
+      106,
+      107,
+      108,
+      110
+     ],
+     "last_slot_with_orphaned_conf": 113
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 35,
+     "reorg_list": [
+      [
+       114,
+       35,
+       47
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [
+      [
+       114,
+       110,
+       114
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50,
+      55,
+      58,
+      59,
+      60,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      70,
+      71,
+      73,
+      74,
+      77,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      91,
+      92,
+      93,
+      95,
+      98,
+      105,
+      106,
+      107,
+      108,
+      110
+     ],
+     "last_slot_with_orphaned_conf": 113
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 1,
+     "reorg_list": [
+      [
+       114,
+       1,
+       47
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      61,
+      62,
+      69,
+      72,
+      75,
+      76,
+      78,
+      79,
+      87,
+      88,
+      89,
+      90,
+      94,
+      96,
+      97,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      109
+     ],
+     "last_slot_with_orphaned_conf": 111
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 1,
+     "reorg_list": [
+      [
+       114,
+       1,
+       47
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      61,
+      62,
+      69,
+      72,
+      75,
+      76,
+      78,
+      79,
+      87,
+      88,
+      89,
+      90,
+      94,
+      96,
+      97,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      109
+     ],
+     "last_slot_with_orphaned_conf": 111
+    }
+   ],
+   "held": {
+    "block": 256,
+    "vote": 1024
+   }
+  }
+ },
+ "p50_s48_d16_spread": {
+  "args": [
+   "--groups",
+   "2,2",
+   "--start",
+   "48",
+   "--slots-down",
+   "16",
+   "--release-spread-ms",
+   "12000"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "c": 2,
+    "no_forward": false,
+    "seed": 0,
+    "groups": "2,2",
+    "start": 48,
+    "slots_down": 16,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 12000,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p50_s48_d16_spread.json",
+    "events": "data/runs/p50_s48_d16_spread.events.json"
+   },
+   "heal_slot": 64,
+   "reconverge_head_slots": 4,
+   "reconverge_conf_slots": 4,
+   "agree_head_since": 68,
+   "agree_conf_since": 68,
+   "lock_conflict_slots": [
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64
+   ],
+   "last_lock_conflict_after_heal": 64,
+   "invariant_violations": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 4,
+     "max_reorg_depth": 9,
+     "reorg_list": [
+      [
+       65,
+       1,
+       63
+      ],
+      [
+       66,
+       1,
+       63
+      ],
+      [
+       67,
+       1,
+       63
+      ],
+      [
+       68,
+       9,
+       47
+      ]
+     ],
+     "head_stepbacks": 0,
+     "conf_reversals": [
+      [
+       68,
+       63,
+       68
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50,
+      55,
+      58,
+      59,
+      60,
+      63
+     ],
+     "last_slot_with_orphaned_conf": 67
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 4,
+     "max_reorg_depth": 9,
+     "reorg_list": [
+      [
+       65,
+       1,
+       63
+      ],
+      [
+       66,
+       1,
+       63
+      ],
+      [
+       67,
+       1,
+       63
+      ],
+      [
+       68,
+       9,
+       47
+      ]
+     ],
+     "head_stepbacks": 0,
+     "conf_reversals": [
+      [
+       68,
+       63,
+       68
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50,
+      55,
+      58,
+      59,
+      60,
+      63
+     ],
+     "last_slot_with_orphaned_conf": 67
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      61,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 64
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      61,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 64
+    }
+   ],
+   "held": {
+    "block": 64,
+    "vote": 256
+   }
+  }
+ },
+ "p211_s48_d16": {
+  "args": [
+   "--groups",
+   "2,1,1",
+   "--start",
+   "48",
+   "--slots-down",
+   "16"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "c": 2,
+    "no_forward": false,
+    "seed": 0,
+    "groups": "2,1,1",
+    "start": 48,
+    "slots_down": 16,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p211_s48_d16.json",
+    "events": "data/runs/p211_s48_d16.events.json"
+   },
+   "heal_slot": 64,
+   "reconverge_head_slots": 0,
+   "reconverge_conf_slots": 0,
+   "agree_head_since": 64,
+   "agree_conf_since": 64,
+   "lock_conflict_slots": [
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+   ],
+   "last_lock_conflict_after_heal": null,
+   "invariant_violations": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 5,
+     "reorg_list": [
+      [
+       64,
+       5,
+       47
+      ]
+     ],
+     "head_stepbacks": 0,
+     "conf_reversals": [
+      [
+       64,
+       61,
+       64
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      51,
+      53,
+      54,
+      56,
+      61
+     ],
+     "last_slot_with_orphaned_conf": 63
+    },
+    {
+     "node": 3,
+     "group": "C",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 3,
+     "reorg_list": [
+      [
+       64,
+       3,
+       47
+      ]
+     ],
+     "head_stepbacks": 0,
+     "conf_reversals": [
+      [
+       64,
+       62,
+       64
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      52,
+      57,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 63
+    }
+   ],
+   "held": {
+    "block": 56,
+    "vote": 224
+   }
+  }
+ },
+ "p50_twice": {
+  "args": [
+   "--groups",
+   "2,2",
+   "--start",
+   "48",
+   "--slots-down",
+   "8",
+   "--start2",
+   "60",
+   "--slots-down2",
+   "8",
+   "--groups2",
+   "3,1"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "c": 2,
+    "no_forward": false,
+    "seed": 0,
+    "groups": "2,2",
+    "start": 48,
+    "slots_down": 8,
+    "start2": 60,
+    "slots_down2": 8,
+    "groups2": "3,1",
+    "sleep": "",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/p50_twice.json",
+    "events": "data/runs/p50_twice.events.json"
+   },
+   "heal_slot": 68,
+   "reconverge_head_slots": 0,
+   "reconverge_conf_slots": 0,
+   "agree_head_since": 68,
+   "agree_conf_since": 68,
+   "lock_conflict_slots": [
+    52,
+    53,
+    54,
+    55,
+    66,
+    67
+   ],
+   "last_lock_conflict_after_heal": null,
+   "invariant_violations": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 1,
+     "reorg_list": [
+      [
+       59,
+       1,
+       47
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50
+     ],
+     "last_slot_with_orphaned_conf": 55
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 1,
+     "max_reorg_depth": 1,
+     "reorg_list": [
+      [
+       59,
+       1,
+       47
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [],
+     "conf_stepbacks": 1,
+     "orphaned_confirmed": [
+      48,
+      49,
+      50
+     ],
+     "last_slot_with_orphaned_conf": 55
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 2,
+     "max_reorg_depth": 4,
+     "reorg_list": [
+      [
+       57,
+       1,
+       54
+      ],
+      [
+       59,
+       4,
+       47
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [
+      [
+       59,
+       54,
+       59
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54
+     ],
+     "last_slot_with_orphaned_conf": 58
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 3,
+     "max_reorg_depth": 4,
+     "reorg_list": [
+      [
+       57,
+       1,
+       54
+      ],
+      [
+       59,
+       4,
+       47
+      ],
+      [
+       68,
+       1,
+       59
+      ]
+     ],
+     "head_stepbacks": 1,
+     "conf_reversals": [
+      [
+       59,
+       54,
+       59
+      ],
+      [
+       68,
+       62,
+       68
+      ]
+     ],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [
+      51,
+      52,
+      53,
+      54,
+      62
+     ],
+     "last_slot_with_orphaned_conf": 67
+    }
+   ],
+   "held": {
+    "block": 56,
+    "vote": 224
+   }
+  }
+ },
+ "sleep50_s48_d16": {
+  "args": [
+   "--slots-down",
+   "0",
+   "--sleep",
+   "2:48:64,3:48:64"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "c": 2,
+    "no_forward": false,
+    "seed": 0,
+    "groups": "2,2",
+    "start": 24,
+    "slots_down": 0,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "2:48:64,3:48:64",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/sleep50_s48_d16.json",
+    "events": "data/runs/sleep50_s48_d16.events.json"
+   },
+   "heal_slot": 64,
+   "reconverge_head_slots": 0,
+   "reconverge_conf_slots": 1,
+   "agree_head_since": 64,
+   "agree_conf_since": 65,
+   "lock_conflict_slots": [],
+   "last_lock_conflict_after_heal": null,
+   "invariant_violations": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    }
+   ],
+   "held": {}
+  }
+ },
+ "sleep75_s48_d16": {
+  "args": [
+   "--slots-down",
+   "0",
+   "--sleep",
+   "1:48:64,2:48:64,3:48:64"
+  ],
+  "summary": {
+   "config": {
+    "validators": 64,
+    "nodes": 4,
+    "shares": null,
+    "latency_ms": 200,
+    "jitter_ms": 0,
+    "delta_ms": 1500,
+    "k": 4,
+    "c": 2,
+    "no_forward": false,
+    "seed": 0,
+    "groups": "2,2",
+    "start": 24,
+    "slots_down": 0,
+    "start2": null,
+    "slots_down2": 0,
+    "groups2": null,
+    "sleep": "1:48:64,2:48:64,3:48:64",
+    "release_spread_ms": 0,
+    "after": 32,
+    "quiet": true,
+    "json": "data/runs/sleep75_s48_d16.json",
+    "events": "data/runs/sleep75_s48_d16.events.json"
+   },
+   "heal_slot": 64,
+   "reconverge_head_slots": 0,
+   "reconverge_conf_slots": 1,
+   "agree_head_since": 64,
+   "agree_conf_since": 65,
+   "lock_conflict_slots": [],
+   "last_lock_conflict_after_heal": null,
+   "invariant_violations": [],
+   "per_node": [
+    {
+     "node": 0,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 1,
+     "group": "A",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 2,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    },
+    {
+     "node": 3,
+     "group": "B",
+     "validators": 16,
+     "reorgs": 0,
+     "max_reorg_depth": 0,
+     "reorg_list": [],
+     "head_stepbacks": 0,
+     "conf_reversals": [],
+     "conf_stepbacks": 0,
+     "orphaned_confirmed": [],
+     "last_slot_with_orphaned_conf": null
+    }
+   ],
+   "held": {}
+  }
+ }
+}
