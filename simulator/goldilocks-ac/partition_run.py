@@ -6,6 +6,9 @@ gadget frozen at genesis). Nodes are split into groups; every message sent acros
 (--start2/--slots-down2, optional --groups2) gives the repeated-partition shape, and --sleep puts
 nodes to sleep.
 
+--rule adds a delay rule on single links and message kinds (see sim.py): an outage of every
+link, of the votes alone, an eclipse of a few nodes, or a fixed extra delay.
+
 Per node and slot it records head reorgs, confirmed-tip regressions (step back to an ancestor, or
 a switch to a conflicting block), live locks and whether honest nodes hold conflicting live locks,
 and agreement.
@@ -18,7 +21,17 @@ import json
 import time
 
 from model import BLOCKS, GEN, SPEC, Params
-from sim import Tracker, World
+from sim import Rule, Tracker, World
+
+
+def parse_rule(spec, nodes, slot_ms):
+    """start:end:src:dst:kinds:action, times in slots (fractions allowed); src and dst are '*' or
+    node ids joined by '+'; kinds is '*', 'vote' or 'block'; action is 'hold' or extra milliseconds.
+    Example: 48:50.5:*:*:vote:hold holds every vote sent in [48, 50.5) until 50.5 + latency."""
+    a, b, src, dst, kinds, action = spec.split(":")
+    ids = lambda x: frozenset(range(nodes)) if x == "*" else frozenset(int(i) for i in x.split("+"))
+    return Rule(round(float(a) * slot_ms), round(float(b) * slot_ms), ids(src), ids(dst),
+                None if kinds == "*" else frozenset(kinds.split("+")), None if action == "hold" else int(action))
 
 
 def parse_groups(spec, nodes):
@@ -62,6 +75,8 @@ def main(argv=None):
     p.add_argument("--sleep", default="", help="asleep windows node:start:end (slots), comma-separated, e.g. 3:24:40")
     p.add_argument("--release-spread-ms", type=int, default=0,
                    help="held messages are released at heal + latency + U(0, spread)")
+    p.add_argument("--rule", action="append", default=[],
+                   help="delay rule start:end:src:dst:kinds:hold|ms, slots; e.g. 48:50:*:*:vote:hold (repeatable)")
     p.add_argument("--after", type=int, default=32, help="slots to run after the last heal")
     p.add_argument("--quiet", action="store_true")
     p.add_argument("--json", help="write a machine-readable summary")
@@ -81,11 +96,13 @@ def main(argv=None):
     for item in filter(None, args.sleep.split(",")):
         nid, a, b = item.split(":")  # slots; fractions allowed (a wake between public times)
         sleep.setdefault(int(nid), []).append((round(float(a) * slot_ms), round(float(b) * slot_ms)))
-    heal = max([w[1] // slot_ms for w in windows] + [-(-b // slot_ms) for ws in sleep.values() for _, b in ws],
-               default=0)
+    rules = [parse_rule(r, args.nodes, slot_ms) for r in args.rule]
+    heal = max([w[1] // slot_ms for w in windows] + [-(-b // slot_ms) for ws in sleep.values() for _, b in ws]
+               + [-(-r.end // slot_ms) for r in rules], default=0)
     shares = [int(x) for x in args.shares.split(",")] if args.shares else None
     world = World(P, args.nodes, args.latency_ms, args.jitter_ms, windows, shares, record=bool(args.events),
-                  sleep=sleep, release_spread_ms=args.release_spread_ms, forward=not args.no_forward)
+                  sleep=sleep, release_spread_ms=args.release_spread_ms, forward=not args.no_forward,
+                  rules=rules)
     stake = {}
     for n in world.nodes:
         stake[group_of[n.id]] = stake.get(group_of[n.id], 0) + len(n.validators)
