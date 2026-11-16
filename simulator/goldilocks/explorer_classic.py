@@ -197,7 +197,7 @@ def compact(path, meta=None):
 
     # The live spec's runs (../goldilocks-live) carry each lock as (block, slot j, fast bit, expiry e),
     # optimistic confirmations, early votes and an FG source after every tick.
-    live = d.get("protocol") == "goldilocks-live"
+    live = d.get("protocol") in ("goldilocks-live", "goldilocks-ac")  # ac: the live AC, FG frozen at genesis
 
     def off(t, s):  # ms into slot s
         return round(t - s * slot_ms)
@@ -272,16 +272,16 @@ def compact(path, meta=None):
                 kinds = [f for b, _, f, _ in det if b == a]
                 tag = "FLOOR" if not kinds else ("TSQ" if any(kinds) else "G1")
             else:
-                tag = "FLOOR" if (a == x["fc_root"] and a not in lk) else ("G1" if how[i].get(a) == "slow" else "TSQ")
+                tag = "FLOOR" if (a == x.get("fc_root", GEN) and a not in lk) else ("G1" if how[i].get(a) == "slow" else "TSQ")
             nrow.append([x["head_slot"], x["head"], x["conf_slot"], x["conf"], x["anchor_slot"], a,
-                         x["F_slot"], x["J_slot"], x["head_h"], tag, x["hmax"],
+                         x.get("F_slot", 0), x.get("J_slot", 0), x.get("head_h"), tag, x.get("hmax"),
                          [ls for _, ls, _ in x["locks"]], [b for b, _, _ in x["locks"]],  # 11, 12: every live lock
                          [[sl(b), j, int(f), ex, b] for b, j, f, ex in det],  # 13: (block slot, j, fast, expiry, root)
                          newest_fast(det, s)])  # 14: slots the newest fast lock lives, None if none of slot >= s-1
             if live:
                 locks.setdefault(s, {})[i] = ", ".join(sorted(
                     {f"{name(b)} {'fast' if f else 'slow'}→{ex}" for b, j, f, ex in det},
-                    key=lambda x: -int(x.rsplit("→", 1)[1]))[:4]) or "none"
+                    key=lambda x: (-int(x.rsplit("→", 1)[1]), x))[:4]) or "none"
             else:
                 locks.setdefault(s, {})[i] = ", ".join(f"{name(b)}→{dl}" for b, _, dl in x["locks"]) or "none"
         states.append([s, nrow])
@@ -359,7 +359,7 @@ def main(argv):
             meta = json.load(fh)
         argv = argv[:i] + argv[i + 2:]
     page = "oct22"
-    if "--spec" in argv:  # oct22 (the 22 Oct 2026 text) or live (the live spec's page)
+    if "--spec" in argv:  # oct22 (the 22 Oct 2026 text), live (the live spec) or ac (its available chain alone)
         i = argv.index("--spec")
         page = argv[i + 1]
         argv = argv[:i] + argv[i + 2:]
@@ -415,6 +415,24 @@ PAGE_TEXT = {
                        '<span><i class="dot" style="border:2px solid var(--tsq);background:var(--panel)"></i>Optimistic confirmation</span>'),
         ('<span><i class="dot" style="background:var(--tsq)"></i>FG attestations</span>',
          '<span><i class="dot" style="background:var(--tsq)"></i>FG attestation (after any tick)</span>'),
+    ],
+    "ac": [
+        ("<title>", "<title>Available chain · "),
+        (_TITLE, "<h1>Goldilocks — Available Chain Explorer</h1>"
+                 + _specbar(f'<b>Spec:</b> <a href="{_LIVE_SPEC}">ethlabs-org/eth-consensus-lean @ 4a63033</a>, '
+                            '10 Nov 2026, available chain only',
+                            "Live spec with finality", "goldilocks-live-explorer.html")),
+        (_LEAD, '<p class="lead">The available chain of the live spec on its own: nothing is ever finalized, '
+                'so genesis plays the finalized checkpoint and the runs describe any stretch of the chain the '
+                'finality gadget has not finalized, for example while fewer than 2/3 of the validators are online. '
+                'Slots of 6 s (&Delta; = 1.5 s), locks that live 2 to k = 4 slots (fast locks graded with c = 2), '
+                '64 validators of equal stake.</p>'),
+        (_SLOT_LEGEND, '<span><i class="dot" style="background:var(--g1)"></i>Vote (at its real time, by +1.5 s)</span>'
+                       '<span><i class="dot" style="border:2px solid var(--tsq);background:var(--panel)"></i>Optimistic confirmation</span>'),
+        ('<span><i class="dot" style="background:var(--tsq)"></i>FG attestations</span>', ''),
+        ('<span><i class="sw" style="border-top:2px dashed #0891b2;height:0"></i><i class="sw" style="border-top:2px dashed #9333ea;height:0"></i>Justified (A, B)</span>', ''),
+        ('<button type="button" data-msgmode="atts">FG attestations</button>', ''),
+        ('bundled votes, finality attestations, and validator reception times', 'bundled votes and validator reception times'),
     ],
 }
 
@@ -1118,7 +1136,8 @@ table.summary th { font-family: var(--sans); font-weight: 600; color: var(--mute
 <script>
 /*DATA*/
 const RUNS = DATA.runs;
-const LIVE = DATA.spec === "live";  // the live spec: no rounds, early votes, optimistic and graded locks
+const AC_ONLY = DATA.spec === "ac";  // the live spec's available chain alone: no finality anywhere
+const LIVE = DATA.spec === "live" || AC_ONLY;  // the live spec: no rounds, early votes, optimistic and graded locks
 const SWEEP = DATA.sweep || [];
 const runNames = Object.keys(RUNS);
 const SWEEP_TAB = "30-Run Sweep (16 nodes)";
@@ -1358,7 +1377,7 @@ function renderSlotDetails(run, s, T, shareA, final) {
     <div class="callout" style="border-left-color:var(--g1)"><b>Unlock and vote · by +1.5 s</b>${vtxt}<br>${fmtEv(evFor(["unlock"]))}</div>
     <div class="callout" style="border-left-color:var(--tsq)"><b>Optimistic confirmation · before +3 s</b>3/4 of the committee voting for a block's descendants confirms it and gives it a fast lock.<br>${fmtEv(evFor(["opt"]))}</div>
     <div class="callout" style="border-left-color:var(--g1)"><b>Confirmation update · +3 s</b>Update of slot ${s - 1}: the deepest block with a strict majority of the voters is confirmed; fast lock with n/2 support or more, slow lock when the last k − 1 updates agree.<br>${fmtEv(evFor(["confirm"]))}</div>
-    <div class="callout" style="border-left-color:var(--tsq)"><b>FG attestations · after every tick</b>A node attests whenever its deepest fast lock of the last two slots is new.<br>${fmtEv(evFor(["fg"]))}</div>
+    ${AC_ONLY ? "" : `<div class="callout" style="border-left-color:var(--tsq)"><b>FG attestations · after every tick</b>A node attests whenever its deepest fast lock of the last two slots is new.<br>${fmtEv(evFor(["fg"]))}</div>`}
     <div class="callout" style="border-left-color:var(--fg)"><b>Vote freeze · +4.5 s</b>${step4Body}</div>
   `;
   } else
@@ -1397,7 +1416,7 @@ function renderSlotDetails(run, s, T, shareA, final) {
       <td>${fmtDelta(n[0], p ? p[0] : null, headOrph, n[1])}</td>
       <td>${fmtDelta(n[2], p ? p[2] : null, safeOrph, n[3])}</td>
       <td>${fmtDelta(n[4], p ? p[4] : null, false)} · ${srcLabel}</td>
-      <td>Justified <b>#${n[7]}</b> / Finalized <b>#${n[6]}</b> (height h=${n[8]})</td>
+      ${AC_ONLY ? "" : `<td>Justified <b>#${n[7]}</b> / Finalized <b>#${n[6]}</b> (height h=${n[8]})</td>`}
       <td>${(run.locks[s] && run.locks[s][i]) || "none"}</td>
     </tr>`;
   }).join("");
@@ -1409,7 +1428,7 @@ function renderSlotDetails(run, s, T, shareA, final) {
         <th>Head</th>
         <th>Confirmed tip</th>
         <th>Anchor</th>
-        <th>Finality</th>
+        ${AC_ONLY ? "" : "<th>Finality</th>"}
         <th>Live locks (block → expiry)</th>
       </tr></thead>
       <tbody>${rows}</tbody>
@@ -1492,8 +1511,7 @@ function renderSingle() {
     ["Head", "head block", 0, 1, "head"],
     ["Confirmed tip", "confirmed block", 2, 3, "safe"],
     ["Locks", "each locked block (dots) and anchor (deepest lock, line)", 4, 5, "stable"],
-    ["Finality", "finalized (solid) and justified (dashed) block; h = FG height", 6, null, "fin"],
-  ].concat(LIVE ? [["Fast-lock lifetime", "slots the node's newest fast lock lives, from 2 up to k; a gap: no fast lock lately", 14, null, "life"]] : []);
+  ].concat(AC_ONLY ? [] : [["Finality", "finalized (solid) and justified (dashed) block; h = FG height", 6, null, "fin"]]).concat(LIVE ? [["Fast-lock lifetime", "slots the node's newest fast lock lives, from 2 up to k; a gap: no fast lock lately", 14, null, "life"]] : []);
   const ph = 138, gap = 36, PH = panels.length * (ph + gap) + 20;
   const pc = setup($("prog"), W, PH);
   const L = 66, R = 48;

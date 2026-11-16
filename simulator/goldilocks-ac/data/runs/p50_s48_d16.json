@@ -1,0 +1,173 @@
+{
+ "config": {
+  "validators": 64,
+  "nodes": 4,
+  "shares": null,
+  "latency_ms": 200,
+  "jitter_ms": 0,
+  "delta_ms": 1500,
+  "k": 4,
+  "c": 2,
+  "no_forward": false,
+  "seed": 0,
+  "groups": "2,2",
+  "start": 48,
+  "slots_down": 16,
+  "start2": null,
+  "slots_down2": 0,
+  "groups2": null,
+  "sleep": "",
+  "release_spread_ms": 0,
+  "after": 32,
+  "quiet": true,
+  "json": "data/runs/p50_s48_d16.json",
+  "events": "data/runs/p50_s48_d16.events.json"
+ },
+ "heal_slot": 64,
+ "reconverge_head_slots": 3,
+ "reconverge_conf_slots": 3,
+ "agree_head_since": 67,
+ "agree_conf_since": 67,
+ "lock_conflict_slots": [
+  52,
+  53,
+  54,
+  55,
+  56,
+  57,
+  58,
+  59,
+  60,
+  61,
+  62,
+  63
+ ],
+ "last_lock_conflict_after_heal": null,
+ "invariant_violations": [],
+ "per_node": [
+  {
+   "node": 0,
+   "group": "A",
+   "validators": 16,
+   "reorgs": 2,
+   "max_reorg_depth": 8,
+   "reorg_list": [
+    [
+     66,
+     1,
+     60
+    ],
+    [
+     67,
+     8,
+     47
+    ]
+   ],
+   "head_stepbacks": 1,
+   "conf_reversals": [
+    [
+     67,
+     60,
+     67
+    ]
+   ],
+   "conf_stepbacks": 0,
+   "orphaned_confirmed": [
+    48,
+    49,
+    50,
+    55,
+    58,
+    59,
+    60
+   ],
+   "last_slot_with_orphaned_conf": 66
+  },
+  {
+   "node": 1,
+   "group": "A",
+   "validators": 16,
+   "reorgs": 2,
+   "max_reorg_depth": 8,
+   "reorg_list": [
+    [
+     66,
+     1,
+     60
+    ],
+    [
+     67,
+     8,
+     47
+    ]
+   ],
+   "head_stepbacks": 1,
+   "conf_reversals": [
+    [
+     67,
+     60,
+     67
+    ]
+   ],
+   "conf_stepbacks": 0,
+   "orphaned_confirmed": [
+    48,
+    49,
+    50,
+    55,
+    58,
+    59,
+    60
+   ],
+   "last_slot_with_orphaned_conf": 66
+  },
+  {
+   "node": 2,
+   "group": "B",
+   "validators": 16,
+   "reorgs": 0,
+   "max_reorg_depth": 0,
+   "reorg_list": [],
+   "head_stepbacks": 1,
+   "conf_reversals": [],
+   "conf_stepbacks": 1,
+   "orphaned_confirmed": [
+    51,
+    52,
+    53,
+    54,
+    56,
+    57,
+    61,
+    62
+   ],
+   "last_slot_with_orphaned_conf": 63
+  },
+  {
+   "node": 3,
+   "group": "B",
+   "validators": 16,
+   "reorgs": 0,
+   "max_reorg_depth": 0,
+   "reorg_list": [],
+   "head_stepbacks": 1,
+   "conf_reversals": [],
+   "conf_stepbacks": 1,
+   "orphaned_confirmed": [
+    51,
+    52,
+    53,
+    54,
+    56,
+    57,
+    61,
+    62
+   ],
+   "last_slot_with_orphaned_conf": 63
+  }
+ ],
+ "held": {
+  "block": 64,
+  "vote": 256
+ }
+}

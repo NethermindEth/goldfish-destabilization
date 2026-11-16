@@ -1,5 +1,5 @@
-# The explorer pages on GitHub Pages, from master: the landing page and the two explorers
-# (22 Oct 2026 text and live spec), as built and committed under simulator/goldilocks/explorer/.
+# The explorer pages on GitHub Pages, from master: the landing page and the three explorers
+# (22 Oct 2026 text, live spec, live spec's available chain alone), as built and committed under simulator/goldilocks/explorer/.
 name: Explorer on GitHub Pages
 
 on:
@@ -32,7 +32,8 @@ jobs:
           mkdir site
           cp simulator/goldilocks/explorer/index.html \
              simulator/goldilocks/explorer/goldilocks-explorer.html \
-             simulator/goldilocks/explorer/goldilocks-live-explorer.html site/
+             simulator/goldilocks/explorer/goldilocks-live-explorer.html \
+             simulator/goldilocks/explorer/goldilocks-ac-explorer.html site/
           touch site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
