@@ -39,9 +39,10 @@ and extra delays.
 8, 6, 4 or 3 of 8 nodes online). A fault that hits every link alike never costs a block confirmed
 before it, up to 6 slots and at every participation level. A full outage of 2 slots or more loses
 only blocks that a node confirmed alone during it, at most D − 1 of them; votes-only and
-blocks-only outages lose nothing. Extra vote delay up to 1.6 s on top of the 0.2 s latency changes
-nothing; from 3 s on, no block is confirmed while it lasts, the heads keep growing, and confirmation
-resumes when it ends. Damage to earlier confirmations needs asymmetric delivery: some nodes must
+blocks-only outages lose nothing. Extra vote delay changes nothing as long as the votes, sent about
+0.2 s into the slot, still arrive before the +3 s cutoff of the confirmation count: up to 2.3 s on
+top of the 0.2 s latency, beyond Δ. From 2.6 s on, no block is confirmed while it lasts, the heads
+keep growing, and confirmation resumes when it ends. Damage to earlier confirmations needs asymmetric delivery: some nodes must
 see what others do not.
 
 **First results.** In every partition and sleep scenario the available chain does exactly what it
