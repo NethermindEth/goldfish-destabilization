@@ -18,6 +18,7 @@
   "groups2": null,
   "sleep": "2:48:64,3:48:64",
   "release_spread_ms": 0,
+  "rule": [],
   "after": 32,
   "quiet": true,
   "json": "data/runs/sleep50_s48_d16.json",

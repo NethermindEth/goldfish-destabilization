@@ -28,6 +28,9 @@ SCENARIOS = {
     "sleep25_s48_d16": ["--slots-down", "0", "--sleep", "3:48:64"],
     "sleep50_s48_d16": ["--slots-down", "0", "--sleep", "2:48:64,3:48:64"],
     "sleep75_s48_d16": ["--slots-down", "0", "--sleep", "1:48:64,2:48:64,3:48:64"],
+    # blocks, and only blocks, withheld from half of the online validators while nothing is finalized
+    "blocks_half_d8": ["--nodes", "8", "--groups", "3,5", "--slots-down", "0", "--sleep", "3:40:72,4:40:72",
+                       "--rule", "48:56:3+4+5+6+7:0+1+2:block:hold", "--start", "44", "--after", "28"],
 }
 
 

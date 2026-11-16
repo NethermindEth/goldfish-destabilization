@@ -45,6 +45,26 @@ top of the 0.2 s latency, beyond Δ. From 2.6 s on, no block is confirmed while 
 keep growing, and confirmation resumes when it ends. Damage to earlier confirmations needs asymmetric delivery: some nodes must
 see what others do not.
 
+**Faults on a group** (`attack_sweep.py --family asym`, 3300 runs: a target group of 1 to 4 of the
+online nodes, 1 to 6 slots, 8, 6 or 4 of 8 nodes online). Partitions of the group, holding every
+message into it, or holding or delaying only the votes into it never cost a block confirmed before
+the fault; only what the cut-off side confirmed during it is lost. Votes that reach the group after
+the +3 s cutoff change nothing at all.
+
+**Blocks withheld from half of the online validators** (`--family blocks`, 1296 runs, and explorer
+tab 12). Holding only the blocks into a group, while its votes still flow, is harmless for a group
+of one node or of all online nodes but one. For a group of exactly half of the online validators,
+2 of the 6 proposer schedules with all 8 nodes online (faults of 7 slots or more) and 1 of 6 with 6
+online (5 slots or more) lose every block confirmed since the last finalized block: 46–47 slots in
+the sweep. With 4 online it never happened. The spec allows it: the votes for blocks a node
+does not have count as voters but support no block, not even the last common ancestor, so no block
+of the cut-off half holds a strict majority and it stops confirming. When its last lock expires, its
+head walk starts from the fork-choice root, which is the last finalized block, and its proposer
+builds there. With the online stake split exactly in half, no block of the old chain regains a
+majority, and every node follows the new chain. With the finality gadget running, the root is a
+few slots behind the head; with fewer than 2/3 online it is the last block finalized before
+participation dropped.
+
 **First results.** In every partition and sleep scenario the available chain does exactly what it
 does in the live model with the FG running: the same reorgs, the same orphaned confirmed blocks,
 the same time to agree after the heal. Finality never changed the outcome of a partition. A 50/50
@@ -58,7 +78,7 @@ orphaned at the wake.
 | `model.py` | The frozen frame and the node without the FG; the AC is imported from `../goldilocks-live/model.py` |
 | `sim.py` | The driver of `../goldilocks-live/sim.py` with blocks and votes only, and the AC's metrics |
 | `partition_run.py`, `scenarios.py` | One run and the named partition and sleep scenarios |
-| `attack_sweep.py` | Network faults against participation: full outage, votes-only and blocks-only outages, vote lag; what is lost before and during the fault -> `data/sweeps/attack.json` |
+| `attack_sweep.py` | Network faults against participation, what is lost before and during each fault: on every link (`data/sweeps/attack.json`), on a group (`attack_asym.json`), blocks withheld from a group (`attack_blocks.json`) |
 | `build_explorer.sh`, `explorer_meta.json` | The explorer page, with an About card per tab |
 | `data/runs/` | The runs of the explorer tabs |
 | `data/sweeps/` | The sweeps |

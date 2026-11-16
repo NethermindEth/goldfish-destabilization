@@ -1,8 +1,26 @@
 {
  "01 Honest Run": {
   "slot": 24,
-  "jumps": [["Slots 8–16", 8], ["Slots 24–32", 24]],
-  "zooms": [["s24", 24], ["s25", 25]],
+  "jumps": [
+   [
+    "Slots 8–16",
+    8
+   ],
+   [
+    "Slots 24–32",
+    24
+   ]
+  ],
+  "zooms": [
+   [
+    "s24",
+    24
+   ],
+   [
+    "s25",
+    25
+   ]
+  ],
   "goal": "The reference behaviour of the available chain with no faults.",
   "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2. Nothing is ever finalized.",
   "result": "Nodes vote as soon as the proposal arrives, about 0.2 s into the slot, and 3/4 of the committee confirm it <b>optimistically within the slot</b>: the confirmed tip is the head. That confirmation also fast-locks the block, so at the end of every slot the anchor, the deepest lock, is the head itself.",
@@ -11,8 +29,30 @@
  },
  "02 Two-Slot Cut 50/50": {
   "slot": 50,
-  "jumps": [["The cut (s48)", 46]],
-  "zooms": [["s48 (cut starts)", 48], ["s49", 49], ["s50 (heal)", 50], ["s52", 52]],
+  "jumps": [
+   [
+    "The cut (s48)",
+    46
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s49",
+    49
+   ],
+   [
+    "s50 (heal)",
+    50
+   ],
+   [
+    "s52",
+    52
+   ]
+  ],
   "goal": "The shortest even split that costs a confirmed block.",
   "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2. Nodes 0–1 and 2–3 are cut apart for slots 48–49.",
   "result": "Side A holds slot 48's block with its own 32 votes, exactly n/2, so it <b>confirms the block and fast-locks it</b>. Side B does not see that block during the cut. After the heal the lock moves back, and <b>side A loses the confirmed block</b> at slot 52. Heads agree 2 slots after the heal.",
@@ -21,8 +61,34 @@
  },
  "03 Partition 50/50": {
   "slot": 56,
-  "jumps": [["Cut start (s48)", 46], ["Heal (s64)", 62]],
-  "zooms": [["s48 (cut starts)", 48], ["s64 (heal)", 64], ["s66", 66], ["s67", 67]],
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s66",
+    66
+   ],
+   [
+    "s67",
+    67
+   ]
+  ],
   "goal": "What an even split does to confirmations and locks, and how the chain heals.",
   "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2. Nodes 0–1 and 2–3 are cut apart for slots 48–63.",
   "result": "Each half confirms and fast-locks its own branch with 32 votes, exactly n/2, so the two halves hold conflicting locks through the cut. After the heal the votes split 32–32, no child of the last common block has a strict majority, and <b>both branches are discarded</b>: 7–8 confirmed blocks per node are orphaned. Heads agree 3 slots after the heal, and no conflicting lock outlives the cut.",
@@ -31,8 +97,30 @@
  },
  "04 Partition 75/25": {
   "slot": 56,
-  "jumps": [["Cut start (s48)", 46], ["Heal (s64)", 60]],
-  "zooms": [["s48 (cut starts)", 48], ["s63 (last cut slot)", 63], ["s64 (heal)", 64]],
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    60
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s63 (last cut slot)",
+    63
+   ],
+   [
+    "s64 (heal)",
+    64
+   ]
+  ],
   "goal": "A split with a clear majority on one side.",
   "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2. Node 3 is cut off from nodes 0–2 for slots 48–63.",
   "result": "The 48-validator side keeps confirming as if nothing happened. The lone node confirms its own blocks, a strict majority of the 16 voters it sees, and <b>loses 3 of them at the heal</b>. Heads agree in the heal slot.",
@@ -41,8 +129,30 @@
  },
  "05 Partition 52/48": {
   "slot": 56,
-  "jumps": [["Cut start (s48)", 46], ["Heal (s64)", 62]],
-  "zooms": [["s48 (cut starts)", 48], ["s64 (heal)", 64], ["s65", 65]],
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ]
+  ],
   "goal": "A near-tie: one side with slightly more than half of the validators.",
   "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2. Nodes 0–1 (33 validators) and 2–3 (31) are cut apart for slots 48–63.",
   "result": "At the heal the 33 side's branch wins and the 31 side <b>loses 7 confirmed blocks</b>. Heads agree in the heal slot.",
@@ -51,8 +161,30 @@
  },
  "06 Long Partition 50/50": {
   "slot": 80,
-  "jumps": [["Cut start (s48)", 46], ["Heal (s112)", 110]],
-  "zooms": [["s48 (cut starts)", 48], ["s112 (heal)", 112], ["s114", 114]],
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s112)",
+    110
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s112 (heal)",
+    112
+   ],
+   [
+    "s114",
+    114
+   ]
+  ],
   "goal": "A 64-slot even split: does the damage stop growing with the length of the cut?",
   "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2. Nodes 0–1 and 2–3 are cut apart for slots 48–111.",
   "result": "The same outcome as the 16-slot cut, scaled up: both branches are discarded, and <b>every block confirmed during the cut is lost</b>, 28–35 per node. Heads agree 2 slots after the heal. The locks cap nothing here: each lock lives at most k slots, so none is left from before the cut.",
@@ -61,8 +193,34 @@
  },
  "07 Messy Heal": {
   "slot": 64,
-  "jumps": [["Cut start (s48)", 46], ["Heal (s64)", 62]],
-  "zooms": [["s64 (heal)", 64], ["s65", 65], ["s66", 66], ["s68", 68]],
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ]
+  ],
+  "zooms": [
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ],
+   [
+    "s66",
+    66
+   ],
+   [
+    "s68",
+    68
+   ]
+  ],
   "goal": "The 50/50 cut, with the held messages trickling out over two slots after the heal.",
   "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2. Nodes 0–1 and 2–3 are cut apart for slots 48–63; each held message arrives up to 12 s after the heal.",
   "result": "The same outcome as the clean heal, one slot later: heads agree 4 slots after the heal, and 8 confirmed blocks per node are orphaned. Side A's head switches four times while the messages trickle in.",
@@ -71,8 +229,30 @@
  },
  "08 Three-Way Cut": {
   "slot": 56,
-  "jumps": [["Cut start (s48)", 46], ["Heal (s64)", 62]],
-  "zooms": [["s48 (cut starts)", 48], ["s64 (heal)", 64], ["s65", 65]],
+  "jumps": [
+   [
+    "Cut start (s48)",
+    46
+   ],
+   [
+    "Heal (s64)",
+    62
+   ]
+  ],
+  "zooms": [
+   [
+    "s48 (cut starts)",
+    48
+   ],
+   [
+    "s64 (heal)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ]
+  ],
   "goal": "A cut into three groups: half of the validators together, and the other half split in two.",
   "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2. Nodes 0–1 (32 validators), node 2 (16) and node 3 (16) are cut apart for slots 48–63.",
   "result": "Every group confirms its own blocks. At the heal the half's branch wins, and the two single nodes lose 5 and 3 confirmed blocks.",
@@ -81,8 +261,34 @@
  },
  "09 Two Cuts in a Row": {
   "slot": 58,
-  "jumps": [["First cut (s48)", 46], ["Second cut (s60)", 58]],
-  "zooms": [["s56 (first heal)", 56], ["s59", 59], ["s60 (second cut)", 60], ["s68 (heal)", 68]],
+  "jumps": [
+   [
+    "First cut (s48)",
+    46
+   ],
+   [
+    "Second cut (s60)",
+    58
+   ]
+  ],
+  "zooms": [
+   [
+    "s56 (first heal)",
+    56
+   ],
+   [
+    "s59",
+    59
+   ],
+   [
+    "s60 (second cut)",
+    60
+   ],
+   [
+    "s68 (heal)",
+    68
+   ]
+  ],
   "goal": "A second cut before the chain has settled from the first.",
   "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2. Nodes 0–1 and 2–3 are cut apart for slots 48–55; then node 3 is cut off from nodes 0–2 for slots 60–67.",
   "result": "After the first heal both branches are discarded, as in the 50/50 cut: side A loses 3 confirmed blocks and side B 4. In the second cut node 3 loses one more. Heads agree in the second heal slot.",
@@ -91,8 +297,30 @@
  },
  "10 Half the Network Asleep": {
   "slot": 56,
-  "jumps": [["Sleep starts (s48)", 46], ["Wake (s64)", 62]],
-  "zooms": [["s48", 48], ["s64 (wake)", 64], ["s65", 65]],
+  "jumps": [
+   [
+    "Sleep starts (s48)",
+    46
+   ],
+   [
+    "Wake (s64)",
+    62
+   ]
+  ],
+  "zooms": [
+   [
+    "s48",
+    48
+   ],
+   [
+    "s64 (wake)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ]
+  ],
   "goal": "Half of the validators asleep for 16 slots, then a restart and a rejoin.",
   "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2. Nodes 2–3 sleep through slots 48–63.",
   "result": "The awake half keeps confirming: it needs a strict majority of the voters it sees, not of all validators. Blocks are missing only in the sleepers' proposal slots. The sleepers restart, join a slot later, and nothing is orphaned.",
@@ -101,12 +329,74 @@
  },
  "11 Three Quarters Asleep": {
   "slot": 56,
-  "jumps": [["Sleep starts (s48)", 46], ["Wake (s64)", 62]],
-  "zooms": [["s48", 48], ["s55", 55], ["s64 (wake)", 64], ["s65", 65]],
+  "jumps": [
+   [
+    "Sleep starts (s48)",
+    46
+   ],
+   [
+    "Wake (s64)",
+    62
+   ]
+  ],
+  "zooms": [
+   [
+    "s48",
+    48
+   ],
+   [
+    "s55",
+    55
+   ],
+   [
+    "s64 (wake)",
+    64
+   ],
+   [
+    "s65",
+    65
+   ]
+  ],
   "goal": "Only a quarter of the validators online: the regime where the finality gadget could not help.",
   "setup": "4 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2. Nodes 1–3 sleep through slots 48–63.",
   "result": "Node 0 alone keeps a confirmed chain. The chain grows only in node 0's own proposal slots, and each of its blocks is confirmed one slot later. After the wake the sleepers adopt that chain and <b>nothing is orphaned</b>.",
   "group": "Low participation",
   "short": "Three quarters asleep"
+ },
+ "12 Blocks Withheld from Half": {
+  "slot": 56,
+  "jumps": [
+   [
+    "Fault starts (s48)",
+    46
+   ],
+   [
+    "Fault ends (s56)",
+    54
+   ]
+  ],
+  "zooms": [
+   [
+    "s50",
+    50
+   ],
+   [
+    "s55 (new chain)",
+    55
+   ],
+   [
+    "s56",
+    56
+   ],
+   [
+    "s59",
+    59
+   ]
+  ],
+  "goal": "Withhold blocks, and only blocks, from half of the online validators while nothing is finalized.",
+  "setup": "8 nodes, 64 honest validators, 200 ms latency, k = 4, c = 2. Nodes 3–4 sleep through slots 40–71, so 48 validators are online. For slots 48–55 no block reaches nodes 0–2 (24 validators); every vote does.",
+  "result": "Nodes 0–2 receive the other half's votes for blocks they do not have. Those votes count as voters but support no block they know, not even the last common one, so <b>no block holds a strict majority</b> and nodes 0–2 stop confirming. When their last lock expires, their head walk starts from the last finalized block, here genesis, and in slot 55 their proposer builds on genesis. The two halves then split their votes 24–24 between the old chain and the new one, no old block regains a majority, and from slot 59 every node builds on the new chain. <b>Every block confirmed from slot 1 to slot 50 is orphaned</b>, back to the last finalized block, by a fault of 8 slots that touches only blocks.",
+  "group": "Network faults on a group",
+  "short": "Blocks withheld from half"
  }
 }
