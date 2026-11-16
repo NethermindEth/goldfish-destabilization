@@ -10,47 +10,72 @@ runs its tick. A message that arrives exactly at τ is processed after that tick
 its own block and votes at once (stamp τ).
 
 Network: every message from a node to another one has delay `latency_ms` plus a uniform jitter in
-[0, jitter_ms]. Synchrony in the sense of the spec needs that delay to stay below Δ. A partition
-window (start, end, groups) holds every message sent across its cut during [start, end) and
-releases it at end + latency (+ a uniform spread): the heal is GST.
+[0, jitter_ms]. Synchrony in the sense of the spec needs that delay to stay below Δ. On top of that,
+delay rules act on single links and message kinds: a rule matches a message sent during
+[start, end) from a node in `src` to a node in `dst`, of a kind in `kinds` (None: any), and either
+holds it until end + latency (+ a uniform spread) or adds `extra_ms` to its delay. A partition
+window (start, end, groups) is a hold rule on every link across its cut; a full outage holds every
+link; a votes-only outage holds the votes alone; an eclipse holds the links of a few nodes.
 """
 
 import heapq
 import itertools
 import random
-from collections import Counter
+from collections import Counter, namedtuple
 
 from model import BLOCKS, DEPTH, Node, common_ancestor, conflicts, prec
 
+# extra_ms None: hold until end (+ latency + spread); a number: that much on top of the delay
+Rule = namedtuple("Rule", "start end src dst kinds extra_ms")
+
+
+def partition_rules(windows, nodes):
+    """A partition window (start, end, {node: group}) as hold rules, one per pair of groups."""
+    out = []
+    for start, end, group_of in windows:
+        groups = sorted(set(group_of.values()))
+        for a in groups:
+            for b in groups:
+                if a != b:
+                    out.append(Rule(start, end, frozenset(i for i in range(nodes) if group_of[i] == a),
+                                    frozenset(i for i in range(nodes) if group_of[i] == b), None, None))
+    return out
+
 
 class Network:
-    def __init__(self, latency_ms=200, jitter_ms=0, seed=0, windows=(), release_spread_ms=0):
+    def __init__(self, latency_ms=200, jitter_ms=0, seed=0, rules=(), release_spread_ms=0):
         self.latency_ms, self.jitter_ms = latency_ms, jitter_ms
-        self.release_spread_ms = release_spread_ms  # held messages leave at heal + latency + U(0, spread)
+        self.release_spread_ms = release_spread_ms  # held messages leave at end + latency + U(0, spread)
         self.rng = random.Random(f"net-{seed}")
-        self.windows = list(windows)  # [(start_ms, end_ms, {node: group})]
+        self.rules = list(rules)
         self.queue, self.seq = [], itertools.count()
-        self.held = Counter()
+        self.held = Counter()  # messages held or delayed by a rule, per kind
         self.sent = Counter()
         self.events = None  # list when recording
 
-    def cut(self, src, dst, now):
-        for start, end, group_of in self.windows:
-            if start <= now < end and group_of[src] != group_of[dst]:
-                return end
-        return None
+    def arrival(self, src, dst, now, kind):
+        """The arrival time of a message, and whether a rule held or delayed it."""
+        at = now + self.latency_ms + (self.rng.uniform(0, self.jitter_ms) if self.jitter_ms else 0)
+        hit = False
+        for r in self.rules:
+            if not (r.start <= now < r.end and src in r.src and dst in r.dst
+                    and (r.kinds is None or kind in r.kinds)):
+                continue
+            hit = True
+            if r.extra_ms is None:
+                spread = self.rng.uniform(0, self.release_spread_ms) if self.release_spread_ms else 0
+                at = max(at, r.end + self.latency_ms + spread)
+            else:
+                at += r.extra_ms
+        return at, hit
 
     def broadcast(self, src, now, kind, payload, nodes):
         self.sent[kind] += 1
         for dst in nodes:
             if dst.id == src:
                 continue
-            at = now + self.latency_ms + (self.rng.uniform(0, self.jitter_ms) if self.jitter_ms else 0)
-            end = self.cut(src, dst.id, now)
-            held = end is not None
+            at, held = self.arrival(src, dst.id, now, kind)
             if held:
-                spread = self.rng.uniform(0, self.release_spread_ms) if self.release_spread_ms else 0
-                at = max(at, end + self.latency_ms + spread)
                 self.held[kind] += 1
             heapq.heappush(self.queue, (at, next(self.seq), dst.id, kind, payload))
             if self.events is not None:
@@ -90,11 +115,12 @@ class World:
     1.3) and joins one or two slots later."""
 
     def __init__(self, P, nodes=4, latency_ms=200, jitter_ms=0, windows=(), shares=None, record=False,
-                 sleep=None, release_spread_ms=0, forward=True):
+                 sleep=None, release_spread_ms=0, forward=True, rules=()):
         self.P = P
         self.log_events = []
         self.t = 0
-        self.net = Network(latency_ms, jitter_ms, P.seed, windows, release_spread_ms)
+        self.net = Network(latency_ms, jitter_ms, P.seed, partition_rules(windows, nodes) + list(rules),
+                           release_spread_ms)
         if record:
             self.net.events = []
         self.nodes = [Node(i, P, vals, log=self._log, forward=forward)
@@ -187,7 +213,8 @@ class Tracker:
         self.agree = []  # (slot, heads agree, confirmed tips agree) over awake nodes
         self.conf_reversals = {i: [] for i in ids}  # confirmed tip replaced by a conflicting one
         self.conf_stepbacks = {i: [] for i in ids}  # confirmed tip moved to a strict ancestor
-        self.ever_conf = {i: {} for i in ids}
+        self.ever_conf = {i: {} for i in ids}  # confirmed tip -> last slot it was the tip
+        self.first_conf = {i: {} for i in ids}  # confirmed tip -> first slot it was the tip
         self.lock_conflicts = []  # slots with conflicting live locks across honest nodes
         self.states = []
         self.invariant_violations = []
@@ -211,7 +238,8 @@ class Tracker:
                     self.conf_reversals[n.id].append((s, BLOCKS[p["conf"]].slot, x["conf_slot"]))
                 elif p["conf"] != x["conf"] and prec(x["conf"], p["conf"]):
                     self.conf_stepbacks[n.id].append((s, BLOCKS[p["conf"]].slot, x["conf_slot"]))
-            self.ever_conf[n.id][x["conf"]] = s  # confirmed tip -> last slot it was the tip
+            self.ever_conf[n.id][x["conf"]] = s
+            self.first_conf[n.id].setdefault(x["conf"], s)
             self.prev[n.id] = x
             if not prec(x["conf"], x["head"]):
                 self.invariant_violations.append((s, n.id))

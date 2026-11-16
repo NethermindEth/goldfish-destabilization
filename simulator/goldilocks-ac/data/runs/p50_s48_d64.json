@@ -18,6 +18,7 @@
   "groups2": null,
   "sleep": "",
   "release_spread_ms": 0,
+  "rule": [],
   "after": 32,
   "quiet": true,
   "json": "data/runs/p50_s48_d64.json",

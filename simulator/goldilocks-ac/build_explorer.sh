@@ -10,7 +10,7 @@ R=data/runs
 mkdir -p "$R"
 
 python3 scenarios.py --out "$R" \
-  --only honest,p50_s48_d2,p50_s48_d16,p75_s48_d16,p52_s48_d16,p50_s48_d64,p50_s48_d16_spread,p211_s48_d16,p50_twice,sleep50_s48_d16,sleep75_s48_d16 > /dev/null
+  --only honest,p50_s48_d2,p50_s48_d16,p75_s48_d16,p52_s48_d16,p50_s48_d64,p50_s48_d16_spread,p211_s48_d16,p50_twice,sleep50_s48_d16,sleep75_s48_d16,blocks_half_d8 > /dev/null
 rm -f "$R"/*.log
 
 TABS=(
@@ -25,6 +25,7 @@ TABS=(
   "09 Two Cuts in a Row=$R/p50_twice.events.json"
   "10 Half the Network Asleep=$R/sleep50_s48_d16.events.json"
   "11 Three Quarters Asleep=$R/sleep75_s48_d16.events.json"
+  "12 Blocks Withheld from Half=$R/blocks_half_d8.events.json"
 )
 python3 ../goldilocks/explorer_classic.py ../goldilocks/explorer/goldilocks-ac-explorer.html \
   --spec ac --meta explorer_meta.json "${TABS[@]}"
