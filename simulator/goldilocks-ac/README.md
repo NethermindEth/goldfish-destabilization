@@ -65,6 +65,16 @@ majority, and every node follows the new chain. With the finality gadget running
 few slots behind the head; with fewer than 2/3 online it is the last block finalized before
 participation dropped.
 
+**A minority that votes for blocks it never releases** (`adv_sweep.py`, 1680 runs: f = 0 to 16 of
+64 validators, 8 or 6 of 8 honest nodes online, every split of the online nodes, faults of 0 to 8
+slots, 4 proposer schedules). Under synchrony alone (no fault) it costs nothing: an honest block
+supported by every honest vote keeps a strict majority while the online honest stake exceeds f.
+With the blocks-only fault the split no longer has to be even: the whole unfinalized chain is lost
+for splits with |A| < |B| + f and |B| <= |A| + f, for example 20 against 32 online honest validators
+with f = 12, or 18 against 30 with f = 16. The fault still has to last 5 slots or more, long enough
+for the locks of the cut-off side to expire, and a run loses the chain in at most 2 of the 4
+proposer schedules.
+
 **First results.** In every partition and sleep scenario the available chain does exactly what it
 does in the live model with the FG running: the same reorgs, the same orphaned confirmed blocks,
 the same time to agree after the heal. Finality never changed the outcome of a partition. A 50/50
@@ -79,6 +89,8 @@ orphaned at the wake.
 | `sim.py` | The driver of `../goldilocks-live/sim.py` with blocks and votes only, and the AC's metrics |
 | `partition_run.py`, `scenarios.py` | One run and the named partition and sleep scenarios |
 | `attack_sweep.py` | Network faults against participation, what is lost before and during each fault: on every link (`data/sweeps/attack.json`), on a group (`attack_asym.json`), blocks withheld from a group (`attack_blocks.json`) |
+| `adv_sweep.py` | A minority voting for blocks it never releases, alone and with the blocks-only fault -> `data/sweeps/adv_withheld.json` |
+| `jed.sbatch` | Runs one sweep on a node of the Jed cluster: `sbatch jed.sbatch adv_sweep.py --seeds 4` |
 | `build_explorer.sh`, `explorer_meta.json` | The explorer page, with an About card per tab |
 | `data/runs/` | The runs of the explorer tabs |
 | `data/sweeps/` | The sweeps |

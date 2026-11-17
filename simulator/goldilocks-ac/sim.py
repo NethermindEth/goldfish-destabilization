@@ -115,7 +115,7 @@ class World:
     1.3) and joins one or two slots later."""
 
     def __init__(self, P, nodes=4, latency_ms=200, jitter_ms=0, windows=(), shares=None, record=False,
-                 sleep=None, release_spread_ms=0, forward=True, rules=()):
+                 sleep=None, release_spread_ms=0, forward=True, rules=(), honest=None):
         self.P = P
         self.log_events = []
         self.t = 0
@@ -123,8 +123,9 @@ class World:
                            release_spread_ms)
         if record:
             self.net.events = []
+        # validators [0, honest) are on the nodes; [honest, n) belong to an adversary, if any
         self.nodes = [Node(i, P, vals, log=self._log, forward=forward)
-                      for i, vals in enumerate(assign(P.n, nodes, shares))]
+                      for i, vals in enumerate(assign(P.n if honest is None else honest, nodes, shares))]
         self.node_of = {v: n.id for n in self.nodes for v in n.validators}
         self.sleep = sleep or {}
         self.woken = set()
