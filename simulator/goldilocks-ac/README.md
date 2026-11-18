@@ -98,11 +98,13 @@ known in advance, the sweep takes, for each of 64 schedules, the first run of ex
 [48, 160) without a proposer in A, and withholds blocks from A during that run only (or from one
 slot before it, to two slots after it). With r >= k every such run loses the whole unfinalized
 chain in every schedule: 55 of 55 at k = 4 and r = 4, 21 of 21 at k = 6 and r = 6, 4 of 4 at
-k = 8 and r = 8. With r < k no run loses it, except 9 of 190 that start one slot early. At the
+k = 8 and r = 8. With r < k no run loses it, except 9 of the 190 runs at r = k - 1 with k <= 4 whose fault starts one
+slot early. At the
 default k = 4 the attack is a 4-slot (24 s) cut of the blocks into half of the online stake, needs
 no Byzantine validator, and 55 of 64 schedules offer a run of exactly 4 slots within 112 slots.
-The fault lengths of `window_sweep.py` reflect how long a fixed fault waits for such a run: about
-2^k slots, which is why k = 8 looked like a jump.
+The fault lengths of `window_sweep.py` reflect how long a fault that starts at a fixed slot waits
+for such a run, and runs of 8 slots are rare: 4 of 64 schedules have one, which is why k = 8 looked
+like a jump.
 
 **First results.** In every partition and sleep scenario the available chain does exactly what it
 does in the live model with the FG running: the same reorgs, the same orphaned confirmed blocks,
