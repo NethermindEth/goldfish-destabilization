@@ -31,11 +31,13 @@ VOTE_AT_MS = 500  # into the slot, when every honest node gets the adversary's v
 
 def run(job):
     """One run; imports in the worker, so each process has its own block registry."""
-    f, awake, k, D, seed = job
+    f, awake, k, D, seed = job[:5]
+    over = job[5] if len(job) > 5 else {}
     from model import BLOCKS, Params, Vote, prec
     from sim import Rule, Tracker, World
 
-    P = Params(n=VALIDATORS, seed=seed)
+    P = Params(n=VALIDATORS, seed=seed, **over)
+    P.check()
     sm = P.slot_ms
     everyone = frozenset(range(NODES))
     A = frozenset(range(k))
@@ -64,7 +66,7 @@ def run(job):
     online = sum(len(n.validators) for n in w.nodes[:awake])
     side_a = sum(len(n.validators) for n in w.nodes[:k])
     return {
-        "f": f, "awake": awake, "k": k, "D": D, "seed": seed, "online_honest": online, "side_a": side_a,
+        "f": f, "awake": awake, "k": k, "D": D, "seed": seed, "params": over, "online_honest": online, "side_a": side_a,
         "lost_pre": len(lost_pre), "lost_pre_first": min((BLOCKS[c].slot for c in lost_pre), default=None),
         "lost_during": len(lost_during),
         "max_reorg": max((d for r in tr.reorgs.values() for _, d, _ in r), default=0),

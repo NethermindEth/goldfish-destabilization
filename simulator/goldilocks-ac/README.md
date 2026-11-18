@@ -75,6 +75,20 @@ with f = 12, or 18 against 30 with f = 16. The fault still has to last 5 slots o
 for the locks of the cut-off side to expire, and a run loses the chain in at most 2 of the 4
 proposer schedules.
 
+**The lock window sets how long the fault must last** (`window_sweep.py`, on Jed: the blocks-only
+fault into exactly half of the online nodes, no adversary, lock windows k = 2, 3, 4, 6 and 8, faults
+of 1 to 30 slots, 32 proposer schedules; `data/sweeps/window_long.json`). The shortest fault that
+loses the unfinalized chain is 2, 3, 5, 7 and 17 slots for k = 2, 3, 4, 6 and 8 with all 8 nodes
+online, and 2, 3, 5, 6 and 20 slots with 6 online: about k + 1 up to k = 6, since the cut-off half
+keeps its head only while one of its locks lives. Past that point each extra slot gives the
+proposer schedule another chance to hand the cut-off half a proposal on the old root. At k = 4 and
+30 slots, 29 of 32 schedules lose the chain with 8 nodes online and 11 of 32 with 6 online; at
+k = 8, 8 and 1 of 32. The fast increment c changes nothing (c = 2 and 4 in
+`data/sweeps/window.json`, 8 schedules, faults up to 14 slots). The reorg depth these sweeps report
+misses this loss: the cut-off half steps back to the root rather than switching to a conflicting
+head, and a node asleep through the fault is not compared across its wake. The count of lost
+confirmed blocks is the measure to read.
+
 **First results.** In every partition and sleep scenario the available chain does exactly what it
 does in the live model with the FG running: the same reorgs, the same orphaned confirmed blocks,
 the same time to agree after the heal. Finality never changed the outcome of a partition. A 50/50
@@ -90,6 +104,7 @@ orphaned at the wake.
 | `partition_run.py`, `scenarios.py` | One run and the named partition and sleep scenarios |
 | `attack_sweep.py` | Network faults against participation, what is lost before and during each fault: on every link (`data/sweeps/attack.json`), on a group (`attack_asym.json`), blocks withheld from a group (`attack_blocks.json`) |
 | `adv_sweep.py` | A minority voting for blocks it never releases, alone and with the blocks-only fault -> `data/sweeps/adv_withheld.json` |
+| `window_sweep.py` | The blocks-only fault into half of the online nodes under lock windows k = 2 to 8 -> `data/sweeps/window.json`, `window_long.json` |
 | `jed.sbatch` | Runs one sweep on a node of the Jed cluster: `sbatch jed.sbatch adv_sweep.py --seeds 4` |
 | `build_explorer.sh`, `explorer_meta.json` | The explorer page, with an About card per tab |
 | `data/runs/` | The runs of the explorer tabs |
