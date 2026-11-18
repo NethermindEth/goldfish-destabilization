@@ -89,6 +89,23 @@ misses this loss: the cut-off half steps back to the root rather than switching 
 head, and a node asleep through the fault is not compared across its wake. The count of lost
 confirmed blocks is the measure to read.
 
+**A fault timed on the proposer schedule** (`timed_sweep.py`, on Jed: 17280 runs; all 8 nodes
+online; A is half of them; `data/sweeps/timed.json`). Withholding blocks from A does not freeze A:
+A's own proposals still reach the other half, so both sides confirm them and A renews its locks.
+A falls only when the other half proposes in k consecutive slots, because A's last lock then
+expires and its head walk starts from the last finalized block. Since the proposer schedule is
+known in advance, the sweep takes, for each of 64 schedules, the first run of exactly r slots in
+[48, 160) without a proposer in A, and withholds blocks from A during that run only (or from one
+slot before it, to two slots after it). With r >= k every such run loses the whole unfinalized
+chain in every schedule: 55 of 55 at k = 4 and r = 4, 21 of 21 at k = 6 and r = 6, 4 of 4 at
+k = 8 and r = 8. With r < k no run loses it, except 9 of the 190 runs at r = k - 1 with k <= 4 whose fault starts one
+slot early. At the
+default k = 4 the attack is a 4-slot (24 s) cut of the blocks into half of the online stake, needs
+no Byzantine validator, and 55 of 64 schedules offer a run of exactly 4 slots within 112 slots.
+The fault lengths of `window_sweep.py` reflect how long a fault that starts at a fixed slot waits
+for such a run, and runs of 8 slots are rare: 4 of 64 schedules have one, which is why k = 8 looked
+like a jump.
+
 **First results.** In every partition and sleep scenario the available chain does exactly what it
 does in the live model with the FG running: the same reorgs, the same orphaned confirmed blocks,
 the same time to agree after the heal. Finality never changed the outcome of a partition. A 50/50
@@ -105,6 +122,7 @@ orphaned at the wake.
 | `attack_sweep.py` | Network faults against participation, what is lost before and during each fault: on every link (`data/sweeps/attack.json`), on a group (`attack_asym.json`), blocks withheld from a group (`attack_blocks.json`) |
 | `adv_sweep.py` | A minority voting for blocks it never releases, alone and with the blocks-only fault -> `data/sweeps/adv_withheld.json` |
 | `window_sweep.py` | The blocks-only fault into half of the online nodes under lock windows k = 2 to 8 -> `data/sweeps/window.json`, `window_long.json` |
+| `timed_sweep.py` | The blocks-only fault timed on a run of r slots without a proposer of the cut-off half -> `data/sweeps/timed.json` |
 | `jed.sbatch` | Runs one sweep on a node of the Jed cluster: `sbatch jed.sbatch adv_sweep.py --seeds 4` |
 | `build_explorer.sh`, `explorer_meta.json` | The explorer page, with an About card per tab |
 | `data/runs/` | The runs of the explorer tabs |
