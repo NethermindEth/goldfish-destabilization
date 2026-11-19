@@ -2,7 +2,8 @@
 # One sweep of this folder on a Jed node (EPFL SCITAS). Pass the sweep's command line:
 #   sbatch jed.sbatch adv_sweep.py --seeds 4
 # The script runs from the job's submit directory (simulator/goldilocks-ac on Jed), with the 72 cores
-# of one node; the sweeps size their process pools to the cores they see.
+# of one node; the sweeps size their process pools to the cores they see. A short limit starts sooner:
+# the sweeps take under 25 minutes; raise it with sbatch --time for a longer one.
 #SBATCH --job-name=goldilocks-ac
 #SBATCH --account=master
 #SBATCH --partition=academic
@@ -11,7 +12,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=72
 #SBATCH --mem=64G
-#SBATCH --time=02:00:00
+#SBATCH --time=00:45:00
 #SBATCH --output=slurm-%j.out
 set -euo pipefail
 PY="$HOME/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12"
