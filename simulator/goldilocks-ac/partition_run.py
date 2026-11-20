@@ -57,10 +57,15 @@ def add_world_args(p):
     p.add_argument("--no-forward", action="store_true",
                    help="NOT the spec: honest nodes do not forward what they accept (for comparison)")
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--confirmed-anchor", action="store_true",
+                   help="NOT the spec: with no live lock, the head walk starts from the last confirmed block")
+    p.add_argument("--strict-unlock", action="store_true",
+                   help="NOT the spec: a lock moves back only against a strict majority")
 
 
 def make_params(args):
-    return Params(n=args.validators, delta=args.delta_ms, delta_f=args.delta_ms, k=args.k, c=args.c, seed=args.seed)
+    return Params(n=args.validators, delta=args.delta_ms, delta_f=args.delta_ms, k=args.k, c=args.c, seed=args.seed,
+                  confirmed_anchor=args.confirmed_anchor, strict_unlock=args.strict_unlock)
 
 
 def main(argv=None):
