@@ -49,10 +49,11 @@ def find_run(P, owner, A, r):
 def run(job):
     f, a, kw, r, seed = job[:5]
     propose = job[5] if len(job) > 5 else False
+    over = job[6] if len(job) > 6 else {}  # Params overrides, e.g. {"strict_unlock": True}
     from model import BLOCKS, Params, Vote, make_block, prec
     from sim import Rule, Tracker, World
 
-    P = Params(n=VALIDATORS, seed=seed, k=kw)
+    P = Params(n=VALIDATORS, seed=seed, k=kw, **over)
     P.check()
     sm = P.slot_ms
     A = frozenset(range(a))
@@ -61,7 +62,7 @@ def run(job):
     side_a = sum(len(n.validators) for n in probe.nodes[:a])
     s0 = find_run(P, owner, A, r)
     row = {"f": f, "a": a, "side_a": side_a, "side_b": VALIDATORS - f - side_a, "k": kw, "r": r, "seed": seed,
-           "run_start": s0, "propose": propose}
+           "run_start": s0, "propose": propose, "params": over}
     if s0 is None:
         return row
     del probe
@@ -93,7 +94,8 @@ def run(job):
             if not prec(c, final):
                 (lost_pre if first < start else lost_during).add(c)
     row.update({"lost_pre": len(lost_pre), "lost_pre_first": min((BLOCKS[c].slot for c in lost_pre), default=None),
-                "lost_during": len(lost_during), "agree_end": len({n.head(w.t) for n in w.nodes}) == 1})
+                "lost_during": len(lost_during), "agree_end": len({n.head(w.t) for n in w.nodes}) == 1,
+                "conf_end": [tr.prev[n.id]["conf_slot"] for n in w.nodes]})
     return row
 
 

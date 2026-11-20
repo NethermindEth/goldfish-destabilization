@@ -72,6 +72,7 @@ class Params:
     delta_t: int = 8  # timeout delay in slots, >= x + c_F + k_F
     seed: int = 0
     lean_finality: bool = False  # accepted for the shared CLI; the live model has no such switch
+    strict_unlock: bool = False  # not in the spec: move a lock back only when a strict majority opposes it
 
     @property
     def q(self):
@@ -558,7 +559,10 @@ class AC:
             B = L.B
             if L.j < s:  # a lock of slot s or later keeps its place against these votes
                 chain = sorted((X for X in ANC[B] if X in phi.tree), key=lambda X: -DEPTH[X])
-                B = next((X for X in chain if 2 * len(opponents(X)) < self.P.n), phi.F)
+                if self.P.strict_unlock:  # a deviation for experiments; the spec keeps a lock only below n/2
+                    B = next((X for X in chain if 2 * len(opponents(X)) <= self.P.n), phi.F)
+                else:
+                    B = next((X for X in chain if 2 * len(opponents(X)) < self.P.n), phi.F)
                 if B != L.B:
                     self.log("lock_back", block=L.B, to=B, deadline=L.e, slot=s)
             new.add(Lock(B, L.j, L.f, L.e))  # keep the slot, the bit and the expiry
