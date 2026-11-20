@@ -73,6 +73,8 @@ class Params:
     seed: int = 0
     lean_finality: bool = False  # accepted for the shared CLI; the live model has no such switch
     strict_unlock: bool = False  # not in the spec: move a lock back only when a strict majority opposes it
+    confirmed_anchor: bool = False  # not in the spec: with no live lock, the head walk starts from the
+    # last confirmed block, which the unlock rule moves back like a lock, instead of from Φ.fc_root
 
     @property
     def q(self):
@@ -447,6 +449,7 @@ class AC:
         self.saved_confirmation = {}  # s -> block or None (⊥ when absent)
         self.locks = frozenset()  # {Lock(B, j, f, e)}
         self.latest_confirmed = GEN
+        self.sticky = GEN  # the last confirmed block as the unlock rule leaves it; read only with confirmed_anchor
         self.fg_reported = GEN
         self.voted_slot = -1
         self.restart_time = NEG_INF
@@ -536,7 +539,12 @@ class AC:
         return any(conflicts(C, L.B) for L in live)
 
     def get_anchor(self, phi, t):  # the deepest viable lock block, or Φ.fc_root
-        return deepest([L.B for L in self.live_locks(phi, t)] + [phi.fc_root])
+        live = [L.B for L in self.live_locks(phi, t)]
+        if not live and self.P.confirmed_anchor and self.sticky in phi.tree:
+            C = self.viable_ancestor(phi, self.sticky)
+            if prec(phi.fc_root, C):
+                return C
+        return deepest(live + [phi.fc_root])
 
     def fast_expiry(self, phi, t, s):  # the expiry of a new fast lock of slot s
         E = [L.e for L in self.live_locks(phi, t) if L.f and L.j < s]  # the live fast locks of earlier slots
@@ -554,15 +562,23 @@ class AC:
         def opponents(B):
             return eq | {v for v, H in sup_v if conflicts(H, B)}
 
+        def keeps(X):  # the spec keeps a lock on X while fewer than half of the validators oppose it
+            o = 2 * len(opponents(X))
+            return o <= self.P.n if self.P.strict_unlock else o < self.P.n
+
+        if self.P.confirmed_anchor and self.sticky in phi.tree:
+            chain = sorted((X for X in ANC[self.sticky] if X in phi.tree), key=lambda X: -DEPTH[X])
+            B = next((X for X in chain if keeps(X)), phi.F)
+            if B != self.sticky:
+                self.log("anchor_back", block=self.sticky, to=B, slot=s)
+                self.sticky = B
+
         new = set()
         for L in sorted(self.live_locks(phi, t)):  # sorted: the log order does not depend on hashing
             B = L.B
             if L.j < s:  # a lock of slot s or later keeps its place against these votes
                 chain = sorted((X for X in ANC[B] if X in phi.tree), key=lambda X: -DEPTH[X])
-                if self.P.strict_unlock:  # a deviation for experiments; the spec keeps a lock only below n/2
-                    B = next((X for X in chain if 2 * len(opponents(X)) <= self.P.n), phi.F)
-                else:
-                    B = next((X for X in chain if 2 * len(opponents(X)) < self.P.n), phi.F)
+                B = next((X for X in chain if keeps(X)), phi.F)
                 if B != L.B:
                     self.log("lock_back", block=L.B, to=B, deadline=L.e, slot=s)
             new.add(Lock(B, L.j, L.f, L.e))  # keep the slot, the bit and the expiry
@@ -599,6 +615,7 @@ class AC:
             if E in phi.tree and conflicts(E, C):
                 self.log("confirm_switch", old=E, new=C)
             self.latest_confirmed = C  # never back to an ancestor
+            self.sticky = C
 
     def _early_support(self, phi, s):
         votes = self.pool(s)  # the whole pool: it decides who equivocates
@@ -779,9 +796,9 @@ class AC:
         return C
 
     def restart(self, phi, t):  # ac_restart: keep the locks and the record, reset the rest
-        locks, record = self.locks, self.latest_confirmed
+        locks, record, sticky = self.locks, self.latest_confirmed, self.sticky
         self.__init__(self.P, self.local, self.log)
-        self.locks, self.latest_confirmed = locks, record
+        self.locks, self.latest_confirmed, self.sticky = locks, record, sticky
         self.restart_time = t
         for B in sorted(phi.tree - {GEN}, key=lambda r: (DEPTH[r], r)):  # parent order, siblings by root
             self.on_block(phi, t, BLOCKS[B])  # not joined: the two checks do nothing
