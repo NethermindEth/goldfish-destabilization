@@ -45,12 +45,26 @@ proposal. With 4 of 8 online the FG stalls at slot 38 and the rule of the availa
 exactly: a run of r >= k slots loses every block confirmed after slot 38 (up to 53), a shorter one
 loses nothing. No two nodes ever finalize conflicting blocks.
 
+**The confirmed anchor with the FG running** (`anchor_check.py`, on Jed: 2848 runs;
+`data/sweeps/anchor_check.json`). `Params.confirmed_anchor`, outside the spec, makes a node with no
+live lock start its head walk from its last confirmed block, which the unlock rule moves back like a
+lock; `../goldilocks-ac` shows that it closes the timed fault on the available chain alone. With the
+FG running, the timed fault of `timed_sweep.py` (8, 6 or 4 of 8 nodes online, k = 2, 4, 6, runs of 1
+to 8 slots, 32 schedules) loses nothing in any run: 0 of the 65 runs with 4 nodes online that lose
+up to 53 blocks under the spec. No run finalizes conflicting blocks, every run ends with the online
+nodes on one head, and finality ends at the same slot as under the spec in every run. Every named
+scenario of this folder and of `../goldilocks-ac` (partitions, sleep and rejoin, jitter; 8 schedules
+each, under the spec and with the change) gives the same reorgs, losses and recovery times in 270 of
+272 runs. The other 2 are the blocks-only fault into half of the online nodes without the FG, which
+loses 44 and 48 confirmed blocks under the spec and none with the change.
+
 | File | Contents |
 |---|---|
 | `model.py` | The protocol, under the spec's figure names |
 | `sim.py` | The driver of `../goldilocks/sim.py`; receipt handlers can send (forwarding, early votes) |
 | `partition_run.py`, `scenarios.py` | The CLI and the named scenarios of `../goldilocks`, on this model |
 | `timed_sweep.py` | The blocks-only fault timed on k slots proposed by one half, with the FG running -> `data/sweeps/timed.json` |
+| `anchor_check.py` | The confirmed anchor, outside the spec, in the timed fault with the FG and in every named scenario of both models -> `data/sweeps/anchor_check.json` |
 | `timeout_sweep.py` | How fast finality returns after a cut, against the FG timeout delay δ_t |
 | `build_explorer.sh`, `explorer_meta.json` | The explorer page of the live spec, with an About card per tab |
 | `data/runs/` | The runs of the explorer tabs |

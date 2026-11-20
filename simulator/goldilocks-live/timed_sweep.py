@@ -44,18 +44,20 @@ def find_run(P, owner, B, r):
 
 
 def run(job):
-    awake, kw, r, seed = job
+    awake, kw, r, seed = job[:4]
+    over = job[4] if len(job) > 4 else {}  # Params overrides, e.g. {"confirmed_anchor": True}
     from model import BLOCKS, Params, prec
     from sim import Tracker, World
 
-    P = Params(n=VALIDATORS, seed=seed, k=kw)
+    P = Params(n=VALIDATORS, seed=seed, k=kw, **over)
+    P.check()
     sm = P.slot_ms
     A = frozenset(range(awake // 2))
     B = frozenset(range(awake // 2, awake))
     sleep = {i: [(SLEEP_FROM * sm, 10 ** 9)] for i in range(awake, NODES)}
     w = World(P, NODES, sleep=sleep)
     s0 = find_run(P, w.node_of, B, r)
-    row = {"awake": awake, "k": kw, "r": r, "seed": seed, "run_start": s0}
+    row = {"awake": awake, "k": kw, "r": r, "seed": seed, "run_start": s0, "params": over}
     if s0 is None:
         return row
     start, stop = s0 * sm, (s0 + r) * sm
@@ -88,7 +90,8 @@ def run(job):
     lost_pre = {c for i in first for c, f in first[i].items() if f < s0 and not prec(c, final)}
     row.update({"lost_pre": len(lost_pre), "lost_pre_first": min((BLOCKS[c].slot for c in lost_pre), default=None),
                 "fin_at_fault": fin_at_fault, "fin_end": BLOCKS[w.nodes[0].fg.F].slot,
-                "fin_conflict": tr.fin_conflict, "agree_end": len({n.head(w.t) for n in w.nodes[:awake]}) == 1})
+                "fin_conflict": tr.fin_conflict, "agree_end": len({n.head(w.t) for n in w.nodes[:awake]}) == 1,
+                "conf_end": [BLOCKS[n.confirmed(w.t)].slot for n in w.nodes[:awake]]})
     return row
 
 
