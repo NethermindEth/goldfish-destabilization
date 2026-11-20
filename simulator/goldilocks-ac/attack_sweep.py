@@ -44,10 +44,12 @@ def run(job):
     """One run; imports in the worker, so each process has its own block registry."""
     kind, D, offset, awake, extra, seed = job[:6]
     k = job[6] if len(job) > 6 else None
+    over = job[7] if len(job) > 7 else {}  # Params overrides, e.g. {"confirmed_anchor": True}
     from model import BLOCKS, Params, prec
     from sim import Rule, Tracker, World
 
-    P = Params(n=VALIDATORS, seed=seed)
+    P = Params(n=VALIDATORS, seed=seed, **over)
+    P.check()
     sm = P.slot_ms
     a = START * sm + offset * P.delta
     everyone = frozenset(range(NODES))
@@ -93,7 +95,8 @@ def run(job):
         "lost_during": len(lost_during),
         "max_reorg": max((d for r in tr.reorgs.values() for _, d, _ in r), default=0),
         "recover": None if since is None else since - end_slot,
-        "agree_end": agree_end,
+        "agree_end": agree_end, "params": over,
+        "conf_end": [tr.prev[n.id]["conf_slot"] for n in w.nodes if tr.prev[n.id] is not None],
     }
 
 
