@@ -33,11 +33,24 @@ one tab each. It is the explorer of `../goldilocks` with the live spec's timelin
 time, optimistic confirmations, an FG attestation after any tick, no rounds, every lock with its expiry,
 and how long each node's newest fast lock lives (the graded fast locks). `bash build_explorer.sh` rebuilds the runs into `data/runs/` and the page.
 
+**The timed blocks-only fault with the FG running** (`timed_sweep.py`, on Jed: 2244 runs; 8, 6 or 4
+of 8 nodes online, the others asleep from slot 40; A is half of the online nodes; k = 2, 4, 6; runs
+of 1 to 8 slots proposed by B; 64 schedules; `data/sweeps/timed.json`). On the available chain alone
+this fault loses every block confirmed since genesis (`../goldilocks-ac`). Here, with 8 or 6 nodes
+online (2/3 of the stake or more), no run loses a confirmed block, at any k and run length. The
+fork-choice root is the latest justified block, one slot or so behind the confirmed tip, and FG
+attestations still flow during a blocks-only fault: they justify the last block A confirmed before
+the run, so when A's locks expire, it falls back to that block and loses only its own unconfirmed
+proposal. With 4 of 8 online the FG stalls at slot 38 and the rule of the available chain returns
+exactly: a run of r >= k slots loses every block confirmed after slot 38 (up to 53), a shorter one
+loses nothing. No two nodes ever finalize conflicting blocks.
+
 | File | Contents |
 |---|---|
 | `model.py` | The protocol, under the spec's figure names |
 | `sim.py` | The driver of `../goldilocks/sim.py`; receipt handlers can send (forwarding, early votes) |
 | `partition_run.py`, `scenarios.py` | The CLI and the named scenarios of `../goldilocks`, on this model |
+| `timed_sweep.py` | The blocks-only fault timed on k slots proposed by one half, with the FG running -> `data/sweeps/timed.json` |
 | `timeout_sweep.py` | How fast finality returns after a cut, against the FG timeout delay δ_t |
 | `build_explorer.sh`, `explorer_meta.json` | The explorer page of the live spec, with an About card per tab |
 | `data/runs/` | The runs of the explorer tabs |
