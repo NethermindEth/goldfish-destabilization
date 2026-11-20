@@ -1,0 +1,8234 @@
+{
+"rows": [
+{
+"k": 2,
+"seed": 0,
+"r": 1,
+"run_start": 69,
+"conf_before": [
+68
+],
+"expiry_before": [
+70
+],
+"new_conf_in_run": 70,
+"a_block_after": 71,
+"a_block_after_parent": 70,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 0,
+"r": 2,
+"run_start": 56,
+"conf_before": [
+55
+],
+"expiry_before": [
+57
+],
+"new_conf_in_run": null,
+"a_block_after": 58,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 58,
+"lost_pre": 55
+},
+{
+"k": 2,
+"seed": 0,
+"r": 3,
+"run_start": 129,
+"conf_before": [
+128
+],
+"expiry_before": [
+130
+],
+"new_conf_in_run": null,
+"a_block_after": 132,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 128
+},
+{
+"k": 2,
+"seed": 1,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 50,
+"a_block_after_parent": 49,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 1,
+"r": 2,
+"run_start": 54,
+"conf_before": [
+53
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": null,
+"a_block_after": 56,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 56,
+"lost_pre": 53
+},
+{
+"k": 2,
+"seed": 1,
+"r": 3,
+"run_start": 75,
+"conf_before": [
+74
+],
+"expiry_before": [
+76
+],
+"new_conf_in_run": null,
+"a_block_after": 78,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 74
+},
+{
+"k": 2,
+"seed": 2,
+"r": 1,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": 54,
+"a_block_after": 55,
+"a_block_after_parent": 54,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 2,
+"r": 2,
+"run_start": 56,
+"conf_before": [
+55
+],
+"expiry_before": [
+57
+],
+"new_conf_in_run": null,
+"a_block_after": 58,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 58,
+"lost_pre": 55
+},
+{
+"k": 2,
+"seed": 2,
+"r": 3,
+"run_start": 49,
+"conf_before": [
+48
+],
+"expiry_before": [
+50
+],
+"new_conf_in_run": null,
+"a_block_after": 52,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 48
+},
+{
+"k": 2,
+"seed": 3,
+"r": 1,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": 51,
+"a_block_after": 52,
+"a_block_after_parent": 51,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 3,
+"r": 2,
+"run_start": 68,
+"conf_before": [
+67
+],
+"expiry_before": [
+69
+],
+"new_conf_in_run": null,
+"a_block_after": 70,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 70,
+"lost_pre": 67
+},
+{
+"k": 2,
+"seed": 3,
+"r": 3,
+"run_start": null
+},
+{
+"k": 2,
+"seed": 4,
+"r": 1,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": 53,
+"a_block_after": 55,
+"a_block_after_parent": 54,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 4,
+"r": 2,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": null,
+"a_block_after": 50,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 50,
+"lost_pre": 47
+},
+{
+"k": 2,
+"seed": 4,
+"r": 3,
+"run_start": 98,
+"conf_before": [
+97
+],
+"expiry_before": [
+99
+],
+"new_conf_in_run": null,
+"a_block_after": 101,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 97
+},
+{
+"k": 2,
+"seed": 5,
+"r": 1,
+"run_start": 49,
+"conf_before": [
+48
+],
+"expiry_before": [
+50
+],
+"new_conf_in_run": 50,
+"a_block_after": 51,
+"a_block_after_parent": 50,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 5,
+"r": 2,
+"run_start": 54,
+"conf_before": [
+53
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": null,
+"a_block_after": 56,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 56,
+"lost_pre": 53
+},
+{
+"k": 2,
+"seed": 5,
+"r": 3,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+58
+],
+"new_conf_in_run": null,
+"a_block_after": 60,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 56
+},
+{
+"k": 2,
+"seed": 6,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 51,
+"a_block_after_parent": 50,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 6,
+"r": 2,
+"run_start": 58,
+"conf_before": [
+57
+],
+"expiry_before": [
+59
+],
+"new_conf_in_run": null,
+"a_block_after": 60,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 60,
+"lost_pre": 57
+},
+{
+"k": 2,
+"seed": 6,
+"r": 3,
+"run_start": 136,
+"conf_before": [
+135
+],
+"expiry_before": [
+137
+],
+"new_conf_in_run": null,
+"a_block_after": 139,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 135
+},
+{
+"k": 2,
+"seed": 7,
+"r": 1,
+"run_start": 54,
+"conf_before": [
+53
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": 55,
+"a_block_after": 56,
+"a_block_after_parent": 55,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 7,
+"r": 2,
+"run_start": 95,
+"conf_before": [
+94
+],
+"expiry_before": [
+96
+],
+"new_conf_in_run": null,
+"a_block_after": 97,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 97,
+"lost_pre": 94
+},
+{
+"k": 2,
+"seed": 7,
+"r": 3,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": null,
+"a_block_after": 53,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 49
+},
+{
+"k": 2,
+"seed": 8,
+"r": 1,
+"run_start": 61,
+"conf_before": [
+60
+],
+"expiry_before": [
+62
+],
+"new_conf_in_run": 62,
+"a_block_after": 66,
+"a_block_after_parent": 65,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 8,
+"r": 2,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": null,
+"a_block_after": 52,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 52,
+"lost_pre": 49
+},
+{
+"k": 2,
+"seed": 8,
+"r": 3,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+64
+],
+"new_conf_in_run": null,
+"a_block_after": 66,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 62
+},
+{
+"k": 2,
+"seed": 9,
+"r": 1,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+64
+],
+"new_conf_in_run": 64,
+"a_block_after": 66,
+"a_block_after_parent": 65,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 9,
+"r": 2,
+"run_start": 77,
+"conf_before": [
+76
+],
+"expiry_before": [
+78
+],
+"new_conf_in_run": null,
+"a_block_after": 79,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 79,
+"lost_pre": 76
+},
+{
+"k": 2,
+"seed": 9,
+"r": 3,
+"run_start": 83,
+"conf_before": [
+82
+],
+"expiry_before": [
+84
+],
+"new_conf_in_run": null,
+"a_block_after": 86,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 82
+},
+{
+"k": 2,
+"seed": 10,
+"r": 1,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": 53,
+"a_block_after": 56,
+"a_block_after_parent": 55,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 10,
+"r": 2,
+"run_start": 49,
+"conf_before": [
+48
+],
+"expiry_before": [
+50
+],
+"new_conf_in_run": null,
+"a_block_after": 51,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 51,
+"lost_pre": 48
+},
+{
+"k": 2,
+"seed": 10,
+"r": 3,
+"run_start": 90,
+"conf_before": [
+89
+],
+"expiry_before": [
+91
+],
+"new_conf_in_run": null,
+"a_block_after": 93,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 89
+},
+{
+"k": 2,
+"seed": 11,
+"r": 1,
+"run_start": 58,
+"conf_before": [
+57
+],
+"expiry_before": [
+59
+],
+"new_conf_in_run": 59,
+"a_block_after": 60,
+"a_block_after_parent": 59,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 11,
+"r": 2,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+52
+],
+"new_conf_in_run": null,
+"a_block_after": 53,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 53,
+"lost_pre": 50
+},
+{
+"k": 2,
+"seed": 11,
+"r": 3,
+"run_start": 74,
+"conf_before": [
+73
+],
+"expiry_before": [
+75
+],
+"new_conf_in_run": null,
+"a_block_after": 77,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 73
+},
+{
+"k": 2,
+"seed": 12,
+"r": 1,
+"run_start": 67,
+"conf_before": [
+66
+],
+"expiry_before": [
+68
+],
+"new_conf_in_run": 68,
+"a_block_after": 69,
+"a_block_after_parent": 68,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 12,
+"r": 2,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": null,
+"a_block_after": 52,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 52,
+"lost_pre": 49
+},
+{
+"k": 2,
+"seed": 12,
+"r": 3,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": null,
+"a_block_after": 56,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 52
+},
+{
+"k": 2,
+"seed": 13,
+"r": 1,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+64
+],
+"new_conf_in_run": 64,
+"a_block_after": 65,
+"a_block_after_parent": 64,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 13,
+"r": 2,
+"run_start": 56,
+"conf_before": [
+55
+],
+"expiry_before": [
+57
+],
+"new_conf_in_run": null,
+"a_block_after": 58,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 58,
+"lost_pre": 55
+},
+{
+"k": 2,
+"seed": 13,
+"r": 3,
+"run_start": 73,
+"conf_before": [
+72
+],
+"expiry_before": [
+74
+],
+"new_conf_in_run": null,
+"a_block_after": 76,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 72
+},
+{
+"k": 2,
+"seed": 14,
+"r": 1,
+"run_start": 55,
+"conf_before": [
+54
+],
+"expiry_before": [
+56
+],
+"new_conf_in_run": 56,
+"a_block_after": 63,
+"a_block_after_parent": 62,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 14,
+"r": 2,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": null,
+"a_block_after": 50,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 50,
+"lost_pre": 47
+},
+{
+"k": 2,
+"seed": 14,
+"r": 3,
+"run_start": 73,
+"conf_before": [
+72
+],
+"expiry_before": [
+74
+],
+"new_conf_in_run": null,
+"a_block_after": 76,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 72
+},
+{
+"k": 2,
+"seed": 15,
+"r": 1,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": 54,
+"a_block_after": 55,
+"a_block_after_parent": 54,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 15,
+"r": 2,
+"run_start": 95,
+"conf_before": [
+94
+],
+"expiry_before": [
+96
+],
+"new_conf_in_run": null,
+"a_block_after": 97,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 97,
+"lost_pre": 94
+},
+{
+"k": 2,
+"seed": 15,
+"r": 3,
+"run_start": 68,
+"conf_before": [
+67
+],
+"expiry_before": [
+69
+],
+"new_conf_in_run": null,
+"a_block_after": 71,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 67
+},
+{
+"k": 2,
+"seed": 16,
+"r": 1,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": 51,
+"a_block_after": 53,
+"a_block_after_parent": 52,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 16,
+"r": 2,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+58
+],
+"new_conf_in_run": null,
+"a_block_after": 59,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 59,
+"lost_pre": 56
+},
+{
+"k": 2,
+"seed": 16,
+"r": 3,
+"run_start": 78,
+"conf_before": [
+77
+],
+"expiry_before": [
+79
+],
+"new_conf_in_run": null,
+"a_block_after": 81,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 77
+},
+{
+"k": 2,
+"seed": 17,
+"r": 1,
+"run_start": 49,
+"conf_before": [
+48
+],
+"expiry_before": [
+50
+],
+"new_conf_in_run": 50,
+"a_block_after": 52,
+"a_block_after_parent": 51,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 17,
+"r": 2,
+"run_start": 56,
+"conf_before": [
+55
+],
+"expiry_before": [
+57
+],
+"new_conf_in_run": null,
+"a_block_after": 58,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 58,
+"lost_pre": 55
+},
+{
+"k": 2,
+"seed": 17,
+"r": 3,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+64
+],
+"new_conf_in_run": null,
+"a_block_after": 66,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 62
+},
+{
+"k": 2,
+"seed": 18,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 55,
+"a_block_after_parent": 54,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 18,
+"r": 2,
+"run_start": 75,
+"conf_before": [
+74
+],
+"expiry_before": [
+76
+],
+"new_conf_in_run": null,
+"a_block_after": 77,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 77,
+"lost_pre": 74
+},
+{
+"k": 2,
+"seed": 18,
+"r": 3,
+"run_start": null
+},
+{
+"k": 2,
+"seed": 19,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 50,
+"a_block_after_parent": 49,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 19,
+"r": 2,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": null,
+"a_block_after": 55,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 55,
+"lost_pre": 52
+},
+{
+"k": 2,
+"seed": 19,
+"r": 3,
+"run_start": 102,
+"conf_before": [
+101
+],
+"expiry_before": [
+103
+],
+"new_conf_in_run": null,
+"a_block_after": 105,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 101
+},
+{
+"k": 2,
+"seed": 20,
+"r": 1,
+"run_start": 55,
+"conf_before": [
+54
+],
+"expiry_before": [
+56
+],
+"new_conf_in_run": 56,
+"a_block_after": 57,
+"a_block_after_parent": 56,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 20,
+"r": 2,
+"run_start": 61,
+"conf_before": [
+60
+],
+"expiry_before": [
+62
+],
+"new_conf_in_run": null,
+"a_block_after": 63,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 63,
+"lost_pre": 60
+},
+{
+"k": 2,
+"seed": 20,
+"r": 3,
+"run_start": 78,
+"conf_before": [
+77
+],
+"expiry_before": [
+79
+],
+"new_conf_in_run": null,
+"a_block_after": 81,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 77
+},
+{
+"k": 2,
+"seed": 21,
+"r": 1,
+"run_start": 72,
+"conf_before": [
+71
+],
+"expiry_before": [
+73
+],
+"new_conf_in_run": 73,
+"a_block_after": 75,
+"a_block_after_parent": 74,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 21,
+"r": 2,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": null,
+"a_block_after": 50,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 50,
+"lost_pre": 47
+},
+{
+"k": 2,
+"seed": 21,
+"r": 3,
+"run_start": 68,
+"conf_before": [
+67
+],
+"expiry_before": [
+69
+],
+"new_conf_in_run": null,
+"a_block_after": 71,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 67
+},
+{
+"k": 2,
+"seed": 22,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 55,
+"a_block_after_parent": 54,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 22,
+"r": 2,
+"run_start": 60,
+"conf_before": [
+59
+],
+"expiry_before": [
+61
+],
+"new_conf_in_run": null,
+"a_block_after": 62,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 62,
+"lost_pre": 59
+},
+{
+"k": 2,
+"seed": 22,
+"r": 3,
+"run_start": 77,
+"conf_before": [
+76
+],
+"expiry_before": [
+78
+],
+"new_conf_in_run": null,
+"a_block_after": 80,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 76
+},
+{
+"k": 2,
+"seed": 23,
+"r": 1,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": 53,
+"a_block_after": 55,
+"a_block_after_parent": 54,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 23,
+"r": 2,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+58
+],
+"new_conf_in_run": null,
+"a_block_after": 59,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 59,
+"lost_pre": 56
+},
+{
+"k": 2,
+"seed": 23,
+"r": 3,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": null,
+"a_block_after": 51,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 47
+},
+{
+"k": 2,
+"seed": 24,
+"r": 1,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": 51,
+"a_block_after": 52,
+"a_block_after_parent": 51,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 24,
+"r": 2,
+"run_start": 73,
+"conf_before": [
+72
+],
+"expiry_before": [
+74
+],
+"new_conf_in_run": null,
+"a_block_after": 75,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 75,
+"lost_pre": 72
+},
+{
+"k": 2,
+"seed": 24,
+"r": 3,
+"run_start": 110,
+"conf_before": [
+109
+],
+"expiry_before": [
+111
+],
+"new_conf_in_run": null,
+"a_block_after": 113,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 109
+},
+{
+"k": 2,
+"seed": 25,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 50,
+"a_block_after_parent": 49,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 25,
+"r": 2,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": null,
+"a_block_after": 55,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 55,
+"lost_pre": 52
+},
+{
+"k": 2,
+"seed": 25,
+"r": 3,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+58
+],
+"new_conf_in_run": null,
+"a_block_after": 60,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 56
+},
+{
+"k": 2,
+"seed": 26,
+"r": 1,
+"run_start": 58,
+"conf_before": [
+57
+],
+"expiry_before": [
+59
+],
+"new_conf_in_run": 59,
+"a_block_after": 60,
+"a_block_after_parent": 59,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 26,
+"r": 2,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": null,
+"a_block_after": 50,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 50,
+"lost_pre": 47
+},
+{
+"k": 2,
+"seed": 26,
+"r": 3,
+"run_start": 64,
+"conf_before": [
+63
+],
+"expiry_before": [
+65
+],
+"new_conf_in_run": null,
+"a_block_after": 67,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 63
+},
+{
+"k": 2,
+"seed": 27,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 50,
+"a_block_after_parent": 49,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 27,
+"r": 2,
+"run_start": 61,
+"conf_before": [
+60
+],
+"expiry_before": [
+62
+],
+"new_conf_in_run": null,
+"a_block_after": 63,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 63,
+"lost_pre": 60
+},
+{
+"k": 2,
+"seed": 27,
+"r": 3,
+"run_start": 69,
+"conf_before": [
+68
+],
+"expiry_before": [
+70
+],
+"new_conf_in_run": null,
+"a_block_after": 72,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 68
+},
+{
+"k": 2,
+"seed": 28,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 50,
+"a_block_after_parent": 49,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 28,
+"r": 2,
+"run_start": 62,
+"conf_before": [
+61
+],
+"expiry_before": [
+63
+],
+"new_conf_in_run": null,
+"a_block_after": 64,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 64,
+"lost_pre": 61
+},
+{
+"k": 2,
+"seed": 28,
+"r": 3,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": null,
+"a_block_after": 56,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 52
+},
+{
+"k": 2,
+"seed": 29,
+"r": 1,
+"run_start": 54,
+"conf_before": [
+53
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": 55,
+"a_block_after": 56,
+"a_block_after_parent": 55,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 29,
+"r": 2,
+"run_start": 49,
+"conf_before": [
+48
+],
+"expiry_before": [
+50
+],
+"new_conf_in_run": null,
+"a_block_after": 51,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 51,
+"lost_pre": 48
+},
+{
+"k": 2,
+"seed": 29,
+"r": 3,
+"run_start": 88,
+"conf_before": [
+87
+],
+"expiry_before": [
+89
+],
+"new_conf_in_run": null,
+"a_block_after": 91,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 87
+},
+{
+"k": 2,
+"seed": 30,
+"r": 1,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": 51,
+"a_block_after": 52,
+"a_block_after_parent": 51,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 30,
+"r": 2,
+"run_start": 102,
+"conf_before": [
+101
+],
+"expiry_before": [
+103
+],
+"new_conf_in_run": null,
+"a_block_after": 104,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 104,
+"lost_pre": 101
+},
+{
+"k": 2,
+"seed": 30,
+"r": 3,
+"run_start": 80,
+"conf_before": [
+79
+],
+"expiry_before": [
+81
+],
+"new_conf_in_run": null,
+"a_block_after": 83,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 79
+},
+{
+"k": 2,
+"seed": 31,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 50,
+"a_block_after_parent": 49,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 31,
+"r": 2,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": null,
+"a_block_after": 55,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 55,
+"lost_pre": 52
+},
+{
+"k": 2,
+"seed": 31,
+"r": 3,
+"run_start": 68,
+"conf_before": [
+67
+],
+"expiry_before": [
+69
+],
+"new_conf_in_run": null,
+"a_block_after": 71,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 67
+},
+{
+"k": 2,
+"seed": 32,
+"r": 1,
+"run_start": 60,
+"conf_before": [
+59
+],
+"expiry_before": [
+61
+],
+"new_conf_in_run": 61,
+"a_block_after": 62,
+"a_block_after_parent": 61,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 32,
+"r": 2,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+64
+],
+"new_conf_in_run": null,
+"a_block_after": 65,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 65,
+"lost_pre": 62
+},
+{
+"k": 2,
+"seed": 32,
+"r": 3,
+"run_start": 85,
+"conf_before": [
+84
+],
+"expiry_before": [
+86
+],
+"new_conf_in_run": null,
+"a_block_after": 88,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 84
+},
+{
+"k": 2,
+"seed": 33,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 54,
+"a_block_after_parent": 53,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 33,
+"r": 2,
+"run_start": 62,
+"conf_before": [
+61
+],
+"expiry_before": [
+63
+],
+"new_conf_in_run": null,
+"a_block_after": 64,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 64,
+"lost_pre": 61
+},
+{
+"k": 2,
+"seed": 33,
+"r": 3,
+"run_start": 73,
+"conf_before": [
+72
+],
+"expiry_before": [
+74
+],
+"new_conf_in_run": null,
+"a_block_after": 76,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 72
+},
+{
+"k": 2,
+"seed": 34,
+"r": 1,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": 51,
+"a_block_after": 52,
+"a_block_after_parent": 51,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 34,
+"r": 2,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": null,
+"a_block_after": 55,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 55,
+"lost_pre": 52
+},
+{
+"k": 2,
+"seed": 34,
+"r": 3,
+"run_start": 100,
+"conf_before": [
+99
+],
+"expiry_before": [
+101
+],
+"new_conf_in_run": null,
+"a_block_after": 103,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 99
+},
+{
+"k": 2,
+"seed": 35,
+"r": 1,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+52
+],
+"new_conf_in_run": 52,
+"a_block_after": 54,
+"a_block_after_parent": 53,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 35,
+"r": 2,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": null,
+"a_block_after": 50,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 50,
+"lost_pre": 47
+},
+{
+"k": 2,
+"seed": 35,
+"r": 3,
+"run_start": 67,
+"conf_before": [
+66
+],
+"expiry_before": [
+68
+],
+"new_conf_in_run": null,
+"a_block_after": 70,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 66
+},
+{
+"k": 2,
+"seed": 36,
+"r": 1,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": 53,
+"a_block_after": 55,
+"a_block_after_parent": 54,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 36,
+"r": 2,
+"run_start": 66,
+"conf_before": [
+65
+],
+"expiry_before": [
+67
+],
+"new_conf_in_run": null,
+"a_block_after": 68,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 68,
+"lost_pre": 65
+},
+{
+"k": 2,
+"seed": 36,
+"r": 3,
+"run_start": 84,
+"conf_before": [
+83
+],
+"expiry_before": [
+85
+],
+"new_conf_in_run": null,
+"a_block_after": 87,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 83
+},
+{
+"k": 2,
+"seed": 37,
+"r": 1,
+"run_start": 60,
+"conf_before": [
+59
+],
+"expiry_before": [
+61
+],
+"new_conf_in_run": 61,
+"a_block_after": 64,
+"a_block_after_parent": 63,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 37,
+"r": 2,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": null,
+"a_block_after": 52,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 52,
+"lost_pre": 49
+},
+{
+"k": 2,
+"seed": 37,
+"r": 3,
+"run_start": 65,
+"conf_before": [
+64
+],
+"expiry_before": [
+66
+],
+"new_conf_in_run": null,
+"a_block_after": 68,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 64
+},
+{
+"k": 2,
+"seed": 38,
+"r": 1,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": 53,
+"a_block_after": 54,
+"a_block_after_parent": 53,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 38,
+"r": 2,
+"run_start": 62,
+"conf_before": [
+61
+],
+"expiry_before": [
+63
+],
+"new_conf_in_run": null,
+"a_block_after": 64,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 64,
+"lost_pre": 61
+},
+{
+"k": 2,
+"seed": 38,
+"r": 3,
+"run_start": 81,
+"conf_before": [
+80
+],
+"expiry_before": [
+82
+],
+"new_conf_in_run": null,
+"a_block_after": 84,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 80
+},
+{
+"k": 2,
+"seed": 39,
+"r": 1,
+"run_start": 56,
+"conf_before": [
+55
+],
+"expiry_before": [
+57
+],
+"new_conf_in_run": 57,
+"a_block_after": 58,
+"a_block_after_parent": 57,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 39,
+"r": 2,
+"run_start": 70,
+"conf_before": [
+69
+],
+"expiry_before": [
+71
+],
+"new_conf_in_run": null,
+"a_block_after": 72,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 72,
+"lost_pre": 69
+},
+{
+"k": 2,
+"seed": 39,
+"r": 3,
+"run_start": 59,
+"conf_before": [
+58
+],
+"expiry_before": [
+60
+],
+"new_conf_in_run": null,
+"a_block_after": 62,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 58
+},
+{
+"k": 2,
+"seed": 40,
+"r": 1,
+"run_start": 49,
+"conf_before": [
+48
+],
+"expiry_before": [
+50
+],
+"new_conf_in_run": 50,
+"a_block_after": 53,
+"a_block_after_parent": 52,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 40,
+"r": 2,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+52
+],
+"new_conf_in_run": null,
+"a_block_after": 53,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 53,
+"lost_pre": 50
+},
+{
+"k": 2,
+"seed": 40,
+"r": 3,
+"run_start": 67,
+"conf_before": [
+66
+],
+"expiry_before": [
+68
+],
+"new_conf_in_run": null,
+"a_block_after": 70,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 66
+},
+{
+"k": 2,
+"seed": 41,
+"r": 1,
+"run_start": 55,
+"conf_before": [
+54
+],
+"expiry_before": [
+56
+],
+"new_conf_in_run": 56,
+"a_block_after": 58,
+"a_block_after_parent": 57,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 41,
+"r": 2,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": null,
+"a_block_after": 54,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 54,
+"lost_pre": 51
+},
+{
+"k": 2,
+"seed": 41,
+"r": 3,
+"run_start": 59,
+"conf_before": [
+58
+],
+"expiry_before": [
+60
+],
+"new_conf_in_run": null,
+"a_block_after": 62,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 58
+},
+{
+"k": 2,
+"seed": 42,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 50,
+"a_block_after_parent": 49,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 42,
+"r": 2,
+"run_start": 89,
+"conf_before": [
+88
+],
+"expiry_before": [
+90
+],
+"new_conf_in_run": null,
+"a_block_after": 91,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 91,
+"lost_pre": 88
+},
+{
+"k": 2,
+"seed": 42,
+"r": 3,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+52
+],
+"new_conf_in_run": null,
+"a_block_after": 54,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 50
+},
+{
+"k": 2,
+"seed": 43,
+"r": 1,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": 54,
+"a_block_after": 55,
+"a_block_after_parent": 54,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 43,
+"r": 2,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": null,
+"a_block_after": 52,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 52,
+"lost_pre": 49
+},
+{
+"k": 2,
+"seed": 43,
+"r": 3,
+"run_start": 58,
+"conf_before": [
+57
+],
+"expiry_before": [
+59
+],
+"new_conf_in_run": null,
+"a_block_after": 61,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 57
+},
+{
+"k": 2,
+"seed": 44,
+"r": 1,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": 53,
+"a_block_after": 54,
+"a_block_after_parent": 53,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 44,
+"r": 2,
+"run_start": 55,
+"conf_before": [
+54
+],
+"expiry_before": [
+56
+],
+"new_conf_in_run": null,
+"a_block_after": 57,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 57,
+"lost_pre": 54
+},
+{
+"k": 2,
+"seed": 44,
+"r": 3,
+"run_start": 60,
+"conf_before": [
+59
+],
+"expiry_before": [
+61
+],
+"new_conf_in_run": null,
+"a_block_after": 63,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 59
+},
+{
+"k": 2,
+"seed": 45,
+"r": 1,
+"run_start": 56,
+"conf_before": [
+55
+],
+"expiry_before": [
+57
+],
+"new_conf_in_run": 57,
+"a_block_after": 59,
+"a_block_after_parent": 58,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 45,
+"r": 2,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": null,
+"a_block_after": 50,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 50,
+"lost_pre": 47
+},
+{
+"k": 2,
+"seed": 45,
+"r": 3,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": null,
+"a_block_after": 55,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 51
+},
+{
+"k": 2,
+"seed": 46,
+"r": 1,
+"run_start": 49,
+"conf_before": [
+48
+],
+"expiry_before": [
+50
+],
+"new_conf_in_run": 50,
+"a_block_after": 51,
+"a_block_after_parent": 50,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 46,
+"r": 2,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": null,
+"a_block_after": 54,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 54,
+"lost_pre": 51
+},
+{
+"k": 2,
+"seed": 46,
+"r": 3,
+"run_start": 113,
+"conf_before": [
+112
+],
+"expiry_before": [
+114
+],
+"new_conf_in_run": null,
+"a_block_after": 116,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 112
+},
+{
+"k": 2,
+"seed": 47,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 55,
+"a_block_after_parent": 54,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 47,
+"r": 2,
+"run_start": 70,
+"conf_before": [
+69
+],
+"expiry_before": [
+71
+],
+"new_conf_in_run": null,
+"a_block_after": 72,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 72,
+"lost_pre": 69
+},
+{
+"k": 2,
+"seed": 47,
+"r": 3,
+"run_start": 65,
+"conf_before": [
+64
+],
+"expiry_before": [
+66
+],
+"new_conf_in_run": null,
+"a_block_after": 68,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 64
+},
+{
+"k": 2,
+"seed": 48,
+"r": 1,
+"run_start": 66,
+"conf_before": [
+65
+],
+"expiry_before": [
+67
+],
+"new_conf_in_run": 67,
+"a_block_after": 68,
+"a_block_after_parent": 67,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 48,
+"r": 2,
+"run_start": 54,
+"conf_before": [
+53
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": null,
+"a_block_after": 56,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 56,
+"lost_pre": 53
+},
+{
+"k": 2,
+"seed": 48,
+"r": 3,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": null,
+"a_block_after": 53,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 49
+},
+{
+"k": 2,
+"seed": 49,
+"r": 1,
+"run_start": 55,
+"conf_before": [
+54
+],
+"expiry_before": [
+56
+],
+"new_conf_in_run": 56,
+"a_block_after": 60,
+"a_block_after_parent": 59,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 49,
+"r": 2,
+"run_start": 159,
+"conf_before": [
+158
+],
+"expiry_before": [
+160
+],
+"new_conf_in_run": null,
+"a_block_after": 161,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 161,
+"lost_pre": 158
+},
+{
+"k": 2,
+"seed": 49,
+"r": 3,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+58
+],
+"new_conf_in_run": null,
+"a_block_after": 60,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 56
+},
+{
+"k": 2,
+"seed": 50,
+"r": 1,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": 51,
+"a_block_after": 52,
+"a_block_after_parent": 51,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 50,
+"r": 2,
+"run_start": 83,
+"conf_before": [
+82
+],
+"expiry_before": [
+84
+],
+"new_conf_in_run": null,
+"a_block_after": 85,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 85,
+"lost_pre": 82
+},
+{
+"k": 2,
+"seed": 50,
+"r": 3,
+"run_start": 78,
+"conf_before": [
+77
+],
+"expiry_before": [
+79
+],
+"new_conf_in_run": null,
+"a_block_after": 81,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 77
+},
+{
+"k": 2,
+"seed": 51,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 50,
+"a_block_after_parent": 49,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 51,
+"r": 2,
+"run_start": 88,
+"conf_before": [
+87
+],
+"expiry_before": [
+89
+],
+"new_conf_in_run": null,
+"a_block_after": 90,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 90,
+"lost_pre": 87
+},
+{
+"k": 2,
+"seed": 51,
+"r": 3,
+"run_start": 59,
+"conf_before": [
+58
+],
+"expiry_before": [
+60
+],
+"new_conf_in_run": null,
+"a_block_after": 62,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 58
+},
+{
+"k": 2,
+"seed": 52,
+"r": 1,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+52
+],
+"new_conf_in_run": 52,
+"a_block_after": 54,
+"a_block_after_parent": 53,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 52,
+"r": 2,
+"run_start": 56,
+"conf_before": [
+55
+],
+"expiry_before": [
+57
+],
+"new_conf_in_run": null,
+"a_block_after": 58,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 58,
+"lost_pre": 55
+},
+{
+"k": 2,
+"seed": 52,
+"r": 3,
+"run_start": 73,
+"conf_before": [
+72
+],
+"expiry_before": [
+74
+],
+"new_conf_in_run": null,
+"a_block_after": 76,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 72
+},
+{
+"k": 2,
+"seed": 53,
+"r": 1,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+52
+],
+"new_conf_in_run": 52,
+"a_block_after": 55,
+"a_block_after_parent": 54,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 53,
+"r": 2,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": null,
+"a_block_after": 50,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 50,
+"lost_pre": 47
+},
+{
+"k": 2,
+"seed": 53,
+"r": 3,
+"run_start": 91,
+"conf_before": [
+90
+],
+"expiry_before": [
+92
+],
+"new_conf_in_run": null,
+"a_block_after": 94,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 90
+},
+{
+"k": 2,
+"seed": 54,
+"r": 1,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": 53,
+"a_block_after": 54,
+"a_block_after_parent": 53,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 54,
+"r": 2,
+"run_start": 69,
+"conf_before": [
+68
+],
+"expiry_before": [
+70
+],
+"new_conf_in_run": null,
+"a_block_after": 71,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 71,
+"lost_pre": 68
+},
+{
+"k": 2,
+"seed": 54,
+"r": 3,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+64
+],
+"new_conf_in_run": null,
+"a_block_after": 66,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 62
+},
+{
+"k": 2,
+"seed": 55,
+"r": 1,
+"run_start": 54,
+"conf_before": [
+53
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": 55,
+"a_block_after": 56,
+"a_block_after_parent": 55,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 55,
+"r": 2,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+58
+],
+"new_conf_in_run": null,
+"a_block_after": 59,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 59,
+"lost_pre": 56
+},
+{
+"k": 2,
+"seed": 55,
+"r": 3,
+"run_start": 139,
+"conf_before": [
+138
+],
+"expiry_before": [
+140
+],
+"new_conf_in_run": null,
+"a_block_after": 142,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 138
+},
+{
+"k": 2,
+"seed": 56,
+"r": 1,
+"run_start": 61,
+"conf_before": [
+60
+],
+"expiry_before": [
+62
+],
+"new_conf_in_run": 62,
+"a_block_after": 64,
+"a_block_after_parent": 63,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 56,
+"r": 2,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": null,
+"a_block_after": 52,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 52,
+"lost_pre": 49
+},
+{
+"k": 2,
+"seed": 56,
+"r": 3,
+"run_start": 74,
+"conf_before": [
+73
+],
+"expiry_before": [
+75
+],
+"new_conf_in_run": null,
+"a_block_after": 77,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 73
+},
+{
+"k": 2,
+"seed": 57,
+"r": 1,
+"run_start": 64,
+"conf_before": [
+63
+],
+"expiry_before": [
+65
+],
+"new_conf_in_run": 65,
+"a_block_after": 66,
+"a_block_after_parent": 65,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 57,
+"r": 2,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": null,
+"a_block_after": 50,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 50,
+"lost_pre": 47
+},
+{
+"k": 2,
+"seed": 57,
+"r": 3,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+52
+],
+"new_conf_in_run": null,
+"a_block_after": 54,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 50
+},
+{
+"k": 2,
+"seed": 58,
+"r": 1,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+52
+],
+"new_conf_in_run": 52,
+"a_block_after": 54,
+"a_block_after_parent": 53,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 58,
+"r": 2,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": null,
+"a_block_after": 50,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 50,
+"lost_pre": 47
+},
+{
+"k": 2,
+"seed": 58,
+"r": 3,
+"run_start": 131,
+"conf_before": [
+130
+],
+"expiry_before": [
+132
+],
+"new_conf_in_run": null,
+"a_block_after": 134,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 130
+},
+{
+"k": 2,
+"seed": 59,
+"r": 1,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": 49,
+"a_block_after": 51,
+"a_block_after_parent": 50,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 59,
+"r": 2,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+64
+],
+"new_conf_in_run": null,
+"a_block_after": 65,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 65,
+"lost_pre": 62
+},
+{
+"k": 2,
+"seed": 59,
+"r": 3,
+"run_start": 80,
+"conf_before": [
+79
+],
+"expiry_before": [
+81
+],
+"new_conf_in_run": null,
+"a_block_after": 83,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 79
+},
+{
+"k": 2,
+"seed": 60,
+"r": 1,
+"run_start": 54,
+"conf_before": [
+53
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": 55,
+"a_block_after": 57,
+"a_block_after_parent": 56,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 60,
+"r": 2,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": null,
+"a_block_after": 52,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 52,
+"lost_pre": 49
+},
+{
+"k": 2,
+"seed": 60,
+"r": 3,
+"run_start": 58,
+"conf_before": [
+57
+],
+"expiry_before": [
+59
+],
+"new_conf_in_run": null,
+"a_block_after": 61,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 57
+},
+{
+"k": 2,
+"seed": 61,
+"r": 1,
+"run_start": 105,
+"conf_before": [
+104
+],
+"expiry_before": [
+106
+],
+"new_conf_in_run": 106,
+"a_block_after": 108,
+"a_block_after_parent": 107,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 61,
+"r": 2,
+"run_start": 49,
+"conf_before": [
+48
+],
+"expiry_before": [
+50
+],
+"new_conf_in_run": null,
+"a_block_after": 51,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 51,
+"lost_pre": 48
+},
+{
+"k": 2,
+"seed": 61,
+"r": 3,
+"run_start": 55,
+"conf_before": [
+54
+],
+"expiry_before": [
+56
+],
+"new_conf_in_run": null,
+"a_block_after": 58,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 54
+},
+{
+"k": 2,
+"seed": 62,
+"r": 1,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": 51,
+"a_block_after": 52,
+"a_block_after_parent": 51,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 62,
+"r": 2,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": null,
+"a_block_after": 55,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 55,
+"lost_pre": 52
+},
+{
+"k": 2,
+"seed": 62,
+"r": 3,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+58
+],
+"new_conf_in_run": null,
+"a_block_after": 60,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 56
+},
+{
+"k": 2,
+"seed": 63,
+"r": 1,
+"run_start": 59,
+"conf_before": [
+58
+],
+"expiry_before": [
+60
+],
+"new_conf_in_run": 60,
+"a_block_after": 62,
+"a_block_after_parent": 61,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 2,
+"seed": 63,
+"r": 2,
+"run_start": 72,
+"conf_before": [
+71
+],
+"expiry_before": [
+73
+],
+"new_conf_in_run": null,
+"a_block_after": 74,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 74,
+"lost_pre": 71
+},
+{
+"k": 2,
+"seed": 63,
+"r": 3,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+49
+],
+"new_conf_in_run": null,
+"a_block_after": 51,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": null,
+"lost_pre": 47
+},
+{
+"k": 4,
+"seed": 0,
+"r": 3,
+"run_start": 129,
+"conf_before": [
+128
+],
+"expiry_before": [
+132
+],
+"new_conf_in_run": 132,
+"a_block_after": 133,
+"a_block_after_parent": 132,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 0,
+"r": 4,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": null,
+"a_block_after": 55,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 55,
+"lost_pre": 50
+},
+{
+"k": 4,
+"seed": 0,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 1,
+"r": 3,
+"run_start": 75,
+"conf_before": [
+74
+],
+"expiry_before": [
+78
+],
+"new_conf_in_run": 78,
+"a_block_after": 80,
+"a_block_after_parent": 79,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 1,
+"r": 4,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+66
+],
+"new_conf_in_run": null,
+"a_block_after": 67,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 67,
+"lost_pre": 62
+},
+{
+"k": 4,
+"seed": 1,
+"r": 5,
+"run_start": 105,
+"conf_before": [
+104
+],
+"expiry_before": [
+108
+],
+"new_conf_in_run": null,
+"a_block_after": 110,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 110,
+"lost_pre": 104
+},
+{
+"k": 4,
+"seed": 2,
+"r": 3,
+"run_start": 49,
+"conf_before": [
+48
+],
+"expiry_before": [
+52
+],
+"new_conf_in_run": 52,
+"a_block_after": 54,
+"a_block_after_parent": 53,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 2,
+"r": 4,
+"run_start": 117,
+"conf_before": [
+116
+],
+"expiry_before": [
+120
+],
+"new_conf_in_run": null,
+"a_block_after": 121,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 121,
+"lost_pre": 116
+},
+{
+"k": 4,
+"seed": 2,
+"r": 5,
+"run_start": 139,
+"conf_before": [
+138
+],
+"expiry_before": [
+142
+],
+"new_conf_in_run": null,
+"a_block_after": 144,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 144,
+"lost_pre": 138
+},
+{
+"k": 4,
+"seed": 3,
+"r": 3,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 3,
+"r": 4,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+56
+],
+"new_conf_in_run": null,
+"a_block_after": 57,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 57,
+"lost_pre": 52
+},
+{
+"k": 4,
+"seed": 3,
+"r": 5,
+"run_start": 141,
+"conf_before": [
+140
+],
+"expiry_before": [
+144
+],
+"new_conf_in_run": null,
+"a_block_after": 146,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 146,
+"lost_pre": 140
+},
+{
+"k": 4,
+"seed": 4,
+"r": 3,
+"run_start": 98,
+"conf_before": [
+97
+],
+"expiry_before": [
+101
+],
+"new_conf_in_run": 101,
+"a_block_after": 102,
+"a_block_after_parent": 101,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 4,
+"r": 4,
+"run_start": 118,
+"conf_before": [
+117
+],
+"expiry_before": [
+121
+],
+"new_conf_in_run": null,
+"a_block_after": 122,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 122,
+"lost_pre": 117
+},
+{
+"k": 4,
+"seed": 4,
+"r": 5,
+"run_start": 103,
+"conf_before": [
+102
+],
+"expiry_before": [
+106
+],
+"new_conf_in_run": null,
+"a_block_after": 108,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 108,
+"lost_pre": 102
+},
+{
+"k": 4,
+"seed": 5,
+"r": 3,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+60
+],
+"new_conf_in_run": 60,
+"a_block_after": 61,
+"a_block_after_parent": 60,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 5,
+"r": 4,
+"run_start": 90,
+"conf_before": [
+89
+],
+"expiry_before": [
+93
+],
+"new_conf_in_run": null,
+"a_block_after": 94,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 94,
+"lost_pre": 89
+},
+{
+"k": 4,
+"seed": 5,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 6,
+"r": 3,
+"run_start": 136,
+"conf_before": [
+135
+],
+"expiry_before": [
+139
+],
+"new_conf_in_run": 139,
+"a_block_after": 141,
+"a_block_after_parent": 140,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 6,
+"r": 4,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": null,
+"a_block_after": 56,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 56,
+"lost_pre": 51
+},
+{
+"k": 4,
+"seed": 6,
+"r": 5,
+"run_start": 130,
+"conf_before": [
+129
+],
+"expiry_before": [
+133
+],
+"new_conf_in_run": null,
+"a_block_after": 135,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 135,
+"lost_pre": 129
+},
+{
+"k": 4,
+"seed": 7,
+"r": 3,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": 53,
+"a_block_after": 55,
+"a_block_after_parent": 54,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 7,
+"r": 4,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 7,
+"r": 5,
+"run_start": 65,
+"conf_before": [
+64
+],
+"expiry_before": [
+68
+],
+"new_conf_in_run": null,
+"a_block_after": 70,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 70,
+"lost_pre": 64
+},
+{
+"k": 4,
+"seed": 8,
+"r": 3,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+66
+],
+"new_conf_in_run": 66,
+"a_block_after": 70,
+"a_block_after_parent": 69,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 8,
+"r": 4,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+56
+],
+"new_conf_in_run": null,
+"a_block_after": 57,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 57,
+"lost_pre": 52
+},
+{
+"k": 4,
+"seed": 8,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 9,
+"r": 3,
+"run_start": 83,
+"conf_before": [
+82
+],
+"expiry_before": [
+86
+],
+"new_conf_in_run": 86,
+"a_block_after": 87,
+"a_block_after_parent": 86,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 9,
+"r": 4,
+"run_start": 56,
+"conf_before": [
+55
+],
+"expiry_before": [
+59
+],
+"new_conf_in_run": null,
+"a_block_after": 60,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 60,
+"lost_pre": 55
+},
+{
+"k": 4,
+"seed": 9,
+"r": 5,
+"run_start": 95,
+"conf_before": [
+94
+],
+"expiry_before": [
+98
+],
+"new_conf_in_run": null,
+"a_block_after": 100,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 100,
+"lost_pre": 94
+},
+{
+"k": 4,
+"seed": 10,
+"r": 3,
+"run_start": 90,
+"conf_before": [
+89
+],
+"expiry_before": [
+93
+],
+"new_conf_in_run": 93,
+"a_block_after": 95,
+"a_block_after_parent": 94,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 10,
+"r": 4,
+"run_start": 76,
+"conf_before": [
+75
+],
+"expiry_before": [
+79
+],
+"new_conf_in_run": null,
+"a_block_after": 80,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 80,
+"lost_pre": 75
+},
+{
+"k": 4,
+"seed": 10,
+"r": 5,
+"run_start": 65,
+"conf_before": [
+64
+],
+"expiry_before": [
+68
+],
+"new_conf_in_run": null,
+"a_block_after": 70,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 70,
+"lost_pre": 64
+},
+{
+"k": 4,
+"seed": 11,
+"r": 3,
+"run_start": 74,
+"conf_before": [
+73
+],
+"expiry_before": [
+77
+],
+"new_conf_in_run": 77,
+"a_block_after": 78,
+"a_block_after_parent": 77,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 11,
+"r": 4,
+"run_start": 126,
+"conf_before": [
+125
+],
+"expiry_before": [
+129
+],
+"new_conf_in_run": null,
+"a_block_after": 130,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 130,
+"lost_pre": 125
+},
+{
+"k": 4,
+"seed": 11,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 12,
+"r": 3,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+56
+],
+"new_conf_in_run": 56,
+"a_block_after": 57,
+"a_block_after_parent": 56,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 12,
+"r": 4,
+"run_start": 58,
+"conf_before": [
+57
+],
+"expiry_before": [
+61
+],
+"new_conf_in_run": null,
+"a_block_after": 62,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 62,
+"lost_pre": 57
+},
+{
+"k": 4,
+"seed": 12,
+"r": 5,
+"run_start": 78,
+"conf_before": [
+77
+],
+"expiry_before": [
+81
+],
+"new_conf_in_run": null,
+"a_block_after": 83,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 83,
+"lost_pre": 77
+},
+{
+"k": 4,
+"seed": 13,
+"r": 3,
+"run_start": 73,
+"conf_before": [
+72
+],
+"expiry_before": [
+76
+],
+"new_conf_in_run": 76,
+"a_block_after": 78,
+"a_block_after_parent": 77,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 13,
+"r": 4,
+"run_start": 84,
+"conf_before": [
+83
+],
+"expiry_before": [
+87
+],
+"new_conf_in_run": null,
+"a_block_after": 88,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 88,
+"lost_pre": 83
+},
+{
+"k": 4,
+"seed": 13,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 14,
+"r": 3,
+"run_start": 73,
+"conf_before": [
+72
+],
+"expiry_before": [
+76
+],
+"new_conf_in_run": 76,
+"a_block_after": 77,
+"a_block_after_parent": 76,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 14,
+"r": 4,
+"run_start": 144,
+"conf_before": [
+143
+],
+"expiry_before": [
+147
+],
+"new_conf_in_run": null,
+"a_block_after": 148,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 148,
+"lost_pre": 143
+},
+{
+"k": 4,
+"seed": 14,
+"r": 5,
+"run_start": 113,
+"conf_before": [
+112
+],
+"expiry_before": [
+116
+],
+"new_conf_in_run": null,
+"a_block_after": 118,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 118,
+"lost_pre": 112
+},
+{
+"k": 4,
+"seed": 15,
+"r": 3,
+"run_start": 68,
+"conf_before": [
+67
+],
+"expiry_before": [
+71
+],
+"new_conf_in_run": 71,
+"a_block_after": 72,
+"a_block_after_parent": 71,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 15,
+"r": 4,
+"run_start": 77,
+"conf_before": [
+76
+],
+"expiry_before": [
+80
+],
+"new_conf_in_run": null,
+"a_block_after": 81,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 81,
+"lost_pre": 76
+},
+{
+"k": 4,
+"seed": 15,
+"r": 5,
+"run_start": 58,
+"conf_before": [
+57
+],
+"expiry_before": [
+61
+],
+"new_conf_in_run": null,
+"a_block_after": 63,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 63,
+"lost_pre": 57
+},
+{
+"k": 4,
+"seed": 16,
+"r": 3,
+"run_start": 78,
+"conf_before": [
+77
+],
+"expiry_before": [
+81
+],
+"new_conf_in_run": 81,
+"a_block_after": 82,
+"a_block_after_parent": 81,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 16,
+"r": 4,
+"run_start": 62,
+"conf_before": [
+61
+],
+"expiry_before": [
+65
+],
+"new_conf_in_run": null,
+"a_block_after": 66,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 66,
+"lost_pre": 61
+},
+{
+"k": 4,
+"seed": 16,
+"r": 5,
+"run_start": 85,
+"conf_before": [
+84
+],
+"expiry_before": [
+88
+],
+"new_conf_in_run": null,
+"a_block_after": 90,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 90,
+"lost_pre": 84
+},
+{
+"k": 4,
+"seed": 17,
+"r": 3,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+66
+],
+"new_conf_in_run": 66,
+"a_block_after": 67,
+"a_block_after_parent": 66,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 17,
+"r": 4,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 17,
+"r": 5,
+"run_start": 122,
+"conf_before": [
+121
+],
+"expiry_before": [
+125
+],
+"new_conf_in_run": null,
+"a_block_after": 127,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 127,
+"lost_pre": 121
+},
+{
+"k": 4,
+"seed": 18,
+"r": 3,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 18,
+"r": 4,
+"run_start": 61,
+"conf_before": [
+60
+],
+"expiry_before": [
+64
+],
+"new_conf_in_run": null,
+"a_block_after": 65,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 65,
+"lost_pre": 60
+},
+{
+"k": 4,
+"seed": 18,
+"r": 5,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": null,
+"a_block_after": 55,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 55,
+"lost_pre": 49
+},
+{
+"k": 4,
+"seed": 19,
+"r": 3,
+"run_start": 102,
+"conf_before": [
+101
+],
+"expiry_before": [
+105
+],
+"new_conf_in_run": 105,
+"a_block_after": 106,
+"a_block_after_parent": 105,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 19,
+"r": 4,
+"run_start": 79,
+"conf_before": [
+78
+],
+"expiry_before": [
+82
+],
+"new_conf_in_run": null,
+"a_block_after": 83,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 83,
+"lost_pre": 78
+},
+{
+"k": 4,
+"seed": 19,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 20,
+"r": 3,
+"run_start": 78,
+"conf_before": [
+77
+],
+"expiry_before": [
+81
+],
+"new_conf_in_run": 81,
+"a_block_after": 83,
+"a_block_after_parent": 82,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 20,
+"r": 4,
+"run_start": 149,
+"conf_before": [
+148
+],
+"expiry_before": [
+152
+],
+"new_conf_in_run": null,
+"a_block_after": 153,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 153,
+"lost_pre": 148
+},
+{
+"k": 4,
+"seed": 20,
+"r": 5,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": null,
+"a_block_after": 53,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 53,
+"lost_pre": 47
+},
+{
+"k": 4,
+"seed": 21,
+"r": 3,
+"run_start": 68,
+"conf_before": [
+67
+],
+"expiry_before": [
+71
+],
+"new_conf_in_run": 71,
+"a_block_after": 73,
+"a_block_after_parent": 72,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 21,
+"r": 4,
+"run_start": 90,
+"conf_before": [
+89
+],
+"expiry_before": [
+93
+],
+"new_conf_in_run": null,
+"a_block_after": 94,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 94,
+"lost_pre": 89
+},
+{
+"k": 4,
+"seed": 21,
+"r": 5,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": null,
+"a_block_after": 56,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 56,
+"lost_pre": 50
+},
+{
+"k": 4,
+"seed": 22,
+"r": 3,
+"run_start": 77,
+"conf_before": [
+76
+],
+"expiry_before": [
+80
+],
+"new_conf_in_run": 80,
+"a_block_after": 82,
+"a_block_after_parent": 81,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 22,
+"r": 4,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 22,
+"r": 5,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": null,
+"a_block_after": 55,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 55,
+"lost_pre": 49
+},
+{
+"k": 4,
+"seed": 23,
+"r": 3,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": 51,
+"a_block_after": 53,
+"a_block_after_parent": 52,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 23,
+"r": 4,
+"run_start": 69,
+"conf_before": [
+68
+],
+"expiry_before": [
+72
+],
+"new_conf_in_run": null,
+"a_block_after": 73,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 73,
+"lost_pre": 68
+},
+{
+"k": 4,
+"seed": 23,
+"r": 5,
+"run_start": 105,
+"conf_before": [
+104
+],
+"expiry_before": [
+108
+],
+"new_conf_in_run": null,
+"a_block_after": 110,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 110,
+"lost_pre": 104
+},
+{
+"k": 4,
+"seed": 24,
+"r": 3,
+"run_start": 110,
+"conf_before": [
+109
+],
+"expiry_before": [
+113
+],
+"new_conf_in_run": 113,
+"a_block_after": 114,
+"a_block_after_parent": 113,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 24,
+"r": 4,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 24,
+"r": 5,
+"run_start": 154,
+"conf_before": [
+153
+],
+"expiry_before": [
+157
+],
+"new_conf_in_run": null,
+"a_block_after": 159,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 159,
+"lost_pre": 153
+},
+{
+"k": 4,
+"seed": 25,
+"r": 3,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+60
+],
+"new_conf_in_run": 60,
+"a_block_after": 63,
+"a_block_after_parent": 62,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 25,
+"r": 4,
+"run_start": 95,
+"conf_before": [
+94
+],
+"expiry_before": [
+98
+],
+"new_conf_in_run": null,
+"a_block_after": 99,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 99,
+"lost_pre": 94
+},
+{
+"k": 4,
+"seed": 25,
+"r": 5,
+"run_start": 155,
+"conf_before": [
+154
+],
+"expiry_before": [
+158
+],
+"new_conf_in_run": null,
+"a_block_after": 160,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 160,
+"lost_pre": 154
+},
+{
+"k": 4,
+"seed": 26,
+"r": 3,
+"run_start": 64,
+"conf_before": [
+63
+],
+"expiry_before": [
+67
+],
+"new_conf_in_run": 67,
+"a_block_after": 71,
+"a_block_after_parent": 70,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 26,
+"r": 4,
+"run_start": 72,
+"conf_before": [
+71
+],
+"expiry_before": [
+75
+],
+"new_conf_in_run": null,
+"a_block_after": 76,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 76,
+"lost_pre": 71
+},
+{
+"k": 4,
+"seed": 26,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 27,
+"r": 3,
+"run_start": 69,
+"conf_before": [
+68
+],
+"expiry_before": [
+72
+],
+"new_conf_in_run": 72,
+"a_block_after": 75,
+"a_block_after_parent": 74,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 27,
+"r": 4,
+"run_start": 55,
+"conf_before": [
+54
+],
+"expiry_before": [
+58
+],
+"new_conf_in_run": null,
+"a_block_after": 59,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 59,
+"lost_pre": 54
+},
+{
+"k": 4,
+"seed": 27,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 28,
+"r": 3,
+"run_start": 53,
+"conf_before": [
+52
+],
+"expiry_before": [
+56
+],
+"new_conf_in_run": 56,
+"a_block_after": 58,
+"a_block_after_parent": 57,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 28,
+"r": 4,
+"run_start": 70,
+"conf_before": [
+69
+],
+"expiry_before": [
+73
+],
+"new_conf_in_run": null,
+"a_block_after": 74,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 74,
+"lost_pre": 69
+},
+{
+"k": 4,
+"seed": 28,
+"r": 5,
+"run_start": 116,
+"conf_before": [
+115
+],
+"expiry_before": [
+119
+],
+"new_conf_in_run": null,
+"a_block_after": 121,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 121,
+"lost_pre": 115
+},
+{
+"k": 4,
+"seed": 29,
+"r": 3,
+"run_start": 88,
+"conf_before": [
+87
+],
+"expiry_before": [
+91
+],
+"new_conf_in_run": 91,
+"a_block_after": 95,
+"a_block_after_parent": 94,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 29,
+"r": 4,
+"run_start": 157,
+"conf_before": [
+156
+],
+"expiry_before": [
+160
+],
+"new_conf_in_run": null,
+"a_block_after": 161,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 161,
+"lost_pre": 156
+},
+{
+"k": 4,
+"seed": 29,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 30,
+"r": 3,
+"run_start": 80,
+"conf_before": [
+79
+],
+"expiry_before": [
+83
+],
+"new_conf_in_run": 83,
+"a_block_after": 84,
+"a_block_after_parent": 83,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 30,
+"r": 4,
+"run_start": 55,
+"conf_before": [
+54
+],
+"expiry_before": [
+58
+],
+"new_conf_in_run": null,
+"a_block_after": 59,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 59,
+"lost_pre": 54
+},
+{
+"k": 4,
+"seed": 30,
+"r": 5,
+"run_start": 65,
+"conf_before": [
+64
+],
+"expiry_before": [
+68
+],
+"new_conf_in_run": null,
+"a_block_after": 70,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 70,
+"lost_pre": 64
+},
+{
+"k": 4,
+"seed": 31,
+"r": 3,
+"run_start": 68,
+"conf_before": [
+67
+],
+"expiry_before": [
+71
+],
+"new_conf_in_run": 71,
+"a_block_after": 73,
+"a_block_after_parent": 72,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 31,
+"r": 4,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+60
+],
+"new_conf_in_run": null,
+"a_block_after": 61,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 61,
+"lost_pre": 56
+},
+{
+"k": 4,
+"seed": 31,
+"r": 5,
+"run_start": 102,
+"conf_before": [
+101
+],
+"expiry_before": [
+105
+],
+"new_conf_in_run": null,
+"a_block_after": 107,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 107,
+"lost_pre": 101
+},
+{
+"k": 4,
+"seed": 32,
+"r": 3,
+"run_start": 85,
+"conf_before": [
+84
+],
+"expiry_before": [
+88
+],
+"new_conf_in_run": 88,
+"a_block_after": 94,
+"a_block_after_parent": 93,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 32,
+"r": 4,
+"run_start": 66,
+"conf_before": [
+65
+],
+"expiry_before": [
+69
+],
+"new_conf_in_run": null,
+"a_block_after": 70,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 70,
+"lost_pre": 65
+},
+{
+"k": 4,
+"seed": 32,
+"r": 5,
+"run_start": 89,
+"conf_before": [
+88
+],
+"expiry_before": [
+92
+],
+"new_conf_in_run": null,
+"a_block_after": 94,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 94,
+"lost_pre": 88
+},
+{
+"k": 4,
+"seed": 33,
+"r": 3,
+"run_start": 73,
+"conf_before": [
+72
+],
+"expiry_before": [
+76
+],
+"new_conf_in_run": 76,
+"a_block_after": 78,
+"a_block_after_parent": 77,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 33,
+"r": 4,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": null,
+"a_block_after": 54,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 54,
+"lost_pre": 49
+},
+{
+"k": 4,
+"seed": 33,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 34,
+"r": 3,
+"run_start": 100,
+"conf_before": [
+99
+],
+"expiry_before": [
+103
+],
+"new_conf_in_run": 103,
+"a_block_after": 104,
+"a_block_after_parent": 103,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 34,
+"r": 4,
+"run_start": 92,
+"conf_before": [
+91
+],
+"expiry_before": [
+95
+],
+"new_conf_in_run": null,
+"a_block_after": 96,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 96,
+"lost_pre": 91
+},
+{
+"k": 4,
+"seed": 34,
+"r": 5,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+60
+],
+"new_conf_in_run": null,
+"a_block_after": 62,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 62,
+"lost_pre": 56
+},
+{
+"k": 4,
+"seed": 35,
+"r": 3,
+"run_start": 67,
+"conf_before": [
+66
+],
+"expiry_before": [
+70
+],
+"new_conf_in_run": 70,
+"a_block_after": 71,
+"a_block_after_parent": 70,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 35,
+"r": 4,
+"run_start": 127,
+"conf_before": [
+126
+],
+"expiry_before": [
+130
+],
+"new_conf_in_run": null,
+"a_block_after": 131,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 131,
+"lost_pre": 126
+},
+{
+"k": 4,
+"seed": 35,
+"r": 5,
+"run_start": 89,
+"conf_before": [
+88
+],
+"expiry_before": [
+92
+],
+"new_conf_in_run": null,
+"a_block_after": 94,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 94,
+"lost_pre": 88
+},
+{
+"k": 4,
+"seed": 36,
+"r": 3,
+"run_start": 84,
+"conf_before": [
+83
+],
+"expiry_before": [
+87
+],
+"new_conf_in_run": 87,
+"a_block_after": 88,
+"a_block_after_parent": 87,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 36,
+"r": 4,
+"run_start": 133,
+"conf_before": [
+132
+],
+"expiry_before": [
+136
+],
+"new_conf_in_run": null,
+"a_block_after": 137,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 137,
+"lost_pre": 132
+},
+{
+"k": 4,
+"seed": 36,
+"r": 5,
+"run_start": 56,
+"conf_before": [
+55
+],
+"expiry_before": [
+59
+],
+"new_conf_in_run": null,
+"a_block_after": 61,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 61,
+"lost_pre": 55
+},
+{
+"k": 4,
+"seed": 37,
+"r": 3,
+"run_start": 65,
+"conf_before": [
+64
+],
+"expiry_before": [
+68
+],
+"new_conf_in_run": 68,
+"a_block_after": 69,
+"a_block_after_parent": 68,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 37,
+"r": 4,
+"run_start": 94,
+"conf_before": [
+93
+],
+"expiry_before": [
+97
+],
+"new_conf_in_run": null,
+"a_block_after": 98,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 98,
+"lost_pre": 93
+},
+{
+"k": 4,
+"seed": 37,
+"r": 5,
+"run_start": 144,
+"conf_before": [
+143
+],
+"expiry_before": [
+147
+],
+"new_conf_in_run": null,
+"a_block_after": 149,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 149,
+"lost_pre": 143
+},
+{
+"k": 4,
+"seed": 38,
+"r": 3,
+"run_start": 81,
+"conf_before": [
+80
+],
+"expiry_before": [
+84
+],
+"new_conf_in_run": 84,
+"a_block_after": 89,
+"a_block_after_parent": 88,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 38,
+"r": 4,
+"run_start": 85,
+"conf_before": [
+84
+],
+"expiry_before": [
+88
+],
+"new_conf_in_run": null,
+"a_block_after": 89,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 89,
+"lost_pre": 84
+},
+{
+"k": 4,
+"seed": 38,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 39,
+"r": 3,
+"run_start": 59,
+"conf_before": [
+58
+],
+"expiry_before": [
+62
+],
+"new_conf_in_run": 62,
+"a_block_after": 67,
+"a_block_after_parent": 66,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 39,
+"r": 4,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+66
+],
+"new_conf_in_run": null,
+"a_block_after": 67,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 67,
+"lost_pre": 62
+},
+{
+"k": 4,
+"seed": 39,
+"r": 5,
+"run_start": 74,
+"conf_before": [
+73
+],
+"expiry_before": [
+77
+],
+"new_conf_in_run": null,
+"a_block_after": 79,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 79,
+"lost_pre": 73
+},
+{
+"k": 4,
+"seed": 40,
+"r": 3,
+"run_start": 67,
+"conf_before": [
+66
+],
+"expiry_before": [
+70
+],
+"new_conf_in_run": 70,
+"a_block_after": 71,
+"a_block_after_parent": 70,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 40,
+"r": 4,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 40,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 41,
+"r": 3,
+"run_start": 59,
+"conf_before": [
+58
+],
+"expiry_before": [
+62
+],
+"new_conf_in_run": 62,
+"a_block_after": 63,
+"a_block_after_parent": 62,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 41,
+"r": 4,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 41,
+"r": 5,
+"run_start": 148,
+"conf_before": [
+147
+],
+"expiry_before": [
+151
+],
+"new_conf_in_run": null,
+"a_block_after": 153,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 153,
+"lost_pre": 147
+},
+{
+"k": 4,
+"seed": 42,
+"r": 3,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": 54,
+"a_block_after": 56,
+"a_block_after_parent": 55,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 42,
+"r": 4,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+60
+],
+"new_conf_in_run": null,
+"a_block_after": 61,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 61,
+"lost_pre": 56
+},
+{
+"k": 4,
+"seed": 42,
+"r": 5,
+"run_start": 102,
+"conf_before": [
+101
+],
+"expiry_before": [
+105
+],
+"new_conf_in_run": null,
+"a_block_after": 107,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 107,
+"lost_pre": 101
+},
+{
+"k": 4,
+"seed": 43,
+"r": 3,
+"run_start": 58,
+"conf_before": [
+57
+],
+"expiry_before": [
+61
+],
+"new_conf_in_run": 61,
+"a_block_after": 65,
+"a_block_after_parent": 64,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 43,
+"r": 4,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 43,
+"r": 5,
+"run_start": 109,
+"conf_before": [
+108
+],
+"expiry_before": [
+112
+],
+"new_conf_in_run": null,
+"a_block_after": 114,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 114,
+"lost_pre": 108
+},
+{
+"k": 4,
+"seed": 44,
+"r": 3,
+"run_start": 60,
+"conf_before": [
+59
+],
+"expiry_before": [
+63
+],
+"new_conf_in_run": 63,
+"a_block_after": 66,
+"a_block_after_parent": 65,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 44,
+"r": 4,
+"run_start": 83,
+"conf_before": [
+82
+],
+"expiry_before": [
+86
+],
+"new_conf_in_run": null,
+"a_block_after": 87,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 87,
+"lost_pre": 82
+},
+{
+"k": 4,
+"seed": 44,
+"r": 5,
+"run_start": 152,
+"conf_before": [
+151
+],
+"expiry_before": [
+155
+],
+"new_conf_in_run": null,
+"a_block_after": 157,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 157,
+"lost_pre": 151
+},
+{
+"k": 4,
+"seed": 45,
+"r": 3,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": 55,
+"a_block_after": 57,
+"a_block_after_parent": 56,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 45,
+"r": 4,
+"run_start": 60,
+"conf_before": [
+59
+],
+"expiry_before": [
+63
+],
+"new_conf_in_run": null,
+"a_block_after": 64,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 64,
+"lost_pre": 59
+},
+{
+"k": 4,
+"seed": 45,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 46,
+"r": 3,
+"run_start": 113,
+"conf_before": [
+112
+],
+"expiry_before": [
+116
+],
+"new_conf_in_run": 116,
+"a_block_after": 119,
+"a_block_after_parent": 118,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 46,
+"r": 4,
+"run_start": 105,
+"conf_before": [
+104
+],
+"expiry_before": [
+108
+],
+"new_conf_in_run": null,
+"a_block_after": 109,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 109,
+"lost_pre": 104
+},
+{
+"k": 4,
+"seed": 46,
+"r": 5,
+"run_start": 99,
+"conf_before": [
+98
+],
+"expiry_before": [
+102
+],
+"new_conf_in_run": null,
+"a_block_after": 104,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 104,
+"lost_pre": 98
+},
+{
+"k": 4,
+"seed": 47,
+"r": 3,
+"run_start": 65,
+"conf_before": [
+64
+],
+"expiry_before": [
+68
+],
+"new_conf_in_run": 68,
+"a_block_after": 69,
+"a_block_after_parent": 68,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 47,
+"r": 4,
+"run_start": 104,
+"conf_before": [
+103
+],
+"expiry_before": [
+107
+],
+"new_conf_in_run": null,
+"a_block_after": 108,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 108,
+"lost_pre": 103
+},
+{
+"k": 4,
+"seed": 47,
+"r": 5,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": null,
+"a_block_after": 55,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 55,
+"lost_pre": 49
+},
+{
+"k": 4,
+"seed": 48,
+"r": 3,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": 53,
+"a_block_after": 56,
+"a_block_after_parent": 55,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 48,
+"r": 4,
+"run_start": 130,
+"conf_before": [
+129
+],
+"expiry_before": [
+133
+],
+"new_conf_in_run": null,
+"a_block_after": 134,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 134,
+"lost_pre": 129
+},
+{
+"k": 4,
+"seed": 48,
+"r": 5,
+"run_start": 69,
+"conf_before": [
+68
+],
+"expiry_before": [
+72
+],
+"new_conf_in_run": null,
+"a_block_after": 74,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 74,
+"lost_pre": 68
+},
+{
+"k": 4,
+"seed": 49,
+"r": 3,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+60
+],
+"new_conf_in_run": 60,
+"a_block_after": 65,
+"a_block_after_parent": 64,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 49,
+"r": 4,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": null,
+"a_block_after": 54,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 54,
+"lost_pre": 49
+},
+{
+"k": 4,
+"seed": 49,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 50,
+"r": 3,
+"run_start": 78,
+"conf_before": [
+77
+],
+"expiry_before": [
+81
+],
+"new_conf_in_run": 81,
+"a_block_after": 82,
+"a_block_after_parent": 81,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 50,
+"r": 4,
+"run_start": 149,
+"conf_before": [
+148
+],
+"expiry_before": [
+152
+],
+"new_conf_in_run": null,
+"a_block_after": 153,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 153,
+"lost_pre": 148
+},
+{
+"k": 4,
+"seed": 50,
+"r": 5,
+"run_start": 156,
+"conf_before": [
+155
+],
+"expiry_before": [
+159
+],
+"new_conf_in_run": null,
+"a_block_after": 161,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 161,
+"lost_pre": 155
+},
+{
+"k": 4,
+"seed": 51,
+"r": 3,
+"run_start": 59,
+"conf_before": [
+58
+],
+"expiry_before": [
+62
+],
+"new_conf_in_run": 62,
+"a_block_after": 67,
+"a_block_after_parent": 66,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 51,
+"r": 4,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+66
+],
+"new_conf_in_run": null,
+"a_block_after": 67,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 67,
+"lost_pre": 62
+},
+{
+"k": 4,
+"seed": 51,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 52,
+"r": 3,
+"run_start": 73,
+"conf_before": [
+72
+],
+"expiry_before": [
+76
+],
+"new_conf_in_run": 76,
+"a_block_after": 79,
+"a_block_after_parent": 78,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 52,
+"r": 4,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 52,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 53,
+"r": 3,
+"run_start": 91,
+"conf_before": [
+90
+],
+"expiry_before": [
+94
+],
+"new_conf_in_run": 94,
+"a_block_after": 95,
+"a_block_after_parent": 94,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 53,
+"r": 4,
+"run_start": 75,
+"conf_before": [
+74
+],
+"expiry_before": [
+78
+],
+"new_conf_in_run": null,
+"a_block_after": 79,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 79,
+"lost_pre": 74
+},
+{
+"k": 4,
+"seed": 53,
+"r": 5,
+"run_start": 151,
+"conf_before": [
+150
+],
+"expiry_before": [
+154
+],
+"new_conf_in_run": null,
+"a_block_after": 156,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 156,
+"lost_pre": 150
+},
+{
+"k": 4,
+"seed": 54,
+"r": 3,
+"run_start": 63,
+"conf_before": [
+62
+],
+"expiry_before": [
+66
+],
+"new_conf_in_run": 66,
+"a_block_after": 67,
+"a_block_after_parent": 66,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 54,
+"r": 4,
+"run_start": 93,
+"conf_before": [
+92
+],
+"expiry_before": [
+96
+],
+"new_conf_in_run": null,
+"a_block_after": 97,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 97,
+"lost_pre": 92
+},
+{
+"k": 4,
+"seed": 54,
+"r": 5,
+"run_start": 87,
+"conf_before": [
+86
+],
+"expiry_before": [
+90
+],
+"new_conf_in_run": null,
+"a_block_after": 92,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 92,
+"lost_pre": 86
+},
+{
+"k": 4,
+"seed": 55,
+"r": 3,
+"run_start": 139,
+"conf_before": [
+138
+],
+"expiry_before": [
+142
+],
+"new_conf_in_run": 142,
+"a_block_after": 143,
+"a_block_after_parent": 142,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 55,
+"r": 4,
+"run_start": 120,
+"conf_before": [
+119
+],
+"expiry_before": [
+123
+],
+"new_conf_in_run": null,
+"a_block_after": 124,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 124,
+"lost_pre": 119
+},
+{
+"k": 4,
+"seed": 55,
+"r": 5,
+"run_start": 125,
+"conf_before": [
+124
+],
+"expiry_before": [
+128
+],
+"new_conf_in_run": null,
+"a_block_after": 130,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 130,
+"lost_pre": 124
+},
+{
+"k": 4,
+"seed": 56,
+"r": 3,
+"run_start": 74,
+"conf_before": [
+73
+],
+"expiry_before": [
+77
+],
+"new_conf_in_run": 77,
+"a_block_after": 79,
+"a_block_after_parent": 78,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 56,
+"r": 4,
+"run_start": 56,
+"conf_before": [
+55
+],
+"expiry_before": [
+59
+],
+"new_conf_in_run": null,
+"a_block_after": 60,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 60,
+"lost_pre": 55
+},
+{
+"k": 4,
+"seed": 56,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 57,
+"r": 3,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": 54,
+"a_block_after": 55,
+"a_block_after_parent": 54,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 57,
+"r": 4,
+"run_start": 56,
+"conf_before": [
+55
+],
+"expiry_before": [
+59
+],
+"new_conf_in_run": null,
+"a_block_after": 60,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 60,
+"lost_pre": 55
+},
+{
+"k": 4,
+"seed": 57,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 58,
+"r": 3,
+"run_start": 131,
+"conf_before": [
+130
+],
+"expiry_before": [
+134
+],
+"new_conf_in_run": 134,
+"a_block_after": 142,
+"a_block_after_parent": 141,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 58,
+"r": 4,
+"run_start": 76,
+"conf_before": [
+75
+],
+"expiry_before": [
+79
+],
+"new_conf_in_run": null,
+"a_block_after": 80,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 80,
+"lost_pre": 75
+},
+{
+"k": 4,
+"seed": 58,
+"r": 5,
+"run_start": 70,
+"conf_before": [
+69
+],
+"expiry_before": [
+73
+],
+"new_conf_in_run": null,
+"a_block_after": 75,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 75,
+"lost_pre": 69
+},
+{
+"k": 4,
+"seed": 59,
+"r": 3,
+"run_start": 80,
+"conf_before": [
+79
+],
+"expiry_before": [
+83
+],
+"new_conf_in_run": 83,
+"a_block_after": 85,
+"a_block_after_parent": 84,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 59,
+"r": 4,
+"run_start": 58,
+"conf_before": [
+57
+],
+"expiry_before": [
+61
+],
+"new_conf_in_run": null,
+"a_block_after": 62,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 62,
+"lost_pre": 57
+},
+{
+"k": 4,
+"seed": 59,
+"r": 5,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": null,
+"a_block_after": 57,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 57,
+"lost_pre": 51
+},
+{
+"k": 4,
+"seed": 60,
+"r": 3,
+"run_start": 58,
+"conf_before": [
+57
+],
+"expiry_before": [
+61
+],
+"new_conf_in_run": 61,
+"a_block_after": 62,
+"a_block_after_parent": 61,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 60,
+"r": 4,
+"run_start": 91,
+"conf_before": [
+90
+],
+"expiry_before": [
+94
+],
+"new_conf_in_run": null,
+"a_block_after": 95,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 95,
+"lost_pre": 90
+},
+{
+"k": 4,
+"seed": 60,
+"r": 5,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 61,
+"r": 3,
+"run_start": 55,
+"conf_before": [
+54
+],
+"expiry_before": [
+58
+],
+"new_conf_in_run": 58,
+"a_block_after": 59,
+"a_block_after_parent": 58,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 61,
+"r": 4,
+"run_start": 68,
+"conf_before": [
+67
+],
+"expiry_before": [
+71
+],
+"new_conf_in_run": null,
+"a_block_after": 72,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 72,
+"lost_pre": 67
+},
+{
+"k": 4,
+"seed": 61,
+"r": 5,
+"run_start": 117,
+"conf_before": [
+116
+],
+"expiry_before": [
+120
+],
+"new_conf_in_run": null,
+"a_block_after": 122,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 122,
+"lost_pre": 116
+},
+{
+"k": 4,
+"seed": 62,
+"r": 3,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+60
+],
+"new_conf_in_run": 60,
+"a_block_after": 63,
+"a_block_after_parent": 62,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 62,
+"r": 4,
+"run_start": 120,
+"conf_before": [
+119
+],
+"expiry_before": [
+123
+],
+"new_conf_in_run": null,
+"a_block_after": 124,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 124,
+"lost_pre": 119
+},
+{
+"k": 4,
+"seed": 62,
+"r": 5,
+"run_start": 98,
+"conf_before": [
+97
+],
+"expiry_before": [
+101
+],
+"new_conf_in_run": null,
+"a_block_after": 103,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 103,
+"lost_pre": 97
+},
+{
+"k": 4,
+"seed": 63,
+"r": 3,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+51
+],
+"new_conf_in_run": 51,
+"a_block_after": 52,
+"a_block_after_parent": 51,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 4,
+"seed": 63,
+"r": 4,
+"run_start": null
+},
+{
+"k": 4,
+"seed": 63,
+"r": 5,
+"run_start": 96,
+"conf_before": [
+95
+],
+"expiry_before": [
+99
+],
+"new_conf_in_run": null,
+"a_block_after": 101,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 101,
+"lost_pre": 95
+},
+{
+"k": 6,
+"seed": 0,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 0,
+"r": 6,
+"run_start": 99,
+"conf_before": [
+98
+],
+"expiry_before": [
+104
+],
+"new_conf_in_run": null,
+"a_block_after": 105,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 105,
+"lost_pre": 98
+},
+{
+"k": 6,
+"seed": 0,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 1,
+"r": 5,
+"run_start": 105,
+"conf_before": [
+104
+],
+"expiry_before": [
+110
+],
+"new_conf_in_run": 110,
+"a_block_after": 112,
+"a_block_after_parent": 111,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 1,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 1,
+"r": 7,
+"run_start": 89,
+"conf_before": [
+88
+],
+"expiry_before": [
+94
+],
+"new_conf_in_run": null,
+"a_block_after": 96,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 96,
+"lost_pre": 88
+},
+{
+"k": 6,
+"seed": 2,
+"r": 5,
+"run_start": 139,
+"conf_before": [
+138
+],
+"expiry_before": [
+144
+],
+"new_conf_in_run": 144,
+"a_block_after": 146,
+"a_block_after_parent": 145,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 2,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 2,
+"r": 7,
+"run_start": 67,
+"conf_before": [
+66
+],
+"expiry_before": [
+72
+],
+"new_conf_in_run": null,
+"a_block_after": 74,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 74,
+"lost_pre": 66
+},
+{
+"k": 6,
+"seed": 3,
+"r": 5,
+"run_start": 141,
+"conf_before": [
+140
+],
+"expiry_before": [
+146
+],
+"new_conf_in_run": 146,
+"a_block_after": 149,
+"a_block_after_parent": 148,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 3,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 3,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 4,
+"r": 5,
+"run_start": 103,
+"conf_before": [
+102
+],
+"expiry_before": [
+108
+],
+"new_conf_in_run": 108,
+"a_block_after": 112,
+"a_block_after_parent": 111,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 4,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 4,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 5,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 5,
+"r": 6,
+"run_start": 95,
+"conf_before": [
+94
+],
+"expiry_before": [
+100
+],
+"new_conf_in_run": null,
+"a_block_after": 101,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 101,
+"lost_pre": 94
+},
+{
+"k": 6,
+"seed": 5,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 6,
+"r": 5,
+"run_start": 130,
+"conf_before": [
+129
+],
+"expiry_before": [
+135
+],
+"new_conf_in_run": 135,
+"a_block_after": 139,
+"a_block_after_parent": 138,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 6,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 6,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 7,
+"r": 5,
+"run_start": 65,
+"conf_before": [
+64
+],
+"expiry_before": [
+70
+],
+"new_conf_in_run": 70,
+"a_block_after": 71,
+"a_block_after_parent": 70,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 7,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 7,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 8,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 8,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 8,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 9,
+"r": 5,
+"run_start": 95,
+"conf_before": [
+94
+],
+"expiry_before": [
+100
+],
+"new_conf_in_run": 100,
+"a_block_after": 101,
+"a_block_after_parent": 100,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 9,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 9,
+"r": 7,
+"run_start": 149,
+"conf_before": [
+148
+],
+"expiry_before": [
+154
+],
+"new_conf_in_run": null,
+"a_block_after": 156,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 156,
+"lost_pre": 148
+},
+{
+"k": 6,
+"seed": 10,
+"r": 5,
+"run_start": 65,
+"conf_before": [
+64
+],
+"expiry_before": [
+70
+],
+"new_conf_in_run": 70,
+"a_block_after": 73,
+"a_block_after_parent": 72,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 10,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 10,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 11,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 11,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 11,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 12,
+"r": 5,
+"run_start": 78,
+"conf_before": [
+77
+],
+"expiry_before": [
+83
+],
+"new_conf_in_run": 83,
+"a_block_after": 84,
+"a_block_after_parent": 83,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 12,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 12,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 13,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 13,
+"r": 6,
+"run_start": 49,
+"conf_before": [
+48
+],
+"expiry_before": [
+54
+],
+"new_conf_in_run": null,
+"a_block_after": 55,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 55,
+"lost_pre": 48
+},
+{
+"k": 6,
+"seed": 13,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 14,
+"r": 5,
+"run_start": 113,
+"conf_before": [
+112
+],
+"expiry_before": [
+118
+],
+"new_conf_in_run": 118,
+"a_block_after": 122,
+"a_block_after_parent": 121,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 14,
+"r": 6,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+62
+],
+"new_conf_in_run": null,
+"a_block_after": 63,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 63,
+"lost_pre": 56
+},
+{
+"k": 6,
+"seed": 14,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 15,
+"r": 5,
+"run_start": 58,
+"conf_before": [
+57
+],
+"expiry_before": [
+63
+],
+"new_conf_in_run": 63,
+"a_block_after": 64,
+"a_block_after_parent": 63,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 15,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 15,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 16,
+"r": 5,
+"run_start": 85,
+"conf_before": [
+84
+],
+"expiry_before": [
+90
+],
+"new_conf_in_run": 90,
+"a_block_after": 91,
+"a_block_after_parent": 90,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 16,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 16,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 17,
+"r": 5,
+"run_start": 122,
+"conf_before": [
+121
+],
+"expiry_before": [
+127
+],
+"new_conf_in_run": 127,
+"a_block_after": 128,
+"a_block_after_parent": 127,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 17,
+"r": 6,
+"run_start": 139,
+"conf_before": [
+138
+],
+"expiry_before": [
+144
+],
+"new_conf_in_run": null,
+"a_block_after": 145,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 145,
+"lost_pre": 138
+},
+{
+"k": 6,
+"seed": 17,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 18,
+"r": 5,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": 55,
+"a_block_after": 56,
+"a_block_after_parent": 55,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 18,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 18,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 19,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 19,
+"r": 6,
+"run_start": 156,
+"conf_before": [
+155
+],
+"expiry_before": [
+161
+],
+"new_conf_in_run": null,
+"a_block_after": 162,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 162,
+"lost_pre": 155
+},
+{
+"k": 6,
+"seed": 19,
+"r": 7,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+62
+],
+"new_conf_in_run": null,
+"a_block_after": 64,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 64,
+"lost_pre": 56
+},
+{
+"k": 6,
+"seed": 20,
+"r": 5,
+"run_start": 48,
+"conf_before": [
+47
+],
+"expiry_before": [
+53
+],
+"new_conf_in_run": 53,
+"a_block_after": 54,
+"a_block_after_parent": 53,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 20,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 20,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 21,
+"r": 5,
+"run_start": 51,
+"conf_before": [
+50
+],
+"expiry_before": [
+56
+],
+"new_conf_in_run": 56,
+"a_block_after": 59,
+"a_block_after_parent": 58,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 21,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 21,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 22,
+"r": 5,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": 55,
+"a_block_after": 57,
+"a_block_after_parent": 56,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 22,
+"r": 6,
+"run_start": 119,
+"conf_before": [
+118
+],
+"expiry_before": [
+124
+],
+"new_conf_in_run": null,
+"a_block_after": 125,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 125,
+"lost_pre": 118
+},
+{
+"k": 6,
+"seed": 22,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 23,
+"r": 5,
+"run_start": 105,
+"conf_before": [
+104
+],
+"expiry_before": [
+110
+],
+"new_conf_in_run": 110,
+"a_block_after": 112,
+"a_block_after_parent": 111,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 23,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 23,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 24,
+"r": 5,
+"run_start": 154,
+"conf_before": [
+153
+],
+"expiry_before": [
+159
+],
+"new_conf_in_run": 159,
+"a_block_after": 160,
+"a_block_after_parent": 159,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 24,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 24,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 25,
+"r": 5,
+"run_start": 155,
+"conf_before": [
+154
+],
+"expiry_before": [
+160
+],
+"new_conf_in_run": 160,
+"a_block_after": 162,
+"a_block_after_parent": 161,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 25,
+"r": 6,
+"run_start": 128,
+"conf_before": [
+127
+],
+"expiry_before": [
+133
+],
+"new_conf_in_run": null,
+"a_block_after": 134,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 134,
+"lost_pre": 127
+},
+{
+"k": 6,
+"seed": 25,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 26,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 26,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 26,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 27,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 27,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 27,
+"r": 7,
+"run_start": 112,
+"conf_before": [
+111
+],
+"expiry_before": [
+117
+],
+"new_conf_in_run": null,
+"a_block_after": 119,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 119,
+"lost_pre": 111
+},
+{
+"k": 6,
+"seed": 28,
+"r": 5,
+"run_start": 116,
+"conf_before": [
+115
+],
+"expiry_before": [
+121
+],
+"new_conf_in_run": 121,
+"a_block_after": 122,
+"a_block_after_parent": 121,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 28,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 28,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 29,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 29,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 29,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 30,
+"r": 5,
+"run_start": 65,
+"conf_before": [
+64
+],
+"expiry_before": [
+70
+],
+"new_conf_in_run": 70,
+"a_block_after": 71,
+"a_block_after_parent": 70,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 30,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 30,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 31,
+"r": 5,
+"run_start": 102,
+"conf_before": [
+101
+],
+"expiry_before": [
+107
+],
+"new_conf_in_run": 107,
+"a_block_after": 109,
+"a_block_after_parent": 108,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 31,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 31,
+"r": 7,
+"run_start": 84,
+"conf_before": [
+83
+],
+"expiry_before": [
+89
+],
+"new_conf_in_run": null,
+"a_block_after": 91,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 91,
+"lost_pre": 83
+},
+{
+"k": 6,
+"seed": 32,
+"r": 5,
+"run_start": 89,
+"conf_before": [
+88
+],
+"expiry_before": [
+94
+],
+"new_conf_in_run": 94,
+"a_block_after": 96,
+"a_block_after_parent": 95,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 32,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 32,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 33,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 33,
+"r": 6,
+"run_start": 149,
+"conf_before": [
+148
+],
+"expiry_before": [
+154
+],
+"new_conf_in_run": null,
+"a_block_after": 155,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 155,
+"lost_pre": 148
+},
+{
+"k": 6,
+"seed": 33,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 34,
+"r": 5,
+"run_start": 57,
+"conf_before": [
+56
+],
+"expiry_before": [
+62
+],
+"new_conf_in_run": 62,
+"a_block_after": 63,
+"a_block_after_parent": 62,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 34,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 34,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 35,
+"r": 5,
+"run_start": 89,
+"conf_before": [
+88
+],
+"expiry_before": [
+94
+],
+"new_conf_in_run": 94,
+"a_block_after": 95,
+"a_block_after_parent": 94,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 35,
+"r": 6,
+"run_start": 73,
+"conf_before": [
+72
+],
+"expiry_before": [
+78
+],
+"new_conf_in_run": null,
+"a_block_after": 79,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 79,
+"lost_pre": 72
+},
+{
+"k": 6,
+"seed": 35,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 36,
+"r": 5,
+"run_start": 56,
+"conf_before": [
+55
+],
+"expiry_before": [
+61
+],
+"new_conf_in_run": 61,
+"a_block_after": 62,
+"a_block_after_parent": 61,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 36,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 36,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 37,
+"r": 5,
+"run_start": 144,
+"conf_before": [
+143
+],
+"expiry_before": [
+149
+],
+"new_conf_in_run": 149,
+"a_block_after": 150,
+"a_block_after_parent": 149,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 37,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 37,
+"r": 7,
+"run_start": 110,
+"conf_before": [
+109
+],
+"expiry_before": [
+115
+],
+"new_conf_in_run": null,
+"a_block_after": 117,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 117,
+"lost_pre": 109
+},
+{
+"k": 6,
+"seed": 38,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 38,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 38,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 39,
+"r": 5,
+"run_start": 74,
+"conf_before": [
+73
+],
+"expiry_before": [
+79
+],
+"new_conf_in_run": 79,
+"a_block_after": 80,
+"a_block_after_parent": 79,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 39,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 39,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 40,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 40,
+"r": 6,
+"run_start": 107,
+"conf_before": [
+106
+],
+"expiry_before": [
+112
+],
+"new_conf_in_run": null,
+"a_block_after": 113,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 113,
+"lost_pre": 106
+},
+{
+"k": 6,
+"seed": 40,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 41,
+"r": 5,
+"run_start": 148,
+"conf_before": [
+147
+],
+"expiry_before": [
+153
+],
+"new_conf_in_run": 153,
+"a_block_after": 160,
+"a_block_after_parent": 159,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 41,
+"r": 6,
+"run_start": 154,
+"conf_before": [
+153
+],
+"expiry_before": [
+159
+],
+"new_conf_in_run": null,
+"a_block_after": 160,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 160,
+"lost_pre": 153
+},
+{
+"k": 6,
+"seed": 41,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 42,
+"r": 5,
+"run_start": 102,
+"conf_before": [
+101
+],
+"expiry_before": [
+107
+],
+"new_conf_in_run": 107,
+"a_block_after": 108,
+"a_block_after_parent": 107,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 42,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 42,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 43,
+"r": 5,
+"run_start": 109,
+"conf_before": [
+108
+],
+"expiry_before": [
+114
+],
+"new_conf_in_run": 114,
+"a_block_after": 115,
+"a_block_after_parent": 114,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 43,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 43,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 44,
+"r": 5,
+"run_start": 152,
+"conf_before": [
+151
+],
+"expiry_before": [
+157
+],
+"new_conf_in_run": 157,
+"a_block_after": 158,
+"a_block_after_parent": 157,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 44,
+"r": 6,
+"run_start": 67,
+"conf_before": [
+66
+],
+"expiry_before": [
+72
+],
+"new_conf_in_run": null,
+"a_block_after": 73,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 73,
+"lost_pre": 66
+},
+{
+"k": 6,
+"seed": 44,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 45,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 45,
+"r": 6,
+"run_start": 138,
+"conf_before": [
+137
+],
+"expiry_before": [
+143
+],
+"new_conf_in_run": null,
+"a_block_after": 144,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 144,
+"lost_pre": 137
+},
+{
+"k": 6,
+"seed": 45,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 46,
+"r": 5,
+"run_start": 99,
+"conf_before": [
+98
+],
+"expiry_before": [
+104
+],
+"new_conf_in_run": 104,
+"a_block_after": 109,
+"a_block_after_parent": 108,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 46,
+"r": 6,
+"run_start": 74,
+"conf_before": [
+73
+],
+"expiry_before": [
+79
+],
+"new_conf_in_run": null,
+"a_block_after": 80,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 80,
+"lost_pre": 73
+},
+{
+"k": 6,
+"seed": 46,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 47,
+"r": 5,
+"run_start": 50,
+"conf_before": [
+49
+],
+"expiry_before": [
+55
+],
+"new_conf_in_run": 55,
+"a_block_after": 56,
+"a_block_after_parent": 55,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 47,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 47,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 48,
+"r": 5,
+"run_start": 69,
+"conf_before": [
+68
+],
+"expiry_before": [
+74
+],
+"new_conf_in_run": 74,
+"a_block_after": 75,
+"a_block_after_parent": 74,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 48,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 48,
+"r": 7,
+"run_start": 101,
+"conf_before": [
+100
+],
+"expiry_before": [
+106
+],
+"new_conf_in_run": null,
+"a_block_after": 108,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 108,
+"lost_pre": 100
+},
+{
+"k": 6,
+"seed": 49,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 49,
+"r": 6,
+"run_start": 73,
+"conf_before": [
+72
+],
+"expiry_before": [
+78
+],
+"new_conf_in_run": null,
+"a_block_after": 79,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 79,
+"lost_pre": 72
+},
+{
+"k": 6,
+"seed": 49,
+"r": 7,
+"run_start": 97,
+"conf_before": [
+96
+],
+"expiry_before": [
+102
+],
+"new_conf_in_run": null,
+"a_block_after": 104,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 104,
+"lost_pre": 96
+},
+{
+"k": 6,
+"seed": 50,
+"r": 5,
+"run_start": 156,
+"conf_before": [
+155
+],
+"expiry_before": [
+161
+],
+"new_conf_in_run": 161,
+"a_block_after": 164,
+"a_block_after_parent": 163,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 50,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 50,
+"r": 7,
+"run_start": 122,
+"conf_before": [
+121
+],
+"expiry_before": [
+127
+],
+"new_conf_in_run": null,
+"a_block_after": 129,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 129,
+"lost_pre": 121
+},
+{
+"k": 6,
+"seed": 51,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 51,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 51,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 52,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 52,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 52,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 53,
+"r": 5,
+"run_start": 151,
+"conf_before": [
+150
+],
+"expiry_before": [
+156
+],
+"new_conf_in_run": 156,
+"a_block_after": 159,
+"a_block_after_parent": 158,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 53,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 53,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 54,
+"r": 5,
+"run_start": 87,
+"conf_before": [
+86
+],
+"expiry_before": [
+92
+],
+"new_conf_in_run": 92,
+"a_block_after": 97,
+"a_block_after_parent": 96,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 54,
+"r": 6,
+"run_start": 145,
+"conf_before": [
+144
+],
+"expiry_before": [
+150
+],
+"new_conf_in_run": null,
+"a_block_after": 151,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 151,
+"lost_pre": 144
+},
+{
+"k": 6,
+"seed": 54,
+"r": 7,
+"run_start": 118,
+"conf_before": [
+117
+],
+"expiry_before": [
+123
+],
+"new_conf_in_run": null,
+"a_block_after": 125,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 125,
+"lost_pre": 117
+},
+{
+"k": 6,
+"seed": 55,
+"r": 5,
+"run_start": 125,
+"conf_before": [
+124
+],
+"expiry_before": [
+130
+],
+"new_conf_in_run": 130,
+"a_block_after": 133,
+"a_block_after_parent": 132,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 55,
+"r": 6,
+"run_start": 153,
+"conf_before": [
+152
+],
+"expiry_before": [
+158
+],
+"new_conf_in_run": null,
+"a_block_after": 159,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 159,
+"lost_pre": 152
+},
+{
+"k": 6,
+"seed": 55,
+"r": 7,
+"run_start": 94,
+"conf_before": [
+93
+],
+"expiry_before": [
+99
+],
+"new_conf_in_run": null,
+"a_block_after": 101,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 101,
+"lost_pre": 93
+},
+{
+"k": 6,
+"seed": 56,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 56,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 56,
+"r": 7,
+"run_start": 105,
+"conf_before": [
+104
+],
+"expiry_before": [
+110
+],
+"new_conf_in_run": null,
+"a_block_after": 112,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 112,
+"lost_pre": 104
+},
+{
+"k": 6,
+"seed": 57,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 57,
+"r": 6,
+"run_start": 134,
+"conf_before": [
+133
+],
+"expiry_before": [
+139
+],
+"new_conf_in_run": null,
+"a_block_after": 140,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 140,
+"lost_pre": 133
+},
+{
+"k": 6,
+"seed": 57,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 58,
+"r": 5,
+"run_start": 70,
+"conf_before": [
+69
+],
+"expiry_before": [
+75
+],
+"new_conf_in_run": 75,
+"a_block_after": 80,
+"a_block_after_parent": 79,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 58,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 58,
+"r": 7,
+"run_start": 135,
+"conf_before": [
+134
+],
+"expiry_before": [
+140
+],
+"new_conf_in_run": null,
+"a_block_after": 142,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 142,
+"lost_pre": 134
+},
+{
+"k": 6,
+"seed": 59,
+"r": 5,
+"run_start": 52,
+"conf_before": [
+51
+],
+"expiry_before": [
+57
+],
+"new_conf_in_run": 57,
+"a_block_after": 62,
+"a_block_after_parent": 61,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 59,
+"r": 6,
+"run_start": 146,
+"conf_before": [
+145
+],
+"expiry_before": [
+151
+],
+"new_conf_in_run": null,
+"a_block_after": 152,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 152,
+"lost_pre": 145
+},
+{
+"k": 6,
+"seed": 59,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 60,
+"r": 5,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 60,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 60,
+"r": 7,
+"run_start": 137,
+"conf_before": [
+136
+],
+"expiry_before": [
+142
+],
+"new_conf_in_run": null,
+"a_block_after": 144,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 144,
+"lost_pre": 136
+},
+{
+"k": 6,
+"seed": 61,
+"r": 5,
+"run_start": 117,
+"conf_before": [
+116
+],
+"expiry_before": [
+122
+],
+"new_conf_in_run": 122,
+"a_block_after": 123,
+"a_block_after_parent": 122,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 61,
+"r": 6,
+"run_start": 73,
+"conf_before": [
+72
+],
+"expiry_before": [
+78
+],
+"new_conf_in_run": null,
+"a_block_after": 79,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 79,
+"lost_pre": 72
+},
+{
+"k": 6,
+"seed": 61,
+"r": 7,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 62,
+"r": 5,
+"run_start": 98,
+"conf_before": [
+97
+],
+"expiry_before": [
+103
+],
+"new_conf_in_run": 103,
+"a_block_after": 104,
+"a_block_after_parent": 103,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 62,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 62,
+"r": 7,
+"run_start": 86,
+"conf_before": [
+85
+],
+"expiry_before": [
+91
+],
+"new_conf_in_run": null,
+"a_block_after": 93,
+"a_block_after_parent": 0,
+"b_lock_back_to_root": 93,
+"lost_pre": 85
+},
+{
+"k": 6,
+"seed": 63,
+"r": 5,
+"run_start": 96,
+"conf_before": [
+95
+],
+"expiry_before": [
+101
+],
+"new_conf_in_run": 101,
+"a_block_after": 102,
+"a_block_after_parent": 101,
+"b_lock_back_to_root": null,
+"lost_pre": 0
+},
+{
+"k": 6,
+"seed": 63,
+"r": 6,
+"run_start": null
+},
+{
+"k": 6,
+"seed": 63,
+"r": 7,
+"run_start": null
+}
+]
+}
