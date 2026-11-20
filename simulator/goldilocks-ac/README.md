@@ -120,6 +120,20 @@ sides differ by at most f validators. That holds in 1257 of 1257 runs, and none 
 runs loses a confirmed block. At f = 16, splits from 18 against 30 to 30 against 18 all fall to a
 4-slot fault.
 
+**Why the run must last k slots** (`lock_check.py`, on Jed: k = 2, 4, 6, runs of k - 1, k and
+k + 1 slots, 64 schedules, 368 runs with a run found; `data/sweeps/lock_check.json`). Each step of
+the argument is checked in every run. In the slot before the run every node confirms the same
+block, and with steady confirmations the graded expiry of its fast locks has reached the cap j + k,
+so every lock of A is gone after slot s0 - 1 + k. During the run no node confirms a new block,
+because each block of B sits on the last common block with half of the votes, not a strict
+majority. The first block A proposes after the expiry has no lock to follow and is built on the
+fork-choice root, genesis here. A's half of the votes then conflict with B's locks, and a lock
+moves back to an ancestor unless fewer than half of the validators vote against it, so B's locks
+fall back to the root, or are gone already when k = 2 and the run lasts k + 1 slots. Every node
+follows the new branch. With a run of k - 1 slots the slot after the run is A's, its proposer still
+holds the lock and extends the old chain, every node confirms it, and nothing is lost. All 368 runs
+follow these steps, and lose the chain exactly when r >= k.
+
 **First results.** In every partition and sleep scenario the available chain does exactly what it
 does in the live model with the FG running: the same reorgs, the same orphaned confirmed blocks,
 the same time to agree after the heal. Finality never changed the outcome of a partition. A 50/50
@@ -138,6 +152,7 @@ orphaned at the wake.
 | `window_sweep.py` | The blocks-only fault into half of the online nodes under lock windows k = 2 to 8 -> `data/sweeps/window.json`, `window_long.json` |
 | `timed_sweep.py` | The blocks-only fault timed on a run of r slots without a proposer of the cut-off half -> `data/sweeps/timed.json` |
 | `timed_adv_sweep.py` | The timed fault with a minority voting for withheld blocks, with its proposer slots empty or filled for B -> `data/sweeps/timed_adv.json`, `timed_adv_propose.json` |
+| `lock_check.py` | Checks each step of why the timed fault needs k slots: lock expiry, no confirmation, the proposal on the root, B's locks moving back -> `data/sweeps/lock_check.json` |
 | `jed.sbatch` | Runs one sweep on a node of the Jed cluster: `sbatch jed.sbatch adv_sweep.py --seeds 4` |
 | `build_explorer.sh`, `explorer_meta.json` | The explorer page, with an About card per tab |
 | `data/runs/` | The runs of the explorer tabs |
