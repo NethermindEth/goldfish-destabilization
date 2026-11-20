@@ -106,6 +106,20 @@ The fault lengths of `window_sweep.py` reflect how long a fault that starts at a
 for such a run, and runs of 8 slots are rare: 4 of 64 schedules have one, which is why k = 8 looked
 like a jump.
 
+**The timed fault with a Byzantine minority** (`timed_adv_sweep.py`, on Jed: f = 0 to 16 of 64
+validators, every split of the 8 online honest nodes, runs of r = 3 to 6 slots without a proposer
+in A, k = 4, 64 schedules; 8960 runs per variant). The f validators vote in every slot for a block
+they never release, as in `adv_sweep.py`. If their own proposer slots stay empty
+(`data/sweeps/timed_adv.json`) the attack gets weaker, not stronger: an even split of 28 against 28
+with f = 8 loses the chain in 20 of 57 schedules instead of 55 of 55 with f = 0. An empty slot
+inside the run gives B no new block, so B votes again for the last block A has, and A confirms it
+and renews its locks. If the adversary instead fills its slots with the block an honest node of B
+would build, sent to B only while the fault lasts (`--propose`, `data/sweeps/timed_adv_propose.json`),
+the rule is exact: the whole unfinalized chain is lost if and only if r >= k and the two honest
+sides differ by at most f validators. That holds in 1257 of 1257 runs, and none of the other 4207
+runs loses a confirmed block. At f = 16, splits from 18 against 30 to 30 against 18 all fall to a
+4-slot fault.
+
 **First results.** In every partition and sleep scenario the available chain does exactly what it
 does in the live model with the FG running: the same reorgs, the same orphaned confirmed blocks,
 the same time to agree after the heal. Finality never changed the outcome of a partition. A 50/50
@@ -123,6 +137,7 @@ orphaned at the wake.
 | `adv_sweep.py` | A minority voting for blocks it never releases, alone and with the blocks-only fault -> `data/sweeps/adv_withheld.json` |
 | `window_sweep.py` | The blocks-only fault into half of the online nodes under lock windows k = 2 to 8 -> `data/sweeps/window.json`, `window_long.json` |
 | `timed_sweep.py` | The blocks-only fault timed on a run of r slots without a proposer of the cut-off half -> `data/sweeps/timed.json` |
+| `timed_adv_sweep.py` | The timed fault with a minority voting for withheld blocks, with its proposer slots empty or filled for B -> `data/sweeps/timed_adv.json`, `timed_adv_propose.json` |
 | `jed.sbatch` | Runs one sweep on a node of the Jed cluster: `sbatch jed.sbatch adv_sweep.py --seeds 4` |
 | `build_explorer.sh`, `explorer_meta.json` | The explorer page, with an About card per tab |
 | `data/runs/` | The runs of the explorer tabs |
