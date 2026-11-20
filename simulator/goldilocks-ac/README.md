@@ -147,6 +147,22 @@ branch. The unlock rule only decides when B gives up the old chain, not whether 
 loses the chain is that every lock expires without a confirmation, and the head walk then starts
 from the last finalized block.
 
+**Falling back to the last confirmed block** (`confirmed_anchor_sweep.py`, on Jed: the honest timed
+fault at k = 2, 4, 6 with runs of 1 to 9 slots, with the change alone and with the strict unlock too;
+the timed fault with a minority that proposes for B, f = 0 to 16, every split, k = 4, runs of 3 to 6
+slots; 64 schedules; and the partition and blocks-only faults on a group of `attack_sweep.py --family
+asym`, 3 schedules; `data/sweeps/confirmed_anchor.json`). The model's `Params.confirmed_anchor`,
+outside the spec, makes a node with no live lock start its head walk from its last confirmed block
+instead of the fork-choice root. The unlock rule moves that block back like a lock, so a node is not
+held on it forever. No timed run loses a confirmed block: 0 of the 458 honest runs and 0 of the 1257
+minority runs that lose the whole chain under the spec, with the spec's unlock rule or the strict
+one. A's proposer now builds on A's last confirmed block, which B's chain extends, so nobody votes
+against it. Every run ends with all nodes on one head and confirming. The 1320 partition and
+blocks-only runs on a group recover exactly as they do under the spec, slot for slot, except 4 runs
+with 6 nodes online and blocks withheld from 3 of them: under the spec those lose the unfinalized
+chain, and with the change they lose nothing. These runs check the available chain alone, not the
+spec's proofs, the sleep scenarios, or the model with the finality gadget.
+
 **First results.** In every partition and sleep scenario the available chain does exactly what it
 does in the live model with the FG running: the same reorgs, the same orphaned confirmed blocks,
 the same time to agree after the heal. Finality never changed the outcome of a partition. A 50/50
@@ -167,6 +183,7 @@ orphaned at the wake.
 | `timed_adv_sweep.py` | The timed fault with a minority voting for withheld blocks, with its proposer slots empty or filled for B -> `data/sweeps/timed_adv.json`, `timed_adv_propose.json` |
 | `lock_check.py` | Checks each step of why the timed fault needs k slots: lock expiry, no confirmation, the proposal on the root, B's locks moving back -> `data/sweeps/lock_check.json` |
 | `strict_unlock_sweep.py` | The timed fault, honest and with a minority, with a lock that moves back only against a strict majority -> `data/sweeps/strict_unlock.json` |
+| `confirmed_anchor_sweep.py` | The timed fault and the faults on a group when a node with no live lock falls back to its last confirmed block -> `data/sweeps/confirmed_anchor.json` |
 | `jed.sbatch` | Runs one sweep on a node of the Jed cluster: `sbatch jed.sbatch adv_sweep.py --seeds 4` |
 | `build_explorer.sh`, `explorer_meta.json` | The explorer page, with an About card per tab |
 | `data/runs/` | The runs of the explorer tabs |
