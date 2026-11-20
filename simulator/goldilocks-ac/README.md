@@ -134,6 +134,19 @@ follows the new branch. With a run of k - 1 slots the slot after the run is A's,
 holds the lock and extends the old chain, every node confirms it, and nothing is lost. All 368 runs
 follow these steps, and lose the chain exactly when r >= k.
 
+**A lock that moves back only against a strict majority** (`strict_unlock_sweep.py`, on Jed: the
+honest timed fault at k = 2, 4, 6 with runs of 1 to 9 slots, and the timed fault with a minority
+that proposes for B, f = 0 to 16, every split, k = 4, runs of 3 to 6 slots, 64 schedules; 6466 runs
+with a run found; `data/sweeps/strict_unlock.json`). The model's `Params.strict_unlock`, outside the
+spec, moves a lock back only when more than half of the validators vote against it. Every run loses
+exactly the blocks it loses under the spec's rule, in all 6466 runs, and every node agrees and
+confirms again by the end. A trace of one run shows why. B's locks no longer move back when A
+proposes on the root, but B confirms nothing during the fault either, so its locks expire a few
+slots later, its head walk also starts from the fork-choice root, and every node confirms A's
+branch. The unlock rule only decides when B gives up the old chain, not whether it does. What
+loses the chain is that every lock expires without a confirmation, and the head walk then starts
+from the last finalized block.
+
 **First results.** In every partition and sleep scenario the available chain does exactly what it
 does in the live model with the FG running: the same reorgs, the same orphaned confirmed blocks,
 the same time to agree after the heal. Finality never changed the outcome of a partition. A 50/50
@@ -153,6 +166,7 @@ orphaned at the wake.
 | `timed_sweep.py` | The blocks-only fault timed on a run of r slots without a proposer of the cut-off half -> `data/sweeps/timed.json` |
 | `timed_adv_sweep.py` | The timed fault with a minority voting for withheld blocks, with its proposer slots empty or filled for B -> `data/sweeps/timed_adv.json`, `timed_adv_propose.json` |
 | `lock_check.py` | Checks each step of why the timed fault needs k slots: lock expiry, no confirmation, the proposal on the root, B's locks moving back -> `data/sweeps/lock_check.json` |
+| `strict_unlock_sweep.py` | The timed fault, honest and with a minority, with a lock that moves back only against a strict majority -> `data/sweeps/strict_unlock.json` |
 | `jed.sbatch` | Runs one sweep on a node of the Jed cluster: `sbatch jed.sbatch adv_sweep.py --seeds 4` |
 | `build_explorer.sh`, `explorer_meta.json` | The explorer page, with an About card per tab |
 | `data/runs/` | The runs of the explorer tabs |

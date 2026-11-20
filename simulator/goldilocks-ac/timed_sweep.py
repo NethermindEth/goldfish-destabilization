@@ -44,16 +44,17 @@ def find_run(P, owner, A, r):
 
 
 def run(job):
-    kw, seed, r, lead, tail = job
+    kw, seed, r, lead, tail = job[:5]
+    over = job[5] if len(job) > 5 else {}  # Params overrides, e.g. {"strict_unlock": True}
     from model import BLOCKS, Params, prec
     from sim import Rule, Tracker, World
 
-    P = Params(n=VALIDATORS, seed=seed, k=kw)
+    P = Params(n=VALIDATORS, seed=seed, k=kw, **over)
     P.check()
     owner = node_of()
     A = frozenset(range(NODES // 2))
     s0 = find_run(P, owner, A, r)
-    row = {"k": kw, "seed": seed, "r": r, "lead": lead, "tail": tail, "run_start": s0}
+    row = {"k": kw, "seed": seed, "r": r, "lead": lead, "tail": tail, "run_start": s0, "params": over}
     if s0 is None:
         return row
     sm = P.slot_ms
@@ -72,7 +73,8 @@ def run(job):
     row.update({"start": start, "D": stop - start, "lost_pre": len(lost_pre),
                 "lost_pre_first": min((BLOCKS[c].slot for c in lost_pre), default=None),
                 "lost_during": len(lost_during),
-                "agree_end": len({n.head(w.t) for n in w.nodes}) == 1})
+                "agree_end": len({n.head(w.t) for n in w.nodes}) == 1,
+                "conf_end": [tr.prev[n.id]["conf_slot"] for n in w.nodes]})
     return row
 
 
