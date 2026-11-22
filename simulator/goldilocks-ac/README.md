@@ -163,6 +163,21 @@ with 6 nodes online and blocks withheld from 3 of them: under the spec those los
 chain, and with the change they lose nothing. These runs check the available chain alone, not the
 spec's proofs, the sleep scenarios, or the model with the finality gadget.
 
+**The confirmed anchor below half participation** (`anchor_stuck_sweep.py`, on Jed: 2 to 6 of 8
+nodes online, the others asleep for the whole run, every split of the online nodes cut for 2, 4, 8
+or 16 slots from slot 24, then 64 slots healed, 32 schedules, under the spec and with
+`Params.confirmed_anchor`; 1152 pairs; `data/sweeps/anchor_stuck.json`). The unlock rule moves an
+anchor back only against half of all validators, and the anchor does not expire, so with fewer than
+half online a node might stay on a branch the others abandoned. It never does. In every pair both
+versions end with the online nodes on one head and lose the same confirmed blocks, including the 77
+pairs with fewer than half online whose two sides hold conflicting confirmed blocks at the heal.
+After the heal each side votes for its own branch, and every one of those votes also supports the
+last block the branches share, so both sides confirm and lock it. A node with a live lock does not
+read its anchor, and the next block both sides confirm replaces it; the anchors themselves are never
+moved back. The only cost is with 2 nodes online cut 1 against 1: the nodes agree 4 slots after the
+heal instead of 0 or 3 in 69 of 128 pairs, and as fast as under the spec in the others. With 3 or
+more online the two versions recover in the same slot in every pair.
+
 **First results.** In every partition and sleep scenario the available chain does exactly what it
 does in the live model with the FG running: the same reorgs, the same orphaned confirmed blocks,
 the same time to agree after the heal. Finality never changed the outcome of a partition. A 50/50
@@ -184,6 +199,7 @@ orphaned at the wake.
 | `lock_check.py` | Checks each step of why the timed fault needs k slots: lock expiry, no confirmation, the proposal on the root, B's locks moving back -> `data/sweeps/lock_check.json` |
 | `strict_unlock_sweep.py` | The timed fault, honest and with a minority, with a lock that moves back only against a strict majority -> `data/sweeps/strict_unlock.json` |
 | `confirmed_anchor_sweep.py` | The timed fault and the faults on a group when a node with no live lock falls back to its last confirmed block -> `data/sweeps/confirmed_anchor.json` |
+| `anchor_stuck_sweep.py` | Partitions with fewer than half of the validators online, under the spec and with the confirmed anchor -> `data/sweeps/anchor_stuck.json` |
 | `jed.sbatch` | Runs one sweep on a node of the Jed cluster: `sbatch jed.sbatch adv_sweep.py --seeds 4` |
 | `build_explorer.sh`, `explorer_meta.json` | The explorer page, with an About card per tab |
 | `data/runs/` | The runs of the explorer tabs |
